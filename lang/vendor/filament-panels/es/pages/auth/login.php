@@ -4,7 +4,7 @@ return [
 
     'title' => 'Acceso',
 
-    'heading' => 'Entre a su cuenta',
+    'heading' => 'Bienvenido, Ingrese por favor',
 
     'actions' => [
 
@@ -36,7 +36,7 @@ return [
         'actions' => [
 
             'authenticate' => [
-                'label' => 'Entrar',
+                'label' => 'Ingresar',
             ],
 
         ],
