@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('parentesco_id')->constrained('parentescos');
             $table->string('direccion_referencia');
             $table->string('telefono_referencia',10);
-            $table->string('mail_referencia');
+            $table->string('mail_referencia')->nullable();
             $table->string('direccion_oficina_referencia');
             $table->string('telefono_oficina_referencia',10);
             $table->string('mail_oficina_referencia');

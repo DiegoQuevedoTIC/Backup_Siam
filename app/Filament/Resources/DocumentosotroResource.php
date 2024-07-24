@@ -71,7 +71,7 @@ class DocumentosotroResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('varios')
                 ->visibility('public'),
             Textarea::make('descripcion')

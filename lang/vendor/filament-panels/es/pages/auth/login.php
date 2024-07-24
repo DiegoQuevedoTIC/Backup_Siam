@@ -4,7 +4,7 @@ return [
 
     'title' => 'Acceso',
 
-    'heading' => 'Bienvenido, Ingrese por favor',
+    'heading' => 'Bienvenido',
 
     'actions' => [
 

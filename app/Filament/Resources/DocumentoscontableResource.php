@@ -76,7 +76,7 @@ class DocumentoscontableResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('registro_contable')
                 ->visibility('public'),
             FileUpload::make('ruta_imagen_1')
@@ -90,7 +90,7 @@ class DocumentoscontableResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('registro_contable')
                 ->visibility('public'),
             ]);

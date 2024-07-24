@@ -70,7 +70,7 @@ class DocumentosafiliacionResource extends Resource
                         ->deletable(false)
                         ->downloadable()
                         ->previewable(true)
-                        ->disk('public')
+                        ->disk('spaces')
                         ->directory('afiliaciones')
                         ->visibility('public'),
 

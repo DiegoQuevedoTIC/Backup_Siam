@@ -75,7 +75,7 @@ class DocumentoResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('pagares')
                 ->visibility('public'),
             FileUpload::make('ruta_imagen_1')
@@ -89,7 +89,7 @@ class DocumentoResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('contabilidad')
                 ->visibility('public'),
             FileUpload::make('ruta_imagen_2')
@@ -103,7 +103,7 @@ class DocumentoResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
+                ->disk('spaces')
                 ->directory('formularios_solicitud')
                 ->visibility('public'),
             FileUpload::make('ruta_imagen_3')
@@ -117,8 +117,8 @@ class DocumentoResource extends Resource
                 ->deletable(false)
                 ->downloadable()
                 ->previewable(true)
-                ->disk('public')
-                ->directory('Seguros')
+                ->disk('spaces')
+                ->directory('seguros')
                 ->visibility('public'),
             ]);
     }
