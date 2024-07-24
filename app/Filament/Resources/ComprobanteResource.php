@@ -10,6 +10,7 @@ use App\Models\Puc;
 use App\Models\Tercero;
 use App\Models\TipoContribuyente;
 use App\Models\TipoDocumentoContable;
+use Awcodes\TableRepeater\Components\TableRepeater as ComponentsTableRepeater;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -134,7 +135,7 @@ class ComprobanteResource extends Resource
                     ->label('Descripcion del Comprobante')
                     ->required(),
 
-                TableRepeater::make('detalle')
+                ComponentsTableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea')
                     ->schema([
