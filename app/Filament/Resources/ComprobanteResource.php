@@ -10,7 +10,6 @@ use App\Models\Puc;
 use App\Models\Tercero;
 use App\Models\TipoContribuyente;
 use App\Models\TipoDocumentoContable;
-use Awcodes\TableRepeater\Components\TableRepeater as ComponentsTableRepeater;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -100,13 +99,16 @@ class ComprobanteResource extends Resource
 
                 TextInput::make('n_documento')
                     ->label('Nº de Documento')
+                    ->rule('regex:/^[0-9]+$/')
                     ->required(),
 
                 Select::make('tercero_id')
                     ->label('Tercero Comprobante')
                     ->required()
                     ->native(false)
-                    ->relationship(name: 'tercero', titleAttribute: 'nombres'),
+                    ->relationship('tercero', 'tercero_id')
+                    ->markAsRequired(false)
+                    ->searchable(),
 
                 DatePicker::make('fecha_comprobante')
                     ->label('Fecha de comprobante')
@@ -135,7 +137,7 @@ class ComprobanteResource extends Resource
                     ->label('Descripcion del Comprobante')
                     ->required(),
 
-                ComponentsTableRepeater::make('detalle')
+                TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea')
                     ->schema([
@@ -149,9 +151,11 @@ class ComprobanteResource extends Resource
 
                         Select::make('tercero_id')
                             ->label('Tercero Registro')
-                            ->relationship(name: 'tercero', titleAttribute: 'nombres')
-                            ->required(),
-
+                            ->required()
+                            ->native(false)
+                            ->relationship('tercero', 'tercero_id')
+                            ->markAsRequired(false)
+                            ->searchable(),
                         TextInput::make('descripcion_linea')
                             ->label('Descripcion Linea')
                             ->required(),

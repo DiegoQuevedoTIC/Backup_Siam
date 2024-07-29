@@ -14,7 +14,7 @@ class CreateComprobante extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if(array_key_exists('usar_plantilla', $data)){
+        if (array_key_exists('usar_plantilla', $data)) {
             unset($data['usar_plantilla']);
             unset($data['plantilla']);
         }
@@ -41,9 +41,9 @@ class CreateComprobante extends CreateRecord
 
         if ((array_sum($credito) - array_sum($debito)) != 0.0) {
             Notification::make()
-            ->title('No puede guardar un comprobante desbalanceado')
-            ->danger()
-            ->send();
+                ->title('No puede guardar un comprobante desbalanceado')
+                ->danger()
+                ->send();
             $this->halt();
         }
     }
