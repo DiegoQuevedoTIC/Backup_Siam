@@ -57,7 +57,7 @@ class PucResource extends Resource
                     ->maxLength(1)
                     ->required()
                     ->label('Nivel Cuenta'),
-                TextInput::make('puc_padre')
+                Select::make('puc_padre')
                     ->label('PUC Padre')
                     ->native(false)
                     ->getSearchResultsUsing(fn (string $search): array => Puc::where('puc_padre', '=', "{$search}")->orWhere('descripcion', 'like', "%{$search}%")->limit(50)->pluck('descripcion', 'id')->toArray())
