@@ -54,7 +54,7 @@ class PucResource extends Resource
                     ->required()
                     ->label('Descripcion Cuenta'),
                 TextInput::make('nivel')
-                    ->maxLength(1)
+                    ->maxLength(6)
                     ->required()
                     ->label('Nivel Cuenta'),
                 TextInput::make('puc_padre')
