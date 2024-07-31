@@ -57,11 +57,10 @@ class PucResource extends Resource
                     ->maxLength(1)
                     ->required()
                     ->label('Nivel Cuenta'),
-                Select::make('puc_padre')
+                TextInput::make('puc_padre')
                     ->label('PUC Padre')
-                    ->native(false)
-                    ->getSearchResultsUsing(fn (string $search): array => Puc::where('puc_padre', '=', "{$search}")->orWhere('descripcion', 'like', "%{$search}%")->limit(50)->pluck('descripcion', 'id')->toArray())
-                    ->getOptionLabelUsing(fn ($value): ?string => Puc::find($value)?->puc),
+                    ->required()
+                    ->maxLength(1),
                 Select::make('naturaleza')
                     ->required()
                     ->label('Naturaleza de la cuenta')
