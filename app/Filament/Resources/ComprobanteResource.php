@@ -137,7 +137,7 @@ class ComprobanteResource extends Resource
                     ->label('Descripcion del Comprobante')
                     ->required(),
 
-                TableRepeater::make('detalle')
+                    TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea')
                     ->schema([

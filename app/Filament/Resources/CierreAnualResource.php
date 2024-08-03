@@ -36,6 +36,7 @@ class CierreAnualResource extends Resource
                 ->native(false),
                 TextInput::make('ano_cierre')
                 ->label('Año Cierre')
+                ->rule('regex:/^[0-9]+$/')
             ]);
     }
 

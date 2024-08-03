@@ -45,6 +45,8 @@ class CertificadoDepositosRelationManager extends RelationManager
                     ->schema([
                         Forms\Components\TextInput::make('plazo_inversion')->label('Plazo de inversión')->required(),
                         Forms\Components\TextInput::make('valor_inicial_cdat')->label('Valor Inical')->required()->numeric(),
+                        Forms\Components\DatePicker::make('fecha_apertura')->label('Fecha Apertura')->required(),
+                        Forms\Components\DatePicker::make('fecha_cancelacion')->label('Fecha Cancelación')->required(),
                         Forms\Components\TextInput::make('valor_proyectado')->label('Valor Proyectado')->required()->numeric(),
                         Forms\Components\TextInput::make('tasa_interes_remuneracion')->label('Tasa remuneración')->required(),
                         Forms\Components\TextInput::make('porcentaje_retencion')->label('Porcentaje Retención')->required(),
@@ -135,7 +137,7 @@ class CertificadoDepositosRelationManager extends RelationManager
             ->recordTitleAttribute('tasa')
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('Nro CDAT'),
-                Tables\Columns\TextColumn::make('tasa')->label('tasa CDAT'),
+                Tables\Columns\TextColumn::make('tasa_interes_remuneracion')->label('tasa CDAT'),
                 Tables\Columns\TextColumn::make('valor_apertura')->label('Valor Apertura CDAT'),
                 Tables\Columns\TextColumn::make('fecha_apertura')->label('Fecha Apertura'),
                 Tables\Columns\TextColumn::make('valor_a_pagar')->label('Valor a pagar'),

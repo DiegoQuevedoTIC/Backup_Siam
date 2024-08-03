@@ -32,6 +32,7 @@ use Filament\Forms\Components\Section;
 use Filament\Infolists\Components\Grid;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\TryCatch;
+use Filament\Notifications\Actions\Action as NAction;
 
 class CreditoSolicitudesRelationManager extends RelationManager
 {
@@ -500,6 +501,25 @@ class CreditoSolicitudesRelationManager extends RelationManager
                     ])->slideOver()
                     ->action(function (array $data) {
                         try {
+
+                            //dd(count($this->getOwnerRecord()->garantias));
+
+                            // validamos si debe tener garantia
+                            $garantia = CreditoLinea::find($data['linea']);
+
+                            if ($garantia->cant_gar_real == 1) {
+                                if (count($this->getOwnerRecord()->garantias) < 1) {
+                                    Notification::make()
+                                        ->title('Atención')
+                                        ->icon('heroicon-m-exclamation-circle')
+                                        ->body('Se solicita crear al menos una garantia para proceder con la creación de la solicitud de credito')
+                                        ->warning()
+                                        ->duration(5000)
+                                        ->send();
+                                    return false;
+                                }
+                            }
+
                             // inicialización de transacion para garantizar integridad de datos
                             DB::transaction(function () use ($data) {
 
@@ -531,7 +551,13 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         'amortizacion_capital' => $cuota['amortizacion_capital'],
                                         'saldo' => $cuota['saldo']
                                     ]);
+
+                                    $suma = $cuota['pago'] += $cuota['pago'];
                                 }
+
+                                $credito->update([
+                                    'vlr_planes' => $suma
+                                ]);
 
 
                                 Notification::make()
@@ -544,7 +570,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                         } catch (Exception $e) {
                             Notification::make()
                                 ->title('Ocurrio un error')
-                                ->icon('heroicon-m-alert-circle')
+                                ->icon('heroicon-m-exclamation-circle')
                                 ->body($e->getMessage())
                                 ->send();
                         }
@@ -588,3 +614,4 @@ function calcular_amortizacion($principal, $tasa_anual, $plazo_meses)
 
     return $tabla_amortizacion;
 }
+
