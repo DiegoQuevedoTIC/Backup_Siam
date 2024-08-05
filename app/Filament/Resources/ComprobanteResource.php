@@ -30,6 +30,7 @@ use Filament\Tables\Filters\Filter;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 
 
+
 class ComprobanteResource extends Resource
 {
     protected static ?string $model = Comprobante::class;
@@ -137,7 +138,7 @@ class ComprobanteResource extends Resource
                     ->label('Descripcion del Comprobante')
                     ->required(),
 
-                    TableRepeater::make('detalle')
+                TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea')
                     ->schema([
@@ -164,8 +165,8 @@ class ComprobanteResource extends Resource
                             ->placeholder('Debito')
                             ->mask(RawJs::make('$money($input)'))
                             ->numeric()
-                            ->prefix('$')
-                            ->disabled(function (Get $get): bool {
+                            ->prefix('$'),
+/*                             ->disabled(function (Get $get): bool {
                                 $query = Puc::all()->find($get('pucs_id'));
                                 if (!is_null($query)) {
                                     $query = $query->toArray();
@@ -174,14 +175,14 @@ class ComprobanteResource extends Resource
                                     }
                                 }
                                 return false;
-                            }),
+                            }), */
 
                         TextInput::make('credito')
                             ->placeholder('Credito')
                             ->numeric()
                             ->inputMode('decimal')
-                            ->prefix('$')
-                            ->disabled(function (Get $get): bool {
+                            ->prefix('$'),
+/*                             ->disabled(function (Get $get): bool {
                                 $query = Puc::all()->find($get('pucs_id'));
                                 if (!is_null($query)) {
                                     $query = $query->toArray();
@@ -190,7 +191,7 @@ class ComprobanteResource extends Resource
                                     }
                                 }
                                 return false;
-                            }),
+                            }), */
                     ])
                     ->reorderable()
                     ->cloneable()
