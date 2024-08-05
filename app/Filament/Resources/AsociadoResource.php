@@ -296,7 +296,7 @@ public static function form(Form $form): Form
                 ->label('Primer Apellido'),
                 Tables\Columns\TextColumn::make('tercero.segundo_apellido')
                 ->label('Segundo Apellido'),
-                Tables\Columns\TextColumn::make('create_at')
+                Tables\Columns\TextColumn::make('created_at')
                 ->label('Fecha Vinculacion'),
                 Tables\Columns\TextColumn::make('updated_at')
                 ->label('Ultima Actualizacion'),
