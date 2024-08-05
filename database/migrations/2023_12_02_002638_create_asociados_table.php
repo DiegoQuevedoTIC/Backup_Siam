@@ -43,9 +43,7 @@ return new class extends Migration
             $table->date("fecha_ingreso_laboral");
             $table->string("direccion_empresa", 100);
             $table->foreignId('tipo_contrato_id')->constrained('tipo_contratos');
-            $table->date("fecha_asociacion");
             $table->boolean('habil')->default(true);
-            $table->foreignId('calificacion_cliente_id')->constrained('calificacion_clientes');
 
             $table->timestamps();
         });
