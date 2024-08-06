@@ -163,8 +163,8 @@ class ComprobanteResource extends Resource
 
                         TextInput::make('debito')
                             ->placeholder('Debito')
-                            ->mask(RawJs::make('$money($input)'))
                             ->numeric()
+                            ->inputMode('decimal')
                             ->prefix('$'),
 /*                             ->disabled(function (Get $get): bool {
                                 $query = Puc::all()->find($get('pucs_id'));
