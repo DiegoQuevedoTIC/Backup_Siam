@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ProcesosContabilidad;
 use App\Filament\Resources\CierreMensualResource\Pages;
 use App\Filament\Resources\CierreMensualResource\Widgets\ComprobanteMensualDetalleTable;
 use App\Models\CierreMensual;
@@ -18,10 +19,9 @@ class CierreMensualResource extends Resource
 {
     protected static ?string $model = CierreMensual::class;
 
+    protected static ?string    $cluster = ProcesosContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-swatch';
     protected static ?string    $navigationLabel = 'Cierre mensual';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Procesos';
 
     public static function form(Form $form): Form
     {

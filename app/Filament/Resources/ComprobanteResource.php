@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ProcesosContabilidad;
 use App\Filament\Resources\ComprobanteResource\Pages;
 use App\Filament\Resources\ComprobanteResource\Widgets\PlantillaComprobanteOverview;
 use App\Models\Comprobante;
@@ -33,13 +34,11 @@ use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 
 class ComprobanteResource extends Resource
 {
-    protected static ?string $model = Comprobante::class;
-
+    protected static ?string     $model = Comprobante::class;
+    protected static ?string    $cluster = ProcesosContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-swatch';
     protected static ?string    $navigationLabel = 'Creacion Comprobantes';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Procesos';
-    //protected static ?string    $modelLabel = 'PUC - Cuenta';
+    protected static ?string    $modelLabel = 'PUC - Cuenta';
 
     public static function form(Form $form): Form
     {

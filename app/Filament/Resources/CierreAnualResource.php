@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ProcesosContabilidad;
 use App\Filament\Resources\CierreAnualResource\Pages;
 use App\Filament\Resources\CierreAnualResource\RelationManagers;
 use App\Models\CierreAnual;
@@ -18,12 +19,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CierreAnualResource extends Resource
 {
-    protected static ?string $model = CierreAnual::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string    $model = CierreAnual::class;
+    protected static ?string    $cluster = ProcesosContabilidad::class;
+    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Cierre Anual';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Procesos';
 
     public static function form(Form $form): Form
     {

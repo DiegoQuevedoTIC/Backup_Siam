@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\InformesContabilidad;
 use App\Filament\Resources\BalanceResource\Pages;
 use App\Filament\Resources\BalanceResource\RelationManagers;
 use App\Models\Balance;
@@ -19,12 +20,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BalanceResource extends Resource
 {
-    protected static ?string $model = Balance::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string    $model = Balance::class;
+    protected static ?string    $cluster = InformesContabilidad::class;
+    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Balances';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
 
     public static function form(Form $form): Form
     {

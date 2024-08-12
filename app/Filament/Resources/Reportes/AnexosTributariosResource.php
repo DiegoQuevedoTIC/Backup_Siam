@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reportes;
 
+use App\Filament\Clusters\InformesContabilidad;
 use App\Filament\Resources\Reportes\AnexosTributariosResource\Pages;
 use App\Filament\Resources\Reportes\AnexosTributariosResource\RelationManagers;
 use App\Models\AnexosTributarios;
@@ -20,10 +21,9 @@ class AnexosTributariosResource extends Resource
 {
     protected static ?string $model = AnexosTributarios::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string    $cluster = InformesContabilidad::class;
     protected static ?string    $navigationLabel = 'Anexos Tributarios';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
 
     public static function form(Form $form): Form
     {

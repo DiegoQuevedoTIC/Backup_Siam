@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\InformesContabilidad;
 use App\Filament\Resources\LibroOficialResource\Pages;
 use App\Filament\Resources\LibroOficialResource\RelationManagers;
 use App\Models\LibroOficial;
@@ -19,12 +20,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LibroOficialResource extends Resource
 {
-    protected static ?string $model = LibroOficial::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string    $model = LibroOficial::class;
+    protected static ?string    $cluster = InformesContabilidad::class;
+    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Libros Oficiales';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
 
     public static function form(Form $form): Form
     {
