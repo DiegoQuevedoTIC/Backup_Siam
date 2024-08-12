@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\ProfesionResource\Pages;
 use App\Filament\Resources\ProfesionResource\RelationManagers;
 use App\Models\Profesion;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProfesionResource extends Resource
 {
-    protected static ?string $model = Profesion::class;
-
+    protected static ?string    $model = Profesion::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rocket-launch';
     protected static ?string    $navigationLabel = 'Profesiones';
     protected static ?string    $navigationGroup = 'Parametros';

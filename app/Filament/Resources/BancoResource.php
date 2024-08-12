@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\BancoResource\Pages;
 use App\Filament\Resources\BancoResource\RelationManagers;
 use App\Models\Banco;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class BancoResource extends Resource
 {
     protected static ?string    $model = Banco::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-building-library';
     protected static ?string    $navigationGroup = 'Parametros';
     protected static ?string    $navigationParentItem = 'Parametros Asociados';

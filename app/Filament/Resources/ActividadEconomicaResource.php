@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\ActividadEconomicaResource\Pages;
 use App\Filament\Resources\ActividadEconomicaResource\RelationManagers;
 use App\Models\ActividadEconomica;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ActividadEconomicaResource extends Resource
 {
     protected static ?string    $model = ActividadEconomica::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-archive-box-arrow-down';
     protected static ?string    $navigationLabel = 'Actividades Economicas';
     protected static ?string    $navigationGroup = 'Parametros';

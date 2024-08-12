@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\TipoContribuyenteResource\Pages;
 use App\Filament\Resources\TipoContribuyenteResource\RelationManagers;
 use App\Models\TipoContribuyente;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TipoContribuyenteResource extends Resource
 {
-    protected static ?string $model = TipoContribuyente::class;
-
+    protected static ?string    $model = TipoContribuyente::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-identification';
     protected static ?string    $navigationLabel = 'Tipos de Contribuyentes';
     protected static ?string    $navigationGroup = 'Parametros';

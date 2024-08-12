@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\TipoContratoResource\Pages;
 use App\Filament\Resources\TipoContratoResource\RelationManagers;
 use App\Models\TipoContrato;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TipoContratoResource extends Resource
 {
-    protected static ?string $model = TipoContrato::class;
-
+    protected static ?string     $model = TipoContrato::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-squares-plus';
     protected static ?string    $navigationLabel = 'Tipos de Contratos';
     protected static ?string    $navigationGroup = 'Parametros';

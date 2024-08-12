@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosContabilidad;
 use App\Filament\Resources\PucResource\Pages;
 use App\Filament\Resources\PucResource\RelationManagers;
 use App\Models\Puc;
@@ -30,9 +31,9 @@ class PucResource extends Resource
 {
     protected static ?string $model = Puc::class;
 
+    protected static ?string    $cluster = ParametrosContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-swatch';
     protected static ?string    $navigationLabel = 'Plan Unico de Cuentas';
-    protected static ?string    $navigationGroup = 'Contabilidad';
     protected static ?string    $navigationParentItem = 'Parametros Contabilidad';
     protected static ?string    $modelLabel = 'PUC - Cuenta';
 

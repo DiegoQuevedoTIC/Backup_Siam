@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\NovedadTerceroResource\Pages;
 use App\Filament\Resources\NovedadTerceroResource\RelationManagers;
 use App\Models\NovedadTercero;
@@ -20,8 +21,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NovedadTerceroResource extends Resource
 {
-    protected static ?string $model = NovedadTercero::class;
-
+    protected static ?string    $model = NovedadTercero::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-building-library';
     protected static ?string    $navigationLabel = 'Novedades de Terceros';
     protected static ?string    $navigationGroup = 'Parametros';

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\PagaduriaResource\Pages;
 use App\Filament\Resources\PagaduriaResource\RelationManagers;
 use App\Models\Pagaduria;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PagaduriaResource extends Resource
 {
-    protected static ?string $model = Pagaduria::class;
-
+    protected static ?string    $model = Pagaduria::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-building-storefront';
     protected static ?string    $navigationLabel = 'Pagadurias';
     protected static ?string    $navigationGroup = 'Parametros';

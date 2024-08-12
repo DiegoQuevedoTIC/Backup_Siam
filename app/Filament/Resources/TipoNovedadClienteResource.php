@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\TipoNovedadClienteResource\Pages;
 use App\Filament\Resources\TipoNovedadClienteResource\RelationManagers;
 use App\Models\TipoNovedadCliente;
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TipoNovedadClienteResource extends Resource
 {
-    protected static ?string $model = TipoNovedadCliente::class;
-
+    protected static ?string     $model = TipoNovedadCliente::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-folder';
     protected static ?string    $navigationLabel = 'Tipos de Novedades Clientes';
     protected static ?string    $navigationGroup = 'Parametros';

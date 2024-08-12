@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\TipoResidenciaResource\Pages;
 use App\Filament\Resources\TipoResidenciaResource\RelationManagers;
 use App\Models\TipoResidencia;
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TipoResidenciaResource extends Resource
 {
-    protected static ?string $model = TipoResidencia::class;
-
+    protected static ?string    $model = TipoResidencia::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Tipos de Viviendas';
     protected static ?string    $navigationGroup = 'Parametros';

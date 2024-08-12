@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosContabilidad;
 use App\Filament\Resources\SubcentroResource\Pages;
 use App\Filament\Resources\SubcentroResource\RelationManagers;
 use App\Models\Subcentro;
@@ -30,10 +31,9 @@ class SubcentroResource extends Resource
 {
     protected static ?string $model = Subcentro::class;
 
-    protected static ?string    $navigationIcon = 'heroicon-o-presentation-chart-line'; 
+    protected static ?string    $cluster = ParametrosContabilidad::class;
+    protected static ?string    $navigationIcon = 'heroicon-o-presentation-chart-line';
     protected static ?string    $navigationLabel = 'Subcentros de Costos ';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Parametros Contabilidad';   
     protected static ?string    $modelLabel = 'Subcentro';
 
     public static function form(Form $form): Form
@@ -54,7 +54,7 @@ class SubcentroResource extends Resource
                 Toggle::make('movimiento')
                 ->required()
                 ->label('Es subcentro que genera movimiento?')
-                ->columnSpan(9), 
+                ->columnSpan(9),
             ]);
     }
 
@@ -81,14 +81,14 @@ class SubcentroResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -96,5 +96,5 @@ class SubcentroResource extends Resource
             'create' => Pages\CreateSubcentro::route('/create'),
             'edit' => Pages\EditSubcentro::route('/{record}/edit'),
         ];
-    }    
+    }
 }

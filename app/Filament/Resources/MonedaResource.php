@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\MonedaResource\Pages;
 use App\Filament\Resources\MonedaResource\RelationManagers;
 use App\Models\Moneda;
@@ -18,7 +19,8 @@ use Filament\Forms\Components\Wizard;
 
 class MonedaResource extends Resource
 {
-    protected static ?string $model = Moneda::class;
+    protected static ?string    $model = Moneda::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
 
     protected static ?string    $navigationIcon = 'heroicon-o-arrow-trending-up';
     protected static ?string    $navigationLabel = 'Monedas';

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\ParentescoResource\Pages;
 use App\Filament\Resources\ParentescoResource\RelationManagers;
 use App\Models\Parentesco;
@@ -15,7 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ParentescoResource extends Resource
 {
-    protected static ?string $model = Parentesco::class;
+    protected static ?string    $model = Parentesco::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
 
     protected static ?string    $navigationIcon = 'heroicon-o-user-group';
     protected static ?string    $navigationLabel = 'Parentescos';

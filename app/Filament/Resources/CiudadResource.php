@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\CiudadResource\Pages;
 use App\Models\Ciudad;
 use Filament\Forms;
@@ -17,8 +18,8 @@ use App\Filament\Resources\CiudadResource\RelationManagers;
 
 class CiudadResource extends Resource
 {
-    protected static ?string $model = Ciudad::class;
-
+        protected static ?string $model = Ciudad::class;
+        protected static ?string    $cluster = ParametrosGenerales::class;
         protected static ?string    $navigationIcon = 'heroicon-o-globe-alt';
         protected static ?string    $navigationLabel = 'Ubicacion Geografica';
         protected static ?string    $navigationGroup = 'Parametros';

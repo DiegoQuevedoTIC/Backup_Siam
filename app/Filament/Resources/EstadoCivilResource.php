@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\EstadoCivilResource\Pages;
 use App\Filament\Resources\EstadoCivilResource\RelationManagers;
 use App\Models\EstadoCivil;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EstadoCivilResource extends Resource
 {
-    protected static ?string $model = EstadoCivil::class;
-
+    protected static ?string    $model = EstadoCivil::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-home';
     protected static ?string    $navigationLabel = 'Estados Civil';
     protected static ?string    $navigationGroup = 'Parametros';

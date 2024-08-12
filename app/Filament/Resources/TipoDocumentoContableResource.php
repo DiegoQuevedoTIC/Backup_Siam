@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosContabilidad;
 use App\Filament\Resources\TipoDocumentoContableResource\Pages;
 use App\Filament\Resources\TipoDocumentoContableResource\RelationManagers;
 use App\Models\TipoDocumentoContable;
@@ -31,10 +32,10 @@ class TipoDocumentoContableResource extends Resource
 {
     protected static ?string $model = TipoDocumentoContable::class;
 
+
+    protected static ?string    $cluster = ParametrosContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-group';
     protected static ?string    $navigationLabel = 'Tipo Documento Contable';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Parametros Contabilidad';   
     protected static ?string    $modelLabel = 'Documento Tipo';
 
     public static function form(Form $form): Form
@@ -59,14 +60,14 @@ class TipoDocumentoContableResource extends Resource
                 ->required()
                 ->label('Clase Documento-Origen'),
                 TextInput::make('numerador')
-                ->numeric() 
+                ->numeric()
                 ->required()
                 ->maxLength(6)
                 ->columnSpan(2),
                 Toggle::make('fecha_modificable')
                 ->required()
                 ->label('Se permitido modificar la fecha al crearlo?')
-                ->columnSpan(4), 
+                ->columnSpan(4),
             ]);
     }
 
@@ -95,14 +96,14 @@ class TipoDocumentoContableResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -110,5 +111,5 @@ class TipoDocumentoContableResource extends Resource
             'create' => Pages\CreateTipoDocumentoContable::route('/create'),
             'edit' => Pages\EditTipoDocumentoContable::route('/{record}/edit'),
         ];
-    }    
+    }
 }

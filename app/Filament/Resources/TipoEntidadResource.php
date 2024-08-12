@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosGenerales;
 use App\Filament\Resources\TipoEntidadResource\Pages;
 use App\Filament\Resources\TipoEntidadResource\RelationManagers;
 use App\Models\TipoEntidad;
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TipoEntidadResource extends Resource
 {
-    protected static ?string $model = TipoEntidad::class;
-
+    protected static ?string    $model = TipoEntidad::class;
+    protected static ?string    $cluster = ParametrosGenerales::class;
     protected static ?string    $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string    $navigationLabel = 'Tipos de Entidades';
     protected static ?string    $navigationGroup = 'Parametros';
