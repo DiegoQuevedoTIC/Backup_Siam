@@ -24,6 +24,9 @@ class AnexosTributariosResource extends Resource
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $cluster = InformesContabilidad::class;
     protected static ?string    $navigationLabel = 'Anexos Tributarios';
+    protected static ?string    $navigationGroup = 'Contabilidad';
+    protected static ?string    $navigationParentItem = 'Informes';
+
 
     public static function form(Form $form): Form
     {
