@@ -23,8 +23,7 @@ class ExcedenteResource extends Resource
     protected static ?string    $cluster = InformesContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Excedentes / PyG';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
+    protected static ?string    $modelLabel = 'Excedentes / PyG';
 
     public static function form(Form $form): Form
     {

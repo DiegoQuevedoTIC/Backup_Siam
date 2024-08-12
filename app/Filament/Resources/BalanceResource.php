@@ -24,8 +24,9 @@ class BalanceResource extends Resource
     protected static ?string    $cluster = InformesContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Balances';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
+    protected static ?string    $modelLabel = 'Balances Contables';
+
+
 
     public static function form(Form $form): Form
     {

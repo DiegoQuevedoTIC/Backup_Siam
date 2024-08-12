@@ -20,12 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class AnexosTributariosResource extends Resource
 {
     protected static ?string $model = AnexosTributarios::class;
-
-    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $cluster = InformesContabilidad::class;
+    protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Anexos Tributarios';
-    protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?string    $navigationParentItem = 'Informes';
+    protected static ?string    $modelLabel = 'Anexos Tributarios';
+
 
 
     public static function form(Form $form): Form
