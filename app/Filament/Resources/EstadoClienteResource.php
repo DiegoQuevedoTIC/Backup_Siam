@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ParametrosGenerales;
+use App\Filament\Clusters\ParametrosAsociados;
 use App\Filament\Resources\EstadoClienteResource\Pages;
 use App\Filament\Resources\EstadoClienteResource\RelationManagers;
 use App\Models\EstadoCliente;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EstadoClienteResource extends Resource
 {
     protected static ?string    $model = EstadoCliente::class;
-    protected static ?string    $cluster = ParametrosGenerales::class;
+    protected static ?string    $cluster = ParametrosAsociados::class;
     protected static ?string    $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string    $navigationLabel = 'Estados Vinculacion';
     protected static ?string    $navigationGroup = 'Parametros';

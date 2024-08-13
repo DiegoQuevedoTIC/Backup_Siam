@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ParametrosGenerales;
+use App\Filament\Clusters\ParametrosAsociados;
 use App\Filament\Resources\CalificacionClienteResource\Pages;
 use App\Filament\Resources\CalificacionClienteResource\RelationManagers;
 use App\Models\CalificacionCliente;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CalificacionClienteResource extends Resource
 {
     protected static ?string    $model = CalificacionCliente::class;
-    protected static ?string    $cluster = ParametrosGenerales::class;
+    protected static ?string    $cluster = ParametrosAsociados::class;
     protected static ?string    $navigationIcon = 'heroicon-o-chart-bar' ;
     protected static ?string    $navigationGroup = 'Parametros';
     protected static ?string    $navigationParentItem = 'Parametros Asociados';

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ParametrosGenerales;
+use App\Filament\Clusters\ParametrosAsociados;
 use App\Filament\Resources\TipoIdentificacionResource\Pages;
 use App\Filament\Resources\TipoIdentificacionResource\RelationManagers;
 use App\Models\TipoIdentificacion;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class TipoIdentificacionResource extends Resource
 {
     protected static ?string    $model = TipoIdentificacion::class;
-    protected static ?string    $cluster = ParametrosGenerales::class;
+    protected static ?string    $cluster = ParametrosAsociados::class;
     protected static ?string    $navigationIcon = 'heroicon-o-identification';
     protected static ?string    $navigationLabel = 'Tipos de Identificacion';
     protected static ?string    $navigationGroup = 'Parametros';

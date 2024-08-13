@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ParametrosGenerales;
+use App\Filament\Clusters\ParametrosAsociados;
 use App\Filament\Resources\NivelEscolarResource\Pages;
 use App\Filament\Resources\NivelEscolarResource\RelationManagers;
 use App\Models\NivelEscolar;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class NivelEscolarResource extends Resource
 {
     protected static ?string    $model = NivelEscolar::class;
-    protected static ?string    $cluster = ParametrosGenerales::class;
+    protected static ?string    $cluster = ParametrosAsociados::class;
     protected static ?string    $navigationIcon = 'heroicon-o-book-open';
     protected static ?string    $navigationLabel = 'Niveles Escolares';
     protected static ?string    $navigationGroup = 'Parametros';
