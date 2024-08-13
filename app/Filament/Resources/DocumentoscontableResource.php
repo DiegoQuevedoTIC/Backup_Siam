@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ModulosDigitalizacion;
 use App\Filament\Resources\DocumentoscontableResource\Pages;
 use App\Filament\Resources\DocumentoscontableResource\RelationManagers;
 use App\Models\Documentoscontable;
@@ -30,7 +31,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class DocumentoscontableResource extends Resource
 {
     protected static ?string $model = Documentoscontable::class;
-
+    protected static ?string    $cluster = ModulosDigitalizacion::class;
     protected static ?string    $navigationIcon = 'heroicon-o-paper-clip';
     protected static ?string    $navigationLabel = 'Digitalizacion Doc. Contables';
     protected static ?string    $navigationGroup = 'Gestion Documental';

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ModulosDigitalizacion;
 use App\Filament\Resources\DocumentosafiliacionResource\Pages;
 use App\Filament\Resources\DocumentosafiliacionResource\RelationManagers;
 use App\Models\Documentosafiliacion;
@@ -26,7 +27,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class DocumentosafiliacionResource extends Resource
 {
     protected static ?string $model = Documentosafiliacion::class;
-
+    protected static ?string    $cluster = ModulosDigitalizacion::class;
     protected static ?string    $navigationIcon = 'heroicon-o-identification';
     protected static ?string    $navigationLabel = 'Digitalizacion Afiliaciones';
     protected static ?string    $navigationGroup = 'Gestion Documental';

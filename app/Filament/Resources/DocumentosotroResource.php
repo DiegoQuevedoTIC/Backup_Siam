@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ModulosDigitalizacion;
 use App\Filament\Resources\DocumentosotroResource\Pages;
 use App\Filament\Resources\DocumentosotroResource\RelationManagers;
 use App\Models\Documentosotro;
@@ -26,8 +27,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class DocumentosotroResource extends Resource
 {
-    protected static ?string $model = Documentosotro::class;
-
+    protected static ?string    $model = Documentosotro::class;
+    protected static ?string    $cluster = ModulosDigitalizacion::class;
     protected static ?string    $navigationIcon = 'heroicon-o-light-bulb';
     protected static ?string    $navigationLabel = 'Actas, Informes y Otros';
     protected static ?string    $navigationGroup = 'Gestion Documental';

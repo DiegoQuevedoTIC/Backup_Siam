@@ -2,23 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ModulosDigitalizacion;
 use App\Filament\Resources\DocumentoResource\Pages;
 use App\Filament\Resources\DocumentoResource\RelationManagers;
 use App\Models\Documento;
 use App\Models\Documentoclase;
-use App\Models\Documentotipo;
 use App\Models\Solicitud;
-use App\Models\Tercero;
 use App\Models\Comprobante;
-use Filament\Forms\ComponentContainer;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
-use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Tables\Table;
@@ -28,8 +24,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class DocumentoResource extends Resource
 {
-    protected static ?string $model = Documento::class;
-
+    protected static ?string    $model = Documento::class;
+    protected static ?string    $cluster = ModulosDigitalizacion::class;
     protected static ?string    $navigationIcon = 'heroicon-m-rocket-launch';
     protected static ?string    $navigationLabel = 'Digitalizacion Pagares';
     protected static ?string    $navigationGroup = 'Gestion Documental';

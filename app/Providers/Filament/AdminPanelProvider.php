@@ -41,16 +41,20 @@ class AdminPanelProvider extends PanelProvider
             ->darkModeBrandLogo(asset('images/Icons1.png'))
             ->brandLogoHeight('5rem')
             ->navigationGroups([
+                NavigationGroup::make('Parametros Generales')
+                    ->label('Parametros Generales')
+                    ->collapsed(),
                 NavigationGroup::make('Administracion de Terceros')
-                    ->label('Administracion de Terceros'),
-                NavigationGroup::make('Gestión de Asociados')
-                    ->label('Gestión de Asociados')
+                    ->label('Administracion de Terceros')
                     ->collapsed(),
                 NavigationGroup::make('Contabilidad')
                     ->label('Contabilidad')
                     ->collapsed(),
-                NavigationGroup::make('Parametros')
-                    ->label('Parametros')
+                NavigationGroup::make('Gestión de Asociados')
+                    ->label('Gestión de Asociados')
+                    ->collapsed(),
+                NavigationGroup::make('Gestion Documental')
+                    ->label('Gestion Documental')
                     ->collapsed(),
                 NavigationGroup::make('Roles y Permisos')
                     ->label('Roles y Permisos')
