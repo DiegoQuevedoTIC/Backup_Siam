@@ -4,9 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Clusters\ProcesosContabilidad;
 use App\Filament\Resources\ComprobanteResource\Pages;
-use App\Filament\Resources\ComprobanteResource\Widgets\PlantillaComprobanteOverview;
 use App\Models\Comprobante;
-use App\Models\ParametrosTercero;
 use App\Models\Puc;
 use App\Models\Tercero;
 use App\Models\TipoContribuyente;
@@ -19,10 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,9 +31,9 @@ class ComprobanteResource extends Resource
 {
     protected static ?string     $model = Comprobante::class;
     protected static ?string    $cluster = ProcesosContabilidad::class;
-    protected static ?string    $navigationIcon = 'heroicon-o-swatch';
+    protected static ?string    $navigationIcon = 'heroicon-o-calculator';
     protected static ?string    $navigationLabel = 'Creacion Comprobantes';
-    protected static ?string    $modelLabel = 'PUC - Cuenta';
+    protected static ?string    $modelLabel = 'Comprobante Contable';
 
     public static function form(Form $form): Form
     {
@@ -148,7 +143,6 @@ class ComprobanteResource extends Resource
                             ->native(false)
                             ->searchable()
                             ->required(),
-
                         Select::make('tercero_id')
                             ->label('Tercero Registro')
                             ->required()
@@ -159,41 +153,20 @@ class ComprobanteResource extends Resource
                         TextInput::make('descripcion_linea')
                             ->label('Descripcion Linea')
                             ->required(),
-
                         TextInput::make('debito')
                             ->placeholder('Debito')
                             ->numeric()
                             ->inputMode('decimal')
                             ->prefix('$'),
-/*                             ->disabled(function (Get $get): bool {
-                                $query = Puc::all()->find($get('pucs_id'));
-                                if (!is_null($query)) {
-                                    $query = $query->toArray();
-                                    if ($query['naturaleza'] != 'D') {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }), */
-
                         TextInput::make('credito')
                             ->placeholder('Credito')
                             ->numeric()
                             ->inputMode('decimal')
                             ->prefix('$'),
-/*                             ->disabled(function (Get $get): bool {
-                                $query = Puc::all()->find($get('pucs_id'));
-                                if (!is_null($query)) {
-                                    $query = $query->toArray();
-                                    if ($query['naturaleza'] != 'C') {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }), */
                     ])
                     ->reorderable()
                     ->cloneable()
+                    ->grid(4)
                     ->collapsible()
                     ->defaultItems(1)
                     ->columnSpanFull(),
@@ -207,26 +180,21 @@ class ComprobanteResource extends Resource
                 //
                 TextColumn::make('id')
                     ->label('Nº')
-                    ->searchable()
-                    ->sortable(),
-
+                    ->searchable(),
                 TextColumn::make('tipo_documento_contables_id')
                     ->label('Tipo de Documento Contable')
                     ->formatStateUsing(fn (string $state): string => TipoDocumentoContable::all()->find($state)['tipo_documento'])
-                    ->searchable()
-                    ->sortable(),
-
+                    ->searchable(),
                 TextColumn::make('n_documento')
                     ->label('Nº de documento')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 TextColumn::make('tercero_id')
                     ->label('Tercero Comprobante')
-                    ->formatStateUsing(fn (string $state): string => Tercero::all()->find($state)['nombres'])
-                    ->searchable()
-                    ->sortable(),
+                    ->formatStateUsing(fn (string $state): string => Tercero::find($state)['tercero_id'])
+                    ->searchable(),
             ])
+
             ->filters([
                 //
                 Filter::make('created_at')->form([
@@ -251,13 +219,13 @@ class ComprobanteResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->label('Ver comprobante'),
-                Tables\Actions\EditAction::make(),
+                    ->label('Ver'),
+                Tables\Actions\EditAction::make()
+                ->label('Modificar'),
             ])
             ->bulkActions([
-                /*Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ])*/])
+            ])
+            ->defaultSort('id', 'desc')
             ->emptyStateHeading('Sin comprobantes');
     }
 
