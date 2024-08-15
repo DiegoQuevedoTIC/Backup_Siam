@@ -63,11 +63,17 @@ class TipoDocumentoContableResource extends Resource
                 ->numeric()
                 ->required()
                 ->maxLength(6)
-                ->columnSpan(2),
+                ->columnSpan(1),
                 Toggle::make('fecha_modificable')
                 ->required()
-                ->label('Se permitido modificar la fecha al crearlo?')
-                ->columnSpan(4),
+                ->label('Se permitido modificar la fecha?')
+                ->columnSpan(2),
+                Toggle::make('uso_contable')
+                ->required()
+                ->label('Se permitido usarlo en Contabilidad?')
+                ->columnSpan(2),
+
+
             ]);
     }
 

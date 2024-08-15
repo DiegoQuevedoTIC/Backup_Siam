@@ -55,14 +55,17 @@ class ComprobanteResource extends Resource
             $terceroComprobante[$row['id']] = $row['nombre'];
         }
         return $form
+            ->columns(8)
             ->schema([
                 //
                 Toggle::make('usar_plantilla')
                     ->label('Usar plantilla')
-                    ->live(),
-
+                    ->live()
+                    ->visibleOn('create')
+                    ->columnSpan(2),
                 Select::make('plantilla')
                     ->label('Plantilla')
+                    ->columnSpan(2)
                     ->options(function () {
                         $query = Comprobante::where('is_plantilla', '=', true)->get()->pluck('descripcion_comprobante', 'id');
                         return $query;
@@ -83,36 +86,23 @@ class ComprobanteResource extends Resource
                             return true;
                         }
                     })
+                    ->visibleOn('create')
                     ->live(),
-
-                Select::make('tipo_documento_contables_id')
-                    ->label('Tipo de Documento')
-                    ->native(false)
-                    ->options($tipoDocumento)
-                    ->required()
-                    ->live(),
-
-                TextInput::make('n_documento')
-                    ->label('Nº de Documento')
-                    ->rule('regex:/^[0-9]+$/')
-                    ->required(),
-
-                Select::make('tercero_id')
-                    ->label('Tercero Comprobante')
-                    ->required()
-                    ->native(false)
-                    ->relationship('tercero', 'tercero_id')
-                    ->markAsRequired(false)
-                    ->searchable(),
-
-                DatePicker::make('fecha_comprobante')
+                    Toggle::make('is_plantilla')
+                        ->label('¿Guardar Plantilla?')
+                        ->required()
+                        ->visibleOn('create')
+                        ->columnSpan(2),
+                    DatePicker::make('fecha_comprobante')
                     ->label('Fecha de comprobante')
                     ->required()
+                    ->suffixIcon('heroicon-m-calendar-days')
+                    ->columnSpan(2)
                     ->native(false)
                     ->disabled(function (Get $get, Set $set): bool {
                         $id = $get('tipo_documento_contables_id');
                         if (!is_null($id)) {
-                            $isDateModified = TipoDocumentoContable::all()->find($id)->toArray()['fecha_modificable'];
+                            $isDateModified = TipoDocumentoContable::find($id)->toArray()['fecha_modificable'];
                             if ($isDateModified == 1) {
                                 return false;
                             } else {
@@ -124,12 +114,44 @@ class ComprobanteResource extends Resource
                         }
                     }),
 
-                Toggle::make('is_plantilla')
-                    ->label('¿Guardar como Plantilla?')
+                Select::make('tipo_documento_contables_id')
+                    ->label('Tipo de Documento')
+                    ->columnSpan(2)
+                    ->options(TipoDocumentoContable::where('uso_contable', true)->pluck('tipo_documento', 'id'))
+                    ->required()
+                    ->native(false)
+                    ->afterStateUpdated(function (callable $set, $state) {
+                        if ($state) {
+                            // Usa el modelo para obtener el último numerador del tipo de documento seleccionado
+                            $ultimoNumerador = TipoDocumentoContable::where('id', $state)
+                                ->value('numerador');
+
+                            // Si se encontró un numerador, incrementar en 1 y asignarlo al campo n_documento
+                            if ($ultimoNumerador !== null) {
+                                $set('n_documento', $ultimoNumerador + 1);
+                            }
+                        }
+                    })
+                    ->live(),
+
+                    TextInput::make('n_documento')
+                    ->label('Nº de Documento')
+                    ->columnSpan(2)
+                    ->rule('regex:/^[0-9]+$/')
                     ->required(),
+                Select::make('tercero_id')
+                    ->label('Tercero Comprobante')
+                    ->required()
+                    ->columnSpan(4)
+                    ->native(false)
+                    ->relationship('tercero', 'tercero_id')
+                    ->markAsRequired(false)
+                    ->searchable(),
 
                 Textarea::make('descripcion_comprobante')
                     ->label('Descripcion del Comprobante')
+                    ->columnSpan(8)
+                    ->autocomplete(false)
                     ->required(),
 
                 TableRepeater::make('detalle')
@@ -138,8 +160,8 @@ class ComprobanteResource extends Resource
                     ->schema([
                         Select::make('pucs_id')
                             ->label('Cuenta PUC')
-                            ->options($puc)
                             ->live()
+                            ->options(Puc::where('movimiento', true)->pluck('puc', 'id'))
                             ->native(false)
                             ->searchable()
                             ->required(),
@@ -152,6 +174,7 @@ class ComprobanteResource extends Resource
                             ->searchable(),
                         TextInput::make('descripcion_linea')
                             ->label('Descripcion Linea')
+                            ->visibleOn('create')
                             ->required(),
                         TextInput::make('debito')
                             ->placeholder('Debito')
@@ -168,8 +191,7 @@ class ComprobanteResource extends Resource
                     ->cloneable()
                     ->grid(4)
                     ->collapsible()
-                    ->defaultItems(1)
-                    ->columnSpanFull(),
+                    ->defaultItems(1),
             ]);
     }
 
@@ -187,11 +209,6 @@ class ComprobanteResource extends Resource
                     ->searchable(),
                 TextColumn::make('n_documento')
                     ->label('Nº de documento')
-                    ->searchable(),
-
-                TextColumn::make('tercero_id')
-                    ->label('Tercero Comprobante')
-                    ->formatStateUsing(fn (string $state): string => Tercero::find($state)['tercero_id'])
                     ->searchable(),
             ])
 

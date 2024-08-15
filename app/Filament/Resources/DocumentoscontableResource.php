@@ -30,7 +30,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class DocumentoscontableResource extends Resource
 {
-    protected static ?string $model = Documentoscontable::class;
+    protected static ?string    $model = Documentoscontable::class;
     protected static ?string    $cluster = ModulosDigitalizacion::class;
     protected static ?string    $navigationIcon = 'heroicon-o-paper-clip';
     protected static ?string    $navigationLabel = 'Digitalizacion Doc. Contables';
