@@ -16,19 +16,20 @@ return new class extends Migration
             $table->id();
             $table->date('fecha_cierre');
             $table->enum('mes_cierre', [
-                'Enero',
-                'Febrero',
-                'Marzo',
-                'Abril',
-                'Mayo',
-                'Junio',
-                'Julio',
-                'Agosto',
-                'Septiembre',
-                'Octubre',
-                'Noviembre',
-                'Diciembre'
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '10',
+                '11',
+                '12'
             ]);
+            $table->enum('estado', ['procesando', 'completado', 'fallido'])->default('procesando');
             $table->unsignedBigInteger('user_id')->default(Auth::id());
             $table->foreign('user_id')->on('users')->references('id');
             $table->timestamps();

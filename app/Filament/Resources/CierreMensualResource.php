@@ -34,24 +34,25 @@ class CierreMensualResource extends Resource
                             ->label('Fecha Cierre')
                             ->displayFormat('d/m/Y')
                             ->format('Y-m-d')
-                            ->native(false),
+                            ->native(false)
+                            ->maxDate(now()),
                         Select::make('mes_cierre')
                             ->label('Mes Cierre')
                             ->searchable()
                             ->native(false)
                             ->options([
-                                'Enero',
-                                'Febrero',
-                                'Marzo',
-                                'Abril',
-                                'Mayo',
-                                'Junio',
-                                'Julio',
-                                'Agosto',
-                                'Septiembre',
-                                'Octubre',
-                                'Noviembre',
-                                'Diciembre'
+                                '1' => 'Enero',
+                                '2' => 'Febrero',
+                                '3' => 'Marzo',
+                                '4' => 'Abril',
+                                '5' => 'Mayo',
+                                '6' => 'Junio',
+                                '7' => 'Julio',
+                                '8' => 'Agosto',
+                                '9' => 'Septiembre',
+                                '10' => 'Octubre',
+                                '11' => 'Noviembre',
+                                '12' => 'Diciembre'
                             ]),
                     ])
                     ->label('Datos principales')
@@ -69,6 +70,14 @@ class CierreMensualResource extends Resource
                 TextColumn::make('mes_cierre')
                 ->label('Mes Cierre')
                 ->searchable(),
+                TextColumn::make('estado')
+                ->label('Estado')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'procesando' => 'info',
+                    'completado' => 'primary',
+                    'fallido' => 'danger',
+                }),
                 TextColumn::make('fecha_cierre')
                 ->label('Fecha Cierre')
                 ->searchable()
@@ -79,7 +88,8 @@ class CierreMensualResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()->label('Ver Cierre')
             ])
-            ->bulkActions([]);
+            ->bulkActions([])
+            ->defaultSort('created_at', 'desc');;
     }
 
     public static function getRelations(): array
