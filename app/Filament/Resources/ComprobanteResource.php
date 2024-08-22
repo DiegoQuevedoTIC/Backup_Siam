@@ -24,8 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
-
-
+use Illuminate\Support\Facades\DB;
 
 class ComprobanteResource extends Resource
 {
@@ -88,12 +87,12 @@ class ComprobanteResource extends Resource
                     })
                     ->visibleOn('create')
                     ->live(),
-                    Toggle::make('is_plantilla')
-                        ->label('¿Guardar Plantilla?')
-                        ->required()
-                        ->visibleOn('create')
-                        ->columnSpan(2),
-                    DatePicker::make('fecha_comprobante')
+                Toggle::make('is_plantilla')
+                    ->label('¿Guardar Plantilla?')
+                    ->required()
+                    ->visibleOn('create')
+                    ->columnSpan(2),
+                DatePicker::make('fecha_comprobante')
                     ->label('Fecha de comprobante')
                     ->required()
                     ->suffixIcon('heroicon-m-calendar-days')
@@ -134,7 +133,7 @@ class ComprobanteResource extends Resource
                     })
                     ->live(),
 
-                    TextInput::make('n_documento')
+                TextInput::make('n_documento')
                     ->label('Nº de Documento')
                     ->columnSpan(2)
                     ->rule('regex:/^[0-9]+$/')
@@ -205,7 +204,7 @@ class ComprobanteResource extends Resource
                     ->searchable(),
                 TextColumn::make('tipo_documento_contables_id')
                     ->label('Tipo de Documento Contable')
-                    ->formatStateUsing(fn (string $state): string => TipoDocumentoContable::all()->find($state)['tipo_documento'])
+                    ->formatStateUsing(fn(string $state): string => TipoDocumentoContable::all()->find($state)['tipo_documento'])
                     ->searchable(),
                 TextColumn::make('n_documento')
                     ->label('Nº de documento')
@@ -226,22 +225,29 @@ class ComprobanteResource extends Resource
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', ">=", $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', ">=", $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', "<=", $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', "<=", $date),
                             );
                     })
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->label('Ver'),
+                Tables\Actions\ViewAction::make()->label('Ver')
+                    ->visible(function (Comprobante $record) {
+                        $data = DB::table('comprobante_lineas')
+                            ->where('comprobante_id', $record->id)
+                            ->count();
+
+                        $limite = 30;
+
+                        return $data <= $limite ? true : false;
+                    }),
                 Tables\Actions\EditAction::make()
-                ->label('Modificar'),
+                    ->label('Modificar'),
             ])
-            ->bulkActions([
-            ])
+            ->bulkActions([])
             ->defaultSort('id', 'desc')
             ->emptyStateHeading('Sin comprobantes');
     }

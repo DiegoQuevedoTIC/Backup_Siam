@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ComprobanteResource\Pages;
 
+use App\Exports\ComprobanteLineasExport;
 use App\Filament\Resources\ComprobanteResource;
 use App\Models\Comprobante;
 use Filament\Actions;
@@ -21,6 +22,11 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Support\RawJs;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
+use Filament\Forms\Components\Section;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Actions as ActionsForm;
+use Filament\Forms\Components\Actions\Action;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EditComprobante extends EditRecord
 {
@@ -102,44 +108,123 @@ class EditComprobante extends EditRecord
                     ->columnSpan(8)
                     ->required(),
 
-                TableRepeater::make('detalle')
-                    ->label('Detalle comprobante')
-                    ->relationship('comprobanteLinea')
-                    ->schema([
-                        Select::make('pucs_id')
-                            ->label('Cuenta PUC')
-                            ->options($puc)
-                            ->live()
-                            ->native(false)
-                            ->searchable()
-                            ->required(),
-                        Select::make('tercero_id')
-                            ->label('Tercero Registro')
-                            ->required()
-                            ->native(false)
-                            ->relationship('tercero', 'tercero_id')
-                            ->markAsRequired(false)
-                            ->searchable(),
-                        TextInput::make('descripcion_linea')
-                            ->label('Descripcion Linea')
-                            ->required(),
-                        TextInput::make('debito')
-                            ->placeholder('Debito')
-                            ->numeric()
-                            ->inputMode('decimal')
-                            ->prefix('$'),
-                        TextInput::make('credito')
-                            ->placeholder('Credito')
-                            ->numeric()
-                            ->inputMode('decimal')
-                            ->prefix('$'),
-                    ])
-                    ->reorderable()
-                    ->cloneable()
-                    ->grid(4)
-                    ->collapsible()
-                    ->defaultItems(1)
-                    ->columnSpanFull(),
+                    Section::make('Detalles')
+                    ->schema(function () use ($puc) {
+                        $data = DB::table('comprobante_lineas')
+                            ->where('comprobante_id', $this->getRecord()->id)
+                            ->count();
+
+                        $array = [];
+                        $limite = 30;
+
+                        if ($data <= $limite) {
+                            array_push(
+                                $array,
+
+                                TableRepeater::make('detalle')
+                                    ->label('Detalle comprobante')
+                                    ->relationship('comprobanteLinea')
+                                    ->schema([
+                                        Select::make('pucs_id')
+                                            ->label('Cuenta PUC')
+                                            ->options(['asd' => 'descripcion_comprobante'])
+                                            ->live()
+                                            ->native(false)
+                                            ->searchable()
+                                            ->required(),
+
+                                        Select::make('tercero_id')
+                                            ->label('Tercero Registro')
+                                            ->required()
+                                            ->native(false)
+                                            ->relationship('tercero', 'tercero_id')
+                                            ->markAsRequired(false)
+                                            ->searchable(),
+                                        TextInput::make('descripcion_linea')
+                                            ->label('Descripcion Linea')
+                                            ->required(),
+
+                                        TextInput::make('debito')
+                                            ->placeholder('Debito')
+                                            ->mask(RawJs::make('$money($input)'))
+                                            ->numeric()
+                                            ->prefix('$')
+                                            ->disabled(function (Get $get): bool {
+                                                $query = Puc::where('id', $get('pucs_id'))->first();
+                                                if (!is_null($query)) {
+                                                    if ($query['naturaleza'] != 'D') {
+                                                        return true;
+                                                    }
+                                                }
+                                                return false;
+                                            }),
+
+                                        TextInput::make('credito')
+                                            ->placeholder('Credito')
+                                            ->numeric()
+                                            ->inputMode('decimal')
+                                            ->prefix('$')
+                                            ->disabled(function (Get $get): bool {
+                                                $query = Puc::find($get('pucs_id'));
+                                                if (!is_null($query)) {
+                                                    $query = $query->toArray();
+                                                    if ($query['naturaleza'] != 'C') {
+                                                        return true;
+                                                    }
+                                                }
+                                                return false;
+                                            }),
+                                    ])
+                                    ->reorderable()
+                                    ->cloneable()
+                                    ->collapsible()
+                                    ->defaultItems(1)
+                                    ->columnSpanFull(),
+                            );
+                        } else {
+
+                            array_push(
+                                $array,
+                                ActionsForm::make([
+                                    Action::make('export')
+                                        ->label('Exportar EXCEL')
+                                        ->color('primary')
+                                        ->icon('heroicon-c-arrow-down-on-square')
+                                        ->action(function () {
+                                            $nameFile = $this->getRecord()->descripcion_comprobante . '.xlsx';
+                                            return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::XLSX);
+                                        })->after(function () {
+                                            Notification::make()
+                                                ->title('Se exporto la información de manera correcta.')
+                                                ->icon('heroicon-m-check-circle')
+                                                ->body('Los datos exportados correctamente')
+                                                ->success()
+                                                ->color('primary')
+                                                ->send();
+                                        }),
+
+                                    Action::make('export_csv')
+                                        ->label('Exportar CSV')
+                                        ->color('primary')
+                                        ->icon('heroicon-c-arrow-down-on-square')
+                                        ->action(function () {
+                                            $nameFile = $this->getRecord()->descripcion_comprobante . '.csv';
+                                            return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::CSV);
+                                        })->after(function () {
+                                            Notification::make()
+                                                ->title('Se exporto la información de manera correcta.')
+                                                ->icon('heroicon-m-check-circle')
+                                                ->body('Los datos exportados correctamente')
+                                                ->success()
+                                                ->color('primary')
+                                                ->send();
+                                        }),
+                                ])->alignCenter()
+                            );
+                        }
+
+                        return $array;
+                    }),
             ]);
     }
 
