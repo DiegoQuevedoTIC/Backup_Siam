@@ -20,7 +20,7 @@ class ComprobanteLineasExport implements FromQuery, WithHeadings
 
     public function query()
     {
-        return ComprobanteLinea::query()->where('comprobante_id', $this->comprobante)->select('pucs_id', 'descripcion_linea', 'debito', 'credito', 'linea', 'BASE_GRAVABLE', 'CHEQUE');
+        return ComprobanteLinea::query()->where('comprobante_id', $this->comprobante)->join('pucs as p', 'pucs_id', 'p.id')->select('p.puc', 'descripcion_linea', 'debito', 'credito', 'linea', 'BASE_GRAVABLE', 'CHEQUE');
     }
 
     public function headings(): array
