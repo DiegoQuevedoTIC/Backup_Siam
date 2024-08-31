@@ -21,13 +21,4 @@ class ViewCierreMensual extends ViewRecord
             DatePicker::make('fecha_cierre')->label('Fecha del cierre')->format('d/m/Y'),
         ]);
     }
-
-    protected function getFooterWidgets(): array
-    {
-        return [
-            ComprobanteMensualDetalleTable::class
-        ];
-    }
-
-    
 }

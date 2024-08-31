@@ -31,11 +31,14 @@ class CierreAnualResource extends Resource
                 //
                 DatePicker::make('fecha_cierre')
                 ->label('Fecha Cierre')
+                ->required()
                 ->displayFormat('d/m/Y')
                 ->native(false),
                 TextInput::make('ano_cierre')
                 ->label('Año Cierre')
                 ->rule('regex:/^[0-9]+$/')
+                ->prefix('Año ')
+                ->required()
             ]);
     }
 
@@ -46,7 +49,6 @@ class CierreAnualResource extends Resource
                 //
                 TextColumn::make('fecha_cierre')->label('Fecha Cierre')->date('d/m/Y'),
                 TextColumn::make('ano_cierre')->label('Año cierre'),
-
             ])
             ->filters([
                 //

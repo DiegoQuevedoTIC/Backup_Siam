@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('fecha_cierre');
             $table->string('ano_cierre');
+            $table->enum('estado', ['procesando', 'completado', 'fallido'])->default('procesando');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->on('users')->references('id');
             $table->timestamps();

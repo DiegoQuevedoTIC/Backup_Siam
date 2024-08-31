@@ -22,6 +22,7 @@ return new class extends Migration
             nat CHAR(1);
             comprobante RECORD;  -- Variable para almacenar cada comprobante
             linea RECORD;        -- Variable para almacenar cada línea de comprobante
+            puc_value INT;       -- Variable para almacenar el valor de puc
         BEGIN
             -- 1. Buscar en la tabla comprobantes el que corresponda con el mes y año
             FOR comprobante IN SELECT * FROM comprobantes
@@ -42,7 +43,7 @@ return new class extends Migration
                 saldo := total_creditos - total_debitos;
 
                 -- 5. Revisar naturaleza de cuenta PUC para verificar si se suma o se resta
-                SELECT naturaleza INTO nat FROM pucs WHERE id = linea.pucs_id;
+                SELECT naturaleza, puc INTO nat, puc_value FROM pucs WHERE id = linea.pucs_id;
 
                 -- 6. Realizar la sumatoria o resta al saldo dependiendo de la naturaleza de la cuenta PUC
                 IF nat = 'D' THEN
@@ -51,21 +52,24 @@ return new class extends Migration
                     saldo := saldo - total_creditos; -- Si es acreedora, se resta
                 END IF;
 
-                -- 7. Insertar o actualizar el saldo en la tabla correspondiente
-                INSERT INTO saldo_pucs(puc, amo, mes, saldo_debito, saldo_credito, saldo, created_at)
-                VALUES (linea.pucs_id, anio, m, total_debitos, total_creditos, saldo, now())
-                ON CONFLICT (puc, amo, mes) DO UPDATE
-                SET saldo_debito = saldo_pucs.saldo_debito + EXCLUDED.saldo_debito,
-                    saldo_credito = saldo_pucs.saldo_credito + EXCLUDED.saldo_credito,
-                    saldo = saldo_pucs.saldo + EXCLUDED.saldo;
+                -- 7. Verificar si los saldos son diferentes de 0 antes de insertar
+                IF total_debitos <> 0 OR total_creditos <> 0 OR saldo <> 0 THEN
+                    -- Insertar o actualizar el saldo en la tabla correspondiente
+                    INSERT INTO saldo_pucs(puc, amo, mes, saldo_debito, saldo_credito, saldo, created_at)
+                    VALUES (puc_value, anio, m, total_debitos, total_creditos, saldo, now())
+                    ON CONFLICT (puc, amo, mes) DO UPDATE
+                    SET saldo_debito = saldo_pucs.saldo_debito + EXCLUDED.saldo_debito,
+                        saldo_credito = saldo_pucs.saldo_credito + EXCLUDED.saldo_credito,
+                        saldo = saldo_pucs.saldo + EXCLUDED.saldo;
 
-                -- 8. Insertamos todos los detalles por terceros
-                INSERT INTO saldo_puc_terceros(tercero, puc, amo, mes, saldo_debito, saldo_credito, saldo, created_at)
-                VALUES (linea.tercero_id, linea.pucs_id, anio, m, total_debitos, total_creditos, saldo, now())
-                ON CONFLICT (tercero, amo, mes) DO UPDATE
-                SET saldo_debito = saldo_puc_terceros.saldo_debito + EXCLUDED.saldo_debito,
-                    saldo_credito = saldo_puc_terceros.saldo_credito + EXCLUDED.saldo_credito,
-                    saldo = saldo_puc_terceros.saldo + EXCLUDED.saldo;
+                    -- Insertamos todos los detalles por terceros
+                    INSERT INTO saldo_puc_terceros(tercero, puc, amo, mes, saldo_debito, saldo_credito, saldo, created_at)
+                    VALUES (linea.tercero_id, puc_value, anio, m, total_debitos, total_creditos, saldo, now())
+                    ON CONFLICT (tercero, amo, mes) DO UPDATE
+                    SET saldo_debito = saldo_puc_terceros.saldo_debito + EXCLUDED.saldo_debito,
+                        saldo_credito = saldo_puc_terceros.saldo_credito + EXCLUDED.saldo_credito,
+                        saldo = saldo_puc_terceros.saldo + EXCLUDED.saldo;
+                END IF;
 
             END LOOP;
 
