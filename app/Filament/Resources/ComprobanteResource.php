@@ -173,10 +173,6 @@ class ComprobanteResource extends Resource
                             ->relationship('tercero', 'tercero_id')
                             ->markAsRequired(false)
                             ->searchable(),
-                        TextInput::make('descripcion_linea')
-                            ->label('Descripcion Linea')
-                            ->visibleOn('create')
-                            ->required(),
                         TextInput::make('debito')
                             ->placeholder('Debito')
                             ->numeric()
