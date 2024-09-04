@@ -87,10 +87,9 @@ class ExcedenteResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\CreateExcedente::route('/')
-            /*'index' => Pages\ListExcedentes::route('/'),
+            'index' => Pages\ListExcedentes::route('/'),
             'create' => Pages\CreateExcedente::route('/create'),
-            'edit' => Pages\EditExcedente::route('/{record}/edit'),*/
+            'edit' => Pages\EditExcedente::route('/{record}/edit'),
         ];
     }
 }

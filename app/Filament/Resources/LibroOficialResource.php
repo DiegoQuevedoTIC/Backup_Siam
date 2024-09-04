@@ -58,10 +58,9 @@ class LibroOficialResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\CreateLibroOficial::route('/')
-            //'index' => Pages\ListLibroOficials::route('/'),
-            //'create' => Pages\CreateLibroOficial::route('/create'),
-            //'edit' => Pages\EditLibroOficial::route('/{record}/edit'),
+            'index' => Pages\ListLibroOficials::route('/'),
+            'create' => Pages\CreateLibroOficial::route('/create'),
+            'edit' => Pages\EditLibroOficial::route('/{record}/edit'),
         ];
     }
 }

@@ -34,22 +34,25 @@ class BalanceResource extends Resource
             ->schema([
                 //
                 Select::make('tipo_balance')
-                ->label('Tipo Balance')
-                ->options([
-                    '1' => 'Estado Situacion Financiera (Balance General)',
-                    '2' => 'Balance Horizontal',
-                    '3' => 'Balance Horizontal Comparativo',
-                    '4' => 'Balance por Tercero'
-                ]),
+                    ->label('Tipo Balance')
+                    ->searchable()
+                    ->options([
+                        '1' => 'Estado Situacion Financiera (Balance General)',
+                        '2' => 'Balance Horizontal',
+                        '3' => 'Balance Horizontal Comparativo',
+                        '4' => 'Balance por Tercero'
+                    ])->required(),
                 DatePicker::make('fecha_inicial')
-                ->label('Fecha Inicial')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
+                    ->label('Fecha Inicial')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->required(),
                 DatePicker::make('fecha_final')
-                ->label('Fecha Final')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
-                Toggle::make('is_13_month')->label('¿Incluye Mes Trece?'),
+                    ->label('Fecha Final')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->required(),
+                Toggle::make('is_13_month')->label('¿Incluye Mes Trece?')->inline(false),
                 TextInput::make('nivel')->label('Nivel')->numeric(),
 
             ])
@@ -85,10 +88,9 @@ class BalanceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\CreateBalance::route('/')
-            /*'index' => Pages\ListBalances::route('/'),
+            'index' => Pages\ListBalances::route('/'),
             'create' => Pages\CreateBalance::route('/create'),
-            'edit' => Pages\EditBalance::route('/{record}/edit'),*/
+            'edit' => Pages\EditBalance::route('/{record}/edit'),
         ];
     }
 }

@@ -9,4 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBalance extends CreateRecord
 {
     protected static string $resource = BalanceResource::class;
+
+    protected static string $view = 'custom.balance.create-balance';
 }

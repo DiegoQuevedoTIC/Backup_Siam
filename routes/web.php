@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BalanceGeneralController;
 use App\Http\Controllers\CierreMensualController;
 use Illuminate\Support\Facades\Route;
 use App\Jobs\CierreMensual;
@@ -15,6 +16,9 @@ use App\Jobs\CierreMensual;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/generar-pdf', [BalanceGeneralController::class, 'generarPdf'])->name('generarpdf');
+
 
 Route::get('/x', function () {
     return view('welcome');

@@ -155,7 +155,9 @@ class ComprobanteResource extends Resource
 
                 TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
-                    ->relationship('comprobanteLinea')
+                    ->relationship('comprobanteLinea', function ($query) {
+                        $query->limit(30);
+                    })
                     ->schema([
                         Select::make('pucs_id')
                             ->label('Cuenta PUC')
@@ -234,16 +236,7 @@ class ComprobanteResource extends Resource
                     })
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->label('Ver')
-                    ->visible(function (Comprobante $record) {
-                        $data = DB::table('comprobante_lineas')
-                            ->where('comprobante_id', $record->id)
-                            ->count();
-
-                        $limite = 30;
-
-                        return $data <= $limite ? true : false;
-                    }),
+                Tables\Actions\ViewAction::make()->label('Ver'),
                 Tables\Actions\EditAction::make()
                     ->label('Modificar'),
             ])
