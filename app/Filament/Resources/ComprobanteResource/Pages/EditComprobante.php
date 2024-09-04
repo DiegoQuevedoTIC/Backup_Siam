@@ -177,7 +177,6 @@ class EditComprobante extends EditRecord
                             ->searchable(),
                         TextInput::make('descripcion_linea')
                             ->label('Descripcion Linea')
-                            ->visibleOn('create')
                             ->required(),
                         TextInput::make('debito')
                             ->placeholder('Debito')
