@@ -17,7 +17,7 @@ use App\Jobs\CierreMensual;
 |
 */
 
-Route::get('/generar-pdf', [BalanceGeneralController::class, 'generarPdf'])->name('generarpdf');
+Route::post('/generar-pdf', [BalanceGeneralController::class, 'generarPdf'])->name('generarpdf');
 
 
 Route::get('/x', function () {

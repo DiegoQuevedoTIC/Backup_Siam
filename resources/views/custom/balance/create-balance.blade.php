@@ -23,7 +23,7 @@
                         <label for="fecha_inicial"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha Inicial</label>
                         <x-filament::input.wrapper>
-                            <x-filament::input name="fecha_inicial" type="date" required />
+                            <x-filament::input id="fecha_inicial" name="fecha_inicial" type="date" required />
                         </x-filament::input.wrapper>
                     </div>
 
@@ -31,7 +31,7 @@
                         <label for="fecha_final"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha Final</label>
                         <x-filament::input.wrapper>
-                            <x-filament::input name="fecha_final" type="date" required />
+                            <x-filament::input id="fecha_final" name="fecha_final" type="date" required />
                         </x-filament::input.wrapper>
                     </div>
 
@@ -49,7 +49,7 @@
                         <label for="nivel"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nivel</label>
                         <x-filament::input.wrapper>
-                            <x-filament::input name="nivel" type="number" required />
+                            <x-filament::input id="nivel" name="nivel" type="number" required />
                         </x-filament::input.wrapper>
                     </div>
 
@@ -67,7 +67,7 @@
         <div
             class="flex-1 mt-6 border border-dashed border-gray-300 rounded-lg flex items-center justify-center relative">
 
-            <embed id="pdf" src="{{ route('generarpdf') }}" type="application/pdf" width="100%" height="600px" class="rounded-lg hidden" />
+            <embed id="pdf" type="application/pdf" width="100%" height="600px" class="rounded-lg hidden" />
 
             <div id="empty">
                 <x-filament::icon icon="heroicon-m-document-text" class="h-20 w-20 text-gray-500 dark:text-gray-400" />
@@ -83,6 +83,13 @@
         $(document).ready(function() {
             console.log("ready!");
 
+            // Configurar el token CSRF para las solicitudes AJAX
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             var form = $('#form_data');
             var buttonGenerate = $('#generar');
             var pdf = $('#pdf');
@@ -97,28 +104,19 @@
             // Función para verificar si todos los campos están llenos
             function validateForm() {
                 var isValid = true;
-                //console.log("Validando formulario...");
 
-                // Iterar sobre cada input en el formulario
                 form.find('input, select').each(function() {
-                    //console.log("Validando campo:", $(this).attr('name')); // o .attr('id')
                     if ($(this).val() === '') {
-                        //console.log('Campo vacío:', $(this).attr('name'));
-                        isValid = false; // Si algún campo está vacío, cambiar a false
-                        buttonGenerate.addClass(
-                        'pointer-events-none opacity-70'); // Agregar clases para indicar deshabilitado
-                        return false; // Salir del bucle each
+                        isValid = false;
+                        buttonGenerate.addClass('pointer-events-none opacity-70');
+                        return false;
                     }
                 });
 
-                // Habilitar o deshabilitar el botón según la validez del formulario
                 buttonGenerate.prop('disabled', !isValid);
-
                 if (isValid) {
-                    buttonGenerate.removeClass(
-                    'pointer-events-none opacity-70'); // Eliminar clases si todos los campos son válidos
+                    buttonGenerate.removeClass('pointer-events-none opacity-70');
                 }
-                //console.log("Botón habilitado:", isValid);
             }
 
             // Escuchar cambios en los campos del formulario
@@ -131,32 +129,34 @@
                 pdf.addClass('hidden');
                 console.log('Generating PDF...');
 
-                //console.log(tipo_balance.val());
-                switch (tipo_balance.val()) {
-                    case '1':
-                        console.log('Generando balance general...');
-                        break;
-                    case '2':
-                        console.log('Generando balance horizontal...');
-                        break;
-                    case '3':
-                        console.log('Generando balance horizontal comparativo...');
-                        break;
-                    case '4':
-                        console.log('Generando balance por tercero...');
-                        break;
-                    default:
-                        console.log('Tipo de balance no válido...');
-                        break;
-                }
+                // Preparar los datos para enviar
+                var data = {
+                    tipo_balance: tipo_balance.val(),
+                    fecha_inicial: fecha_inicial.val(),
+                    fecha_final: fecha_final.val(),
+                    is_13_month: is_13_month.is(':checked'),
+                    nivel: nivel.val()
+                };
 
-                // Simulación de generación del PDF (puedes reemplazarlo con tu lógica real)
-                setTimeout(function() {
-                    // Ocultar el efecto de carga y mostrar el PDF
-                    loading.addClass('hidden');
-                    pdf.removeClass('hidden');
-                    buttonGenerate.prop('disabled', true);
-                }, 1000); // Simula un tiempo de carga de 1 segundo
+                // Realizar la petición AJAX
+                $.ajax({
+                    url: "{{ route('generarpdf') }}", // Cambia esto a la ruta de tu controlador
+                    type: 'POST',
+                    data: data,
+                    success: function(response) {
+                        // Aquí puedes manejar la respuesta del servidor
+                        console.log('PDF generado con éxito:', response);
+                        pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
+                        loading.addClass('hidden');
+                        pdf.removeClass('hidden');
+                        buttonGenerate.prop('disabled', true);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al generar el PDF:', error);
+                        loading.addClass('hidden');
+                        empty.removeClass('hidden'); // Mostrar mensaje de error
+                    }
+                });
             });
         });
     </script>
