@@ -50,6 +50,7 @@ class BalanceGeneralController extends Controller
             $cuentas = DB::table('vista_balance_general')
                 //->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final]) comentado temporalmente
                 ->select('puc', 'descripcion', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo')
+                ->limit(200)
                 ->get();
 
 
