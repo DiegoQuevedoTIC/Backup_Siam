@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Balance General</title>
+    <title>{{ $titulo }}</title>
 
     <style>
         body {
@@ -84,26 +84,76 @@
 
     <table>
         <thead>
-            <tr>
-                <th>PUC</th>
-                <th>DESCRIPCION</th>
-                <th>SALDO ANTERIOR</th>
-                <th>DEBITOS</th>
-                <th>CREDITOS</th>
-                <th>NUEVO SALDO</th>
-            </tr>
+            @switch($tipo_balance)
+                @case('balance_horizontal')
+                    <tr>
+                        <th>PUC</th>
+                        <th>DESCRIPCION</th>
+                        <th>SALDO</th>
+                    </tr>
+                @break
+
+                @case('balance_tercero')
+                    <tr>
+                        <th>PUC</th>
+                        <th>DESCRIPCION</th>
+                        <th>TERCERO</th>
+                        <th>SALDO ANTERIOR</th>
+                        <th>DEBITOS</th>
+                        <th>CREDITOS</th>
+                        <th>NUEVO SALDO</th>
+                    </tr>
+                @break
+
+                @default
+                    <tr>
+                        <th>PUC</th>
+                        <th>DESCRIPCION</th>
+                        <th>SALDO ANTERIOR</th>
+                        <th>DEBITOS</th>
+                        <th>CREDITOS</th>
+                        <th>NUEVO SALDO</th>
+                    </tr>
+            @endswitch
         </thead>
         <tbody>
-            @foreach ($cuentas as $cuenta)
-                <tr>
-                    <td>{{ $cuenta->puc }}</td>
-                    <td class="description">{{ $cuenta->descripcion }}</td>
-                    <td>{{ $cuenta->saldo_anterior }}</td>
-                    <td>{{ $cuenta->debitos }}</td>
-                    <td>{{ $cuenta->creditos }}</td>
-                    <td>{{ $cuenta->saldo_nuevo }}</td>
-                </tr>
-            @endforeach
+            @switch($tipo_balance)
+                @case('balance_horizontal')
+                    @foreach ($cuentas as $cuenta)
+                        <tr>
+                            <td>{{ $cuenta->puc }}</td>
+                            <td class="description">{{ $cuenta->descripcion ?? 'sin descripción' }}</td>
+                            <td>{{ $cuenta->saldo ?? 0.0 }}</td>
+                        </tr>
+                    @endforeach
+                @break
+
+                @case('balance_tercero')
+                    @foreach ($cuentas as $cuenta)
+                        <tr>
+                            <td>{{ $cuenta->puc }}</td>
+                            <td class="description">{{ $cuenta->descripcion }}</td>
+                            <td>{{ $cuenta->tercero ?? '' }}</td>
+                            <td>{{ $cuenta->saldo_anterior ?? 0.0 }}</td>
+                            <td>{{ $cuenta->debitos ?? 0.0 }}</td>
+                            <td>{{ $cuenta->creditos ?? 0.0 }}</td>
+                            <td>{{ $cuenta->saldo_nuevo ?? 0.0 }}</td>
+                        </tr>
+                    @endforeach
+                @break
+
+                @default
+                    @foreach ($cuentas as $cuenta)
+                        <tr>
+                            <td>{{ $cuenta->puc }}</td>
+                            <td class="description">{{ $cuenta->descripcion }}</td>
+                            <td>{{ $cuenta->saldo_anterior ?? 0.0 }}</td>
+                            <td>{{ $cuenta->debitos ?? 0.0 }}</td>
+                            <td>{{ $cuenta->creditos ?? 0.0 }}</td>
+                            <td>{{ $cuenta->saldo_nuevo ?? 0.0 }}</td>
+                        </tr>
+                    @endforeach
+            @endswitch
         </tbody>
     </table>
 </body>

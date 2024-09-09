@@ -13,8 +13,7 @@
                                 <option value="0" selected disabled>Seleccionar tipo de balance</option>
                                 <option value="1">Estado Situacion Financiera (Balance General)</option>
                                 <option value="2">Balance Horizontal</option>
-                                <option value="3">Balance Horizontal Comparativo</option>
-                                <option value="4">Balance por Tercero</option>
+                                <option value="3">Balance por Tercero</option>
                             </x-filament::input.select>
                         </x-filament::input.wrapper>
                     </div>
@@ -138,25 +137,61 @@
                     nivel: nivel.val()
                 };
 
-                // Realizar la petición AJAX
-                $.ajax({
-                    url: "{{ route('generarpdf') }}", // Cambia esto a la ruta de tu controlador
-                    type: 'POST',
-                    data: data,
-                    success: function(response) {
-                        // Aquí puedes manejar la respuesta del servidor
-                        console.log('PDF generado con éxito:', response);
-                        pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
-                        loading.addClass('hidden');
-                        pdf.removeClass('hidden');
-                        buttonGenerate.prop('disabled', true);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error al generar el PDF:', error);
-                        loading.addClass('hidden');
-                        empty.removeClass('hidden'); // Mostrar mensaje de error
-                    }
-                });
+                var url = "{{ route('generarpdf') }}";
+
+                console.log(data.tipo_balance);
+
+                switch (data.tipo_balance) {
+                    case '2':
+                        url = "{{ route('generar.balance.horizontal') }}"
+                        generateReport(url);
+                        break;
+                    case '3':
+                        url = "{{ route('generar.balance.tercero') }}"
+                        generateReport(url);
+                        break;
+                    default:
+                        generateReport(url);
+                        return;
+                }
+
+                function generateReport(url) {
+                    console.log(url);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        success: function(response) {
+                            console.log('PDF generado con éxito:', response);
+                            pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
+                            loading.addClass('hidden');
+                            pdf.removeClass('hidden');
+                            buttonGenerate.prop('disabled', true);
+
+                            new FilamentNotification()
+                                .title('PDF Generado exitosamente.')
+                                .success()
+                                .send();
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al generar el PDF:', error);
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                new FilamentNotification()
+                                    .title(xhr.responseJSON.message)
+                                    .danger()
+                                    .send();
+                            } else {
+                                new FilamentNotification()
+                                    .title('Ocurrió un error inesperado.')
+                                    .danger()
+                                    .send();
+                            }
+                            loading.addClass('hidden');
+                            empty.removeClass('hidden'); // Mostrar mensaje de error
+                        }
+                    });
+                }
             });
         });
     </script>

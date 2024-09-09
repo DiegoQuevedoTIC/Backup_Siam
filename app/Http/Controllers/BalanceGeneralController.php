@@ -4,32 +4,66 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Filament\Notifications\Notification;
 
 class BalanceGeneralController extends Controller
 {
     //
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
 
-    /* public function generarPdf(Request $request)
+    public function generarPdf(Request $request)
     {
         try {
-
             $fecha_inicial = $request->fecha_inicial;
             $fecha_final = $request->fecha_final;
 
+            // permitir rango de fecha solo maximo de 3 meses
+            $fecha_final = date('Y-m-d', strtotime($fecha_final . '+ 3 months'));
 
-            $cuentas = DB::table('pucs as p')
-                ->join('comprobante_lineas as cl', 'p.id', 'cl.pucs_id')
-                ->leftJoin('comprobantes as c', 'c.id', 'cl.comprobante_id')
-                ->whereBetween('c.fecha_comprobante', [$fecha_inicial, $fecha_final])
-                ->select('p.puc', 'p.descripcion')
-                ->orderBy('p.puc')
-                ->get();
+            // validar que la fecha inicial sea menor que la fecha final
+            if ($fecha_inicial > $fecha_final) {
+                return response()->json(['status' => 400, 'message' => 'La fecha inicial no puede ser mayor que la fecha final'], 400);
+            }
+
+            // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
+            $fecha_inicial_dt = new DateTime($fecha_inicial);
+            $fecha_final_dt = new DateTime($fecha_final);
+
+            // Calcular la diferencia en meses
+            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
+            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
+
+            // Validar que la diferencia no exceda 3 meses
+            if ($meses_diferencia > 6) {
+                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
+            }
+
+            // Consulta original
+            $cuentas = DB::table('vista_balance_general')
+                ->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final])
+                ->select('puc', 'descripcion', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+            // Consulta adicional para incluir el registro con puc = 1
+            $registro_adicional = DB::table('vista_balance_general')
+                ->whereIn('puc', ['1', '11', '1105', '110505', '11050501', '110510', '11051001', '1110', '111005']) // Asegúrate de que este registro exista
+                ->select('puc', 'descripcion', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+            // Combinar ambas consultas
+            $cuentas_completas = $cuentas->union($registro_adicional)->orderBy('puc')->get();
+
 
             $data = [
-                'nombre_compania' => 'FONDEP',
-                'cuentas' => $cuentas,
+                'titulo' => 'Balance General',
+                'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+                'nit' => '8.000.903.753',
+                'tipo_balance' => 'balance_general',
+                'cuentas' => $cuentas_completas,
                 'fecha_inicial' => $fecha_inicial,
                 'fecha_final' => $fecha_final,
             ];
@@ -39,25 +73,113 @@ class BalanceGeneralController extends Controller
         } catch (Exception $e) {
             return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
         }
-    } */
+    }
 
-    public function generarPdf(Request $request)
+
+    function generarBalanceHorizontal(Request $request)
     {
         try {
-            $fecha_inicial = $request->fecha_inicial;
-            $fecha_final = $request->fecha_final;
+            $fecha_inicial = $request->fecha_inicial; //$request->fecha_inicial; // '2024-01-01'
+            $fecha_final = $request->fecha_final; //$request->fecha_final; // '2024-02-01'
 
-            $cuentas = DB::table('vista_balance_general')
-                //->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final]) comentado temporalmente
-                ->select('puc', 'descripcion', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo')
-                ->limit(200)
-                ->get();
+            // permitir rango de fecha solo maximo de 3 meses
+            $fecha_final = date('Y-m-d', strtotime($fecha_final . '+ 3 months'));
+
+            // validar que la fecha inicial sea menor que la fecha final
+            if ($fecha_inicial > $fecha_final) {
+                return response()->json(['status' => 400, 'message' => 'La fecha inicial no puede ser mayor que la fecha final'], 400);
+            }
+
+            // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
+            $fecha_inicial_dt = new DateTime($fecha_inicial);
+            $fecha_final_dt = new DateTime($fecha_final);
+
+            // Calcular la diferencia en meses
+            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
+            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
+
+            // Validar que la diferencia no exceda 3 meses
+            if ($meses_diferencia > 6) {
+                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
+            }
+
+            // Obtener las cuentas con movimiento en el rango de fechas
+            $cuentas = DB::table('vista_balance_horizontal')
+                ->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final])
+                ->select('puc', 'descripcion', 'saldo');
+
+            // Consulta adicional para incluir el registro con puc = 1
+            $registro_adicional = DB::table('vista_balance_horizontal')
+                ->whereIn('puc', ['1', '11', '1105', '110505', '11050501', '110510', '11051001', '1110', '111005']) // Asegúrate de que este registro exista
+                ->select('puc', 'descripcion', 'saldo');
+
+            // Combinar ambas consultas
+            $cuentas_completas = $cuentas->union($registro_adicional)->distinct()->orderBy('puc')->get();
 
 
             $data = [
+                'titulo' => 'Balance Horizontal',
                 'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+                'tipo_balance' => 'balance_horizontal',
                 'nit' => '8.000.903.753',
-                'cuentas' => $cuentas,
+                'cuentas' => $cuentas_completas, // Usar cuentas únicas
+                'fecha_inicial' => $fecha_inicial,
+                'fecha_final' => $fecha_final,
+            ];
+
+            $pdf = Pdf::loadView('pdf.balance-general', $data);
+            return response()->json(['pdf' => base64_encode($pdf->output())]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    function generateBalanceTercero(Request $request)
+    {
+        try {
+            $fecha_inicial = $request->fecha_inicial; //$request->fecha_inicial; // '2024-01-01'
+            $fecha_final = $request->fecha_final; //$request->fecha_final; // '2024-02-01'
+
+            // permitir rango de fecha solo maximo de 3 meses
+            $fecha_final = date('Y-m-d', strtotime($fecha_final . '+ 3 months'));
+
+            // validar que la fecha inicial sea menor que la fecha final
+            if ($fecha_inicial > $fecha_final) {
+                return response()->json(['status' => 400, 'message' => 'La fecha inicial no puede ser mayor que la fecha final'], 400);
+            }
+
+            // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
+            $fecha_inicial_dt = new DateTime($fecha_inicial);
+            $fecha_final_dt = new DateTime($fecha_final);
+
+            // Calcular la diferencia en meses
+            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
+            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
+
+            // Validar que la diferencia no exceda 3 meses
+            if ($meses_diferencia > 6) {
+                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
+            }
+
+            // Obtener las cuentas con movimiento en el rango de fechas
+            $cuentas = DB::table('vista_balance_tercero')
+                ->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final])
+                ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+            // Consulta adicional para incluir el registro con puc = 1
+            $registro_adicional = DB::table('vista_balance_tercero')
+                ->whereIn('puc', ['1', '11', '1105', '110505', '11050501', '110510', '11051001', '1110', '111005']) // Asegúrate de que este registro exista
+                ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+            // Combinar ambas consultas
+            $cuentas_completas = $cuentas->union($registro_adicional)->distinct()->orderBy('puc')->get();
+
+            $data = [
+                'titulo' => 'Balance Tercero',
+                'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+                'tipo_balance' => 'balance_tercero',
+                'nit' => '8.000.903.753',
+                'cuentas' => $cuentas_completas, // Usar cuentas únicas
                 'fecha_inicial' => $fecha_inicial,
                 'fecha_final' => $fecha_final,
             ];
