@@ -202,8 +202,7 @@ class ComprobanteResource extends Resource
             ->columns([
                 //
                 TextColumn::make('id')
-                    ->label('Nº')
-                    ->searchable(),
+                    ->label('Nº'),
                 TextColumn::make('tipo_documento_contables_id')
                     ->label('Tipo de Documento Contable')
                     ->formatStateUsing(fn(string $state): string => TipoDocumentoContable::all()->find($state)['tipo_documento'])

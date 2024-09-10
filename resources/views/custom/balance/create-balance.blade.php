@@ -14,6 +14,7 @@
                                 <option value="1">Estado Situacion Financiera (Balance General)</option>
                                 <option value="2">Balance Horizontal</option>
                                 <option value="3">Balance por Tercero</option>
+                                <option value="4">Balance Comparativo</option>
                             </x-filament::input.select>
                         </x-filament::input.wrapper>
                     </div>
@@ -150,20 +151,24 @@
                         url = "{{ route('generar.balance.tercero') }}"
                         generateReport(url);
                         break;
+                    case '4':
+                        url = "{{ route('generar.balance.comparativo') }}"
+                        generateReport(url);
+                        break;
                     default:
                         generateReport(url);
                         return;
                 }
 
                 function generateReport(url) {
-                    console.log(url);
+                    //console.log(url);
 
                     $.ajax({
                         url: url,
                         type: 'POST',
                         data: data,
                         success: function(response) {
-                            console.log('PDF generado con éxito:', response);
+                            //console.log('PDF generado con éxito:', response);
                             pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
                             loading.addClass('hidden');
                             pdf.removeClass('hidden');
@@ -175,7 +180,7 @@
                                 .send();
                         },
                         error: function(xhr, status, error) {
-                            console.error('Error al generar el PDF:', error);
+                            //console.error('Error al generar el PDF:', error);
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 new FilamentNotification()
                                     .title(xhr.responseJSON.message)

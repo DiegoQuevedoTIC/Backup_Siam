@@ -22,7 +22,8 @@
             margin-top: 20px;
         }
 
-        thead {
+        thead,
+        .total {
             background-color: #c0c0c0;
         }
 
@@ -89,7 +90,17 @@
                     <tr>
                         <th>PUC</th>
                         <th>DESCRIPCION</th>
+                        <th>PRIMER RANGO</th>
+                        <th>SEGUNDO RANGO</th>
+                    </tr>
+                @break
+
+                @case('balance_comparativo')
+                    <tr>
+                        <th>PUC</th>
+                        <th>DESCRIPCION</th>
                         <th>SALDO</th>
+                        <th>PORCENTAJE</th>
                     </tr>
                 @break
 
@@ -123,9 +134,33 @@
                         <tr>
                             <td>{{ $cuenta->puc }}</td>
                             <td class="description">{{ $cuenta->descripcion ?? 'sin descripción' }}</td>
-                            <td>{{ $cuenta->saldo ?? 0.0 }}</td>
+                            <td>{{ $cuenta->primer_rango ?? 0.0 }}</td>
+                            <td>{{ $cuenta->segundo_rango ?? 0.0 }}</td>
                         </tr>
                     @endforeach
+                @break
+
+                @case('balance_comparativo')
+                    @foreach ($cuentas as $cuenta)
+                        <tr>
+                            <td>{{ $cuenta->puc }}</td>
+                            <td class="description">{{ $cuenta->descripcion ?? 'sin descripción' }}</td>
+                            <td>{{ $cuenta->saldo ?? 0.0 }}</td>
+                            <td>
+                                @if ($total_saldo > 0)
+                                    {{ number_format(($cuenta->saldo / $total_saldo) * 100, 2) }}%
+                                @else
+                                    0%
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+
+                    <tr class="total">
+                        <td colspan="2"><strong>Total:</strong></td>
+                        <td><strong>{{ $total_saldo }}</strong></td>
+                        <td>100%</td>
+                    </tr>
                 @break
 
                 @case('balance_tercero')
