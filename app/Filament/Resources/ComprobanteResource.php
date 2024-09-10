@@ -144,7 +144,6 @@ class ComprobanteResource extends Resource
                     ->columnSpan(4)
                     ->native(false)
                     ->relationship('tercero', 'tercero_id')
-                    ->markAsRequired(false)
                     ->searchable(),
 
 

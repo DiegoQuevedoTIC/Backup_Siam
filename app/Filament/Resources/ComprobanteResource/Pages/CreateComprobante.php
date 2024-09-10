@@ -7,6 +7,7 @@ use App\Filament\Resources\ComprobanteResource\Widgets\PlantillaComprobanteOverv
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 
 class CreateComprobante extends CreateRecord
 {
@@ -44,6 +45,17 @@ class CreateComprobante extends CreateRecord
                 ->title('No puede guardar un comprobante desbalanceado')
                 ->danger()
                 ->send();
+            $this->halt();
+        }
+
+        $comprobante = DB::table('comprobantes')->where('n_documento', $data['n_documento'])->first();
+
+        if ($comprobante) {
+            Notification::make()
+                ->title('El número de documento ya existe')
+                ->danger()
+                ->send();
+
             $this->halt();
         }
     }
