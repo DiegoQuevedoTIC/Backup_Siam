@@ -31,31 +31,35 @@ class ExcedenteResource extends Resource
             ->schema([
                 //
                 Select::make('tipo_informe')
-                ->label('Tipo Informe')
-                ->options([
-                    '1' => 'Formato Standard',
-                    '2' => 'Formato Detallado',
-                    '3' => 'Comparativo'
-                ]),
+                    ->label('Tipo Informe')
+                    ->options([
+                        '1' => 'Formato Standard',
+                        '2' => 'Formato Detallado',
+                        '3' => 'Comparativo'
+                    ])->searchable(),
                 DatePicker::make('fecha_desde')
-                ->label('Fecha inicial')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
+                    ->label('Fecha inicial')
+                    ->native(false)
+                    ->required()
+                    ->displayFormat('d/m/Y'),
                 DatePicker::make('fecha_hasta')
-                ->label('Fecha Final')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
+                    ->label('Fecha Final')
+                    ->native(false)
+                    ->required()
+                    ->displayFormat('d/m/Y'),
                 DatePicker::make('fecha_comparacion_desde')
-                ->label('Fecha inicial')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
+                    ->label('Fecha inicial')
+                    ->native(false)
+                    ->visible(false)
+                    ->displayFormat('d/m/Y'),
                 DatePicker::make('fecha_comparacion_hasta')
-                ->label('Fecha Final')
-                ->native(false)
-                ->displayFormat('d/m/Y'),
-                Toggle::make('is_mes_13')->label('¿Incluye Mes Trece?'),
+                    ->label('Fecha Final')
+                    ->native(false)
+                    ->visible(false)
+                    ->displayFormat('d/m/Y'),
+                Toggle::make('is_mes_13')->label('¿Incluye Mes Trece?')->visible(false),
                 Toggle::make('is_subcentro')->label('Subcentro')
-            ]);
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -70,11 +74,7 @@ class ExcedenteResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

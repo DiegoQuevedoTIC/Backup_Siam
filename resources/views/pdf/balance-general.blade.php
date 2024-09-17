@@ -16,23 +16,6 @@
             font-size: 12px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        thead,
-        .total {
-            background-color: #c0c0c0;
-        }
-
-        th,
-        td {
-            text-align: right;
-            padding: 0.3rem;
-        }
-
         .descripcion {
             width: 80px;
             overflow: auto;
@@ -44,6 +27,51 @@
             flex-direction: column;
             width: 100px;
             float: right;
+        }
+
+        /* Estilo general para la tabla */
+        .table {
+            width: 100%;
+            /* Asegúrate de que la tabla ocupe todo el ancho disponible */
+            border-collapse: collapse;
+            /* Colapsar bordes para un mejor aspecto */
+        }
+
+        /* Estilo para las celdas de la tabla */
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            /* Bordes de las celdas */
+            padding: 8px;
+            /* Espaciado interno */
+            font-size: 10px;
+            /* Ajustar el tamaño de la fuente */
+            text-align: left;
+            /* Alinear texto a la izquierda */
+        }
+
+        /* Estilo para el encabezado de la tabla */
+        .table th {
+            background-color: #f2f2f2;
+            /* Color de fondo para el encabezado */
+            font-weight: bold;
+            /* Negrita para el encabezado */
+        }
+
+        /* Ajustar el ancho de columnas específicas si es necesario */
+        .table .col-1 {
+            width: 30%;
+            /* Ancho específico para la primera columna */
+        }
+
+        .table .col-2 {
+            width: 50%;
+            /* Ancho específico para la segunda columna */
+        }
+
+        .table .col-3 {
+            width: 20%;
+            /* Ancho específico para la tercera columna */
         }
     </style>
 </head>
@@ -63,7 +91,7 @@
     </div>
 
     <div>
-        <table>
+        <table class="table">
             <tr>
                 <td>Fecha de Control:</td>
                 <td>{{ now()->format('d/m/Y') }}</td>
@@ -83,7 +111,7 @@
         </table>
     </div>
 
-    <table>
+    <table class="table">
         <thead>
             @switch($tipo_balance)
                 @case('balance_horizontal')
@@ -178,14 +206,15 @@
                 @break
 
                 @default
+                    {{--  @dd($cuentas) --}}
                     @foreach ($cuentas as $cuenta)
                         <tr>
-                            <td>{{ $cuenta->puc }}</td>
-                            <td class="description">{{ $cuenta->descripcion }}</td>
-                            <td>{{ $cuenta->saldo_anterior ?? 0.0 }}</td>
-                            <td>{{ $cuenta->debitos ?? 0.0 }}</td>
-                            <td>{{ $cuenta->creditos ?? 0.0 }}</td>
-                            <td>{{ $cuenta->saldo_nuevo ?? 0.0 }}</td>
+                            <td>{{ $cuenta['puc'] }}</td>
+                            <td class="description">{{ $cuenta['descripcion'] }}</td>
+                            <td>{{ $cuenta['saldo_anterior'] ?? 0.0 }}</td>
+                            <td>{{ $cuenta['debitos'] ?? 0.0 }}</td>
+                            <td>{{ $cuenta['creditos'] ?? 0.0 }}</td>
+                            <td>{{ $cuenta['saldo_nuevo'] ?? 0.0 }}</td>
                         </tr>
                     @endforeach
             @endswitch

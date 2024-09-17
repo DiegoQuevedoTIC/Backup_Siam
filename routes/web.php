@@ -17,7 +17,7 @@ use App\Jobs\CierreMensual;
 |
 */
 
-Route::post('/generar-pdf', [BalanceGeneralController::class, 'generarPdf'])->name('generarpdf');
+Route::post('/generar-pdf', [BalanceGeneralController::class, 'generateBalanceGeneral'])->name('generarpdf');
 Route::post('/generar-balance-horizontal', [BalanceGeneralController::class, 'generarBalanceHorizontal'])->name('generar.balance.horizontal');
 Route::post('/generar-balance-por-tercero', [BalanceGeneralController::class, 'generateBalanceTercero'])->name('generar.balance.tercero');
 Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'generateBalanceComparativo'])->name('generar.balance.comparativo');
