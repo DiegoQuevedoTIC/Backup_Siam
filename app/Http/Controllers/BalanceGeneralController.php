@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BalancesExport;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BalanceGeneralController extends Controller
 {
@@ -298,6 +300,15 @@ class BalanceGeneralController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['status' => 500, 'message' => $th->getMessage()], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $fecha_inicial = $request->fecha_inicial;
+        $fecha_final = $request->fecha_final;
+
+        $nombre = 'balance_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+        return Excel::download(new BalancesExport($fecha_inicial, $fecha_final), $nombre);
     }
 }
 

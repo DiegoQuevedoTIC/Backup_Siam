@@ -22,6 +22,8 @@ Route::post('/generar-balance-horizontal', [BalanceGeneralController::class, 'ge
 Route::post('/generar-balance-por-tercero', [BalanceGeneralController::class, 'generateBalanceTercero'])->name('generar.balance.tercero');
 Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'generateBalanceComparativo'])->name('generar.balance.comparativo');
 
+Route::post('/export', [BalanceGeneralController::class, 'export'])->name('export');
+
 Route::get('/x', function () {
     return view('welcome');
 });
