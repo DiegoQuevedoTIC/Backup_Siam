@@ -46,7 +46,7 @@
             /* Espaciado interno */
             font-size: 10px;
             /* Ajustar el tamaño de la fuente */
-            text-align: left;
+            text-align: right;
             /* Alinear texto a la izquierda */
         }
 
@@ -211,12 +211,21 @@
                         <tr>
                             <td>{{ $cuenta['puc'] }}</td>
                             <td class="description">{{ $cuenta['descripcion'] }}</td>
-                            <td>{{ $cuenta['saldo_anterior'] ?? 0.0 }}</td>
-                            <td>{{ $cuenta['debitos'] ?? 0.0 }}</td>
-                            <td>{{ $cuenta['creditos'] ?? 0.0 }}</td>
-                            <td>{{ $cuenta['saldo_nuevo'] ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['saldo_anterior'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['debitos'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['creditos'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['saldo_nuevo'], 2) ?? 0.0 }}</td>
                         </tr>
                     @endforeach
+
+                    <tr class="total">
+                        <td colspan="2"><strong>Total Balance General:</strong></td>
+                        <td><strong>{{ number_format($total_saldo_anteriores, 2) }}</strong></td>
+                        <td><strong>{{ number_format($total_debitos, 2) }}</strong></td>
+                        <td><strong>{{ number_format($total_creditos, 2) }}</strong></td>
+                        <td><strong>{{ number_format($total_saldo_nuevo, 2) }}</strong></td>
+                    </tr>
+
             @endswitch
         </tbody>
     </table>
