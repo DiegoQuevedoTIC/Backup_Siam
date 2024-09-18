@@ -150,7 +150,7 @@
 
                 var url = "{{ route('generarpdf') }}";
 
-                console.log(data.tipo_balance);
+                //console.log(data.tipo_balance);
 
                 switch (data.tipo_balance) {
                     case '2':
@@ -220,6 +220,7 @@
                     console.log('Exportando a Excel...');
 
                     var data = {
+                        tipo_balance: tipo_balance.val(),
                         fecha_inicial: fecha_inicial.val(),
                         fecha_final: fecha_final.val(),
                     };
@@ -234,7 +235,7 @@
                         success: function(response, status, xhr) {
                             // Crear un enlace para descargar el archivo
                             var filename =
-                            ""; // Aquí puedes obtener el nombre del archivo desde el encabezado de la respuesta
+                                ""; // Aquí puedes obtener el nombre del archivo desde el encabezado de la respuesta
                             var disposition = xhr.getResponseHeader('Content-Disposition');
                             if (disposition && disposition.indexOf('attachment') !== -1) {
                                 var matches = /filename[^;=\n]*=((['"]).*?\2|([^;\n]*))/;

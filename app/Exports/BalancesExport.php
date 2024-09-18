@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use DateTime;
+use Exception;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
@@ -11,10 +12,11 @@ use Maatwebsite\Excel\Concerns\FromView;
 class BalancesExport implements FromView
 {
 
-    public $data, $fecha_inicial, $fecha_final;
+    public $data, $fecha_inicial, $fecha_final, $tipo_balance;
 
-    public function __construct($fecha_inicial, $fecha_final)
+    public function __construct($tipo_balance, $fecha_inicial, $fecha_final)
     {
+        $this->tipo_balance = $tipo_balance;
         $this->fecha_inicial = $fecha_inicial;
         $this->fecha_final = $fecha_final;
     }
@@ -23,89 +25,200 @@ class BalancesExport implements FromView
     {
         $fecha_inicial = $this->fecha_inicial;
         $fecha_final = $this->fecha_final;
+        $tipo_balance = $this->tipo_balance;
 
-        // Almacenar todas las cuentas PUC
-        $cuentas_puc = DB::table('pucs')->select('id', 'puc', 'descripcion', 'grupo', 'puc_padre', 'naturaleza')->get()->toArray();
 
-        // Crear un array asociativo para las cuentas PUC
-        $pucs_normalizados = [];
-        foreach ($cuentas_puc as $puc) {
-            $pucs_normalizados[trim(strtolower($puc->puc))] = $puc->id;
+        switch ($tipo_balance) {
+            case '1':
+                $this->data = generarBalanceGeneral($fecha_inicial, $fecha_final);
+                break;
+            case '2':
+                $this->data = generarBalanceHorizontal($fecha_inicial, $fecha_final);
+                break;
+            case '3':
+                $this->data = generarBalanceTerceros($fecha_inicial, $fecha_final);
+                break;
+            case '4':
+                $this->data = generarBalanceComparativo($fecha_inicial, $fecha_final);
+                break;
+            default:
+                $this->data = [];
         }
-
-        // Obtener los movimientos y los saldos anteriores en una sola consulta
-        $movimientos = buscarMovimientos($fecha_inicial, $fecha_final);
-
-        // Generar el array de movimientos por cuenta
-        $movimientos_por_cuenta = [];
-        foreach ($cuentas_puc as $puc) {
-            $saldo_anterior = buscarSaldoAnterior($fecha_inicial, $puc->puc);
-
-            // Filtrar los movimientos de la cuenta actual
-            $movimiento = $movimientos->firstWhere('puc', $puc->puc);
-
-            // Inicializar el registro de la cuenta en el array
-            $movimientos_por_cuenta[$puc->id] = [
-                'puc' => $puc->puc,
-                'descripcion' => $puc->descripcion,
-                'debitos' => $movimiento->debitos ?? 0,
-                'creditos' => $movimiento->creditos ?? 0,
-                'saldo_anterior' => $saldo_anterior,
-                'puc_padre' => $puc->puc_padre,
-                'naturaleza' => $puc->naturaleza
-            ];
-
-            // Llamar a la función para sumar movimientos de cuentas hijas a cuentas padres
-            sumarMovimientosPadres($puc->id, $movimientos_por_cuenta, $pucs_normalizados);
-        }
-
-        // Sumar los movimientos de las cuentas hijas a las cuentas padres
-        foreach ($movimientos_por_cuenta as $key => $puc) {
-            // Ajustar la lógica según la naturaleza de la cuenta
-            if ($puc['naturaleza'] == 'C') { // Cuenta de crédito
-                $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
-                $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
-                $saldo_nuevo = $puc['saldo_anterior'] + $creditos - $debitos; // Créditos positivos, débitos negativos
-            } else { // Cuenta de débito
-                $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
-                $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
-                $saldo_nuevo = $puc['saldo_anterior'] - $creditos + $debitos; // Créditos negativos, débitos positivos
-            }
-
-            // Actualizar el saldo nuevo en el array
-            $movimientos_por_cuenta[$key]['saldo_nuevo'] = $saldo_nuevo;
-        }
-
-        // Filtrar resultados para incluir solo cuentas con movimientos
-        $resultados = array_filter($movimientos_por_cuenta, function ($mov) {
-            return $mov['debitos'] > 0 || $mov['creditos'] > 0 || $mov['saldo_anterior'] > 0;
-        });
-
-        // Totalizaciones
-        $total_saldo_anteriores = array_sum(array_column($resultados, 'saldo_anterior'));
-        $total_debitos = array_sum(array_column($resultados, 'debitos'));
-        $total_creditos = array_sum(array_column($resultados, 'creditos'));
-        $total_saldo_nuevo = array_sum(array_column($resultados, 'saldo_nuevo'));
-
-        // Preparar los datos para el PDF
-        $this->data = [
-            'titulo' => 'Balance General',
-            'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
-            'nit' => '8.000.903.753',
-            'tipo_balance' => 'balance_general',
-            'cuentas' => array_values($resultados),
-            'total_saldo_anteriores' => $total_saldo_anteriores,
-            'total_debitos' => $total_debitos,
-            'total_creditos' => $total_creditos,
-            'total_saldo_nuevo' => $total_saldo_nuevo,
-            'fecha_inicial' => $fecha_inicial,
-            'fecha_final' => $fecha_final,
-        ];
 
         return view('excel.balance', [
             'data' => $this->data
         ]);
     }
+}
+
+function generarBalanceComparativo($fecha_inicial, $fecha_final)
+{
+    // Obtener año de la fecha incial
+    $ano_inicial = date('Y', strtotime($fecha_inicial));
+
+    // Obtener año de la fecha final
+    $ano_final = date('Y', strtotime($fecha_final));
+
+    $cuentas = DB::table('saldo_pucs as sp')
+        ->join('pucs as ps', 'sp.puc', '=', 'ps.puc')
+        ->selectRaw('sp.puc, ps.descripcion,
+            SUM(CASE WHEN CAST(sp.amo AS integer) BETWEEN ? AND ? THEN sp.saldo ELSE 0.00 END) AS "saldo"', [$ano_inicial, $ano_final])
+        ->whereBetween(DB::raw('CAST(sp.amo AS integer)'), [$ano_inicial, $ano_final])
+        ->whereIn('ps.grupo', ['1', '2', '3'])
+        ->groupBy('sp.puc', 'ps.descripcion')
+        ->orderBy('sp.puc')
+        ->get();
+
+    $total_saldo = $cuentas->sum('saldo');
+
+    return [
+        'titulo' => 'Balance Comparativo',
+        'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+        'tipo_balance' => 'balance_comparativo',
+        'nit' => '8.000.903.753',
+        'cuentas' => $cuentas, // Usar cuentas únicas
+        'total_saldo' => $total_saldo,
+        'fecha_inicial' => $fecha_inicial,
+        'fecha_final' => $fecha_final,
+    ];
+}
+
+function generarBalanceTerceros($fecha_inicial, $fecha_final)
+{
+    // Obtener las cuentas con movimiento en el rango de fechas
+    $cuentas = DB::table('vista_balance_tercero')
+        ->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final])
+        ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+    // Consulta adicional para incluir el registro con puc = 1
+    $registro_adicional = DB::table('vista_balance_tercero')
+        ->whereIn('puc', ['1', '11', '1105', '110505', '11050501', '110510', '11051001', '1110', '111005']) // Asegúrate de que este registro exista
+        ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
+
+    // Combinar ambas consultas
+    $cuentas_completas = $cuentas->union($registro_adicional)->distinct()->orderBy('puc')->get();
+
+    return [
+        'titulo' => 'Balance Tercero',
+        'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+        'tipo_balance' => 'balance_tercero',
+        'nit' => '8.000.903.753',
+        'cuentas' => $cuentas_completas, // Usar cuentas únicas
+        'fecha_inicial' => $fecha_inicial,
+        'fecha_final' => $fecha_final,
+    ];
+}
+
+function generarBalanceHorizontal($fecha_inicial, $fecha_final)
+{
+    // Obtener año de la fecha incial
+    $ano_inicial = date('Y', strtotime($fecha_inicial));
+
+    // Obtener año de la fecha final
+    $ano_final = date('Y', strtotime($fecha_final));
+
+    $cuentas = DB::table('saldo_pucs as sp')
+        ->join('pucs as ps', 'sp.puc', '=', 'ps.puc')
+        ->selectRaw('sp.puc, ps.descripcion,
+            SUM(CASE WHEN sp.amo::integer = ? THEN sp.saldo ELSE 0.00 END) AS "primer_rango",
+            SUM(CASE WHEN sp.amo::integer = ? THEN sp.saldo ELSE 0.00 END) AS "segundo_rango"', [$ano_inicial, $ano_final])
+        ->whereIn('sp.amo', [$ano_inicial, $ano_final])
+        ->groupBy('sp.puc', 'ps.descripcion')
+        ->orderBy('sp.puc')
+        ->get();
+
+
+    return [
+        'titulo' => 'Balance Horizontal',
+        'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+        'tipo_balance' => 'balance_horizontal',
+        'nit' => '8.000.903.753',
+        'cuentas' => $cuentas, // Usar cuentas únicas
+        'fecha_inicial' => $fecha_inicial,
+        'fecha_final' => $fecha_final,
+    ];
+}
+
+
+function generarBalanceGeneral($fecha_inicial, $fecha_final)
+{
+    // Almacenar todas las cuentas PUC
+    $cuentas_puc = DB::table('pucs')->select('id', 'puc', 'descripcion', 'grupo', 'puc_padre', 'naturaleza')->get()->toArray();
+
+    // Crear un array asociativo para las cuentas PUC
+    $pucs_normalizados = [];
+    foreach ($cuentas_puc as $puc) {
+        $pucs_normalizados[trim(strtolower($puc->puc))] = $puc->id;
+    }
+
+    // Obtener los movimientos y los saldos anteriores en una sola consulta
+    $movimientos = buscarMovimientos($fecha_inicial, $fecha_final);
+
+    // Generar el array de movimientos por cuenta
+    $movimientos_por_cuenta = [];
+    foreach ($cuentas_puc as $puc) {
+        $saldo_anterior = buscarSaldoAnterior($fecha_inicial, $puc->puc);
+
+        // Filtrar los movimientos de la cuenta actual
+        $movimiento = $movimientos->firstWhere('puc', $puc->puc);
+
+        // Inicializar el registro de la cuenta en el array
+        $movimientos_por_cuenta[$puc->id] = [
+            'puc' => $puc->puc,
+            'descripcion' => $puc->descripcion,
+            'debitos' => $movimiento->debitos ?? 0,
+            'creditos' => $movimiento->creditos ?? 0,
+            'saldo_anterior' => $saldo_anterior,
+            'puc_padre' => $puc->puc_padre,
+            'naturaleza' => $puc->naturaleza
+        ];
+
+        // Llamar a la función para sumar movimientos de cuentas hijas a cuentas padres
+        sumarMovimientosPadres($puc->id, $movimientos_por_cuenta, $pucs_normalizados);
+    }
+
+    // Sumar los movimientos de las cuentas hijas a las cuentas padres
+    foreach ($movimientos_por_cuenta as $key => $puc) {
+        // Ajustar la lógica según la naturaleza de la cuenta
+        if ($puc['naturaleza'] == 'C') { // Cuenta de crédito
+            $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
+            $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
+            $saldo_nuevo = $puc['saldo_anterior'] + $creditos - $debitos; // Créditos positivos, débitos negativos
+        } else { // Cuenta de débito
+            $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
+            $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
+            $saldo_nuevo = $puc['saldo_anterior'] - $creditos + $debitos; // Créditos negativos, débitos positivos
+        }
+
+        // Actualizar el saldo nuevo en el array
+        $movimientos_por_cuenta[$key]['saldo_nuevo'] = $saldo_nuevo;
+    }
+
+    // Filtrar resultados para incluir solo cuentas con movimientos
+    $resultados = array_filter($movimientos_por_cuenta, function ($mov) {
+        return $mov['debitos'] > 0 || $mov['creditos'] > 0 || $mov['saldo_anterior'] > 0;
+    });
+
+    // Totalizaciones
+    $total_saldo_anteriores = array_sum(array_column($resultados, 'saldo_anterior'));
+    $total_debitos = array_sum(array_column($resultados, 'debitos'));
+    $total_creditos = array_sum(array_column($resultados, 'creditos'));
+    $total_saldo_nuevo = array_sum(array_column($resultados, 'saldo_nuevo'));
+
+    // Preparar los datos para el PDF
+    return  [
+        'titulo' => 'Balance General',
+        'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+        'nit' => '8.000.903.753',
+        'tipo_balance' => 'balance_general',
+        'cuentas' => array_values($resultados),
+        'total_saldo_anteriores' => $total_saldo_anteriores,
+        'total_debitos' => $total_debitos,
+        'total_creditos' => $total_creditos,
+        'total_saldo_nuevo' => $total_saldo_nuevo,
+        'fecha_inicial' => $fecha_inicial,
+        'fecha_final' => $fecha_final,
+    ];
 }
 
 

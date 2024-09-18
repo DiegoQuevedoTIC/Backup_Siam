@@ -306,9 +306,25 @@ class BalanceGeneralController extends Controller
     {
         $fecha_inicial = $request->fecha_inicial;
         $fecha_final = $request->fecha_final;
+        $tipo_balance = $request->tipo_balance;
 
-        $nombre = 'balance_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
-        return Excel::download(new BalancesExport($fecha_inicial, $fecha_final), $nombre);
+        switch ($tipo_balance) {
+            case '2':
+                $nombre = 'balance_horizontal_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+                break;
+            case '3':
+                $nombre = 'balance_terceros_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+                break;
+            case '4':
+                $nombre = 'balance_comparativo_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+                break;
+            default:
+                $nombre = 'balance_general_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+                break;
+        }
+
+
+        return Excel::download(new BalancesExport($tipo_balance, $fecha_inicial, $fecha_final), $nombre);
     }
 }
 
