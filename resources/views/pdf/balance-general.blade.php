@@ -1,3 +1,8 @@
+@php
+    use App\Models\Firma;
+    $firmantes = Firma::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -228,6 +233,35 @@
 
             @endswitch
         </tbody>
+    </table>
+
+
+    <!-- Sección de firmas -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <tr>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->representante_legal ?? '' }}</p>
+                <p>{{ $firmantes->ci_representante_legal ?? '' }}</p>
+                <p></p>
+                <p></p>
+                <strong>REPRESENTANTE LEGAL</strong>
+            </td>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->revisor_fiscal ?? '' }}</p>
+                <p>{{ $firmantes->ci_revisor_fiscal ?? '' }}</p>
+                <p>{{ $firmantes->matricula_revisor_fiscal ?? '' }}</p>
+                <strong>REVISOR FISCAL</strong>
+            </td>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->contador ?? '' }}</p>
+                <p>{{ $firmantes->ci_contador ?? '' }}</p>
+                <p>{{ $firmantes->matricula_contador ?? '' }}</p>
+                <strong>CONTADOR</strong>
+            </td>
+        </tr>
     </table>
 </body>
 
