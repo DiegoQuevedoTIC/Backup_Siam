@@ -1,3 +1,8 @@
+@php
+    use App\Models\Firma;
+    $firmantes = Firma::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -92,14 +97,18 @@
 
         .firmas-container {
             display: flex;
+            /* Utiliza flexbox para alinear horizontalmente */
             justify-content: space-between;
-            margin-top: 50px;
+            /* Espacio entre las firmas */
+            margin-top: 20px;
+            /* Espacio superior opcional */
         }
 
         .firma {
             text-align: center;
+            /* Centra el texto dentro de cada firma */
             flex: 1;
-            /* Permite que ambos divs se expandan igualmente */
+            /* Permite que cada firma ocupe el mismo espacio */
         }
     </style>
 </head>
@@ -196,16 +205,27 @@
     @endif
 
     <!-- Sección de firmas -->
-    <div class="firmas-container">
-        <div class="firma">
-            <p>_________________________</p>
-            <p>Firma del Responsable</p>
-        </div>
-        <div class="firma">
-            <p>_________________________</p>
-            <p>Firma del Supervisor</p>
-        </div>
-    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <tr>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->representante_legal ?? '' }}</p>
+                <p>REPRESENTANTE LEGAL</p>
+            </td>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->revisor_fiscal ?? '' }}</p>
+                <p>REVISOR FISCAL</p>
+            </td>
+            <td style="text-align: center; width: 33%; padding-top: 20px;">
+                <p>_________________________</p>
+                <p>{{ $firmantes->contador ?? '' }}</p>
+                <p>CONTADOR</p>
+            </td>
+        </tr>
+    </table>
+
+
 
 </body>
 
