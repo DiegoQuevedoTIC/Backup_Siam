@@ -1,5 +1,4 @@
 <x-filament-panels::page>
-    <h2 class="text-center text-xl font-bold mb-4">Generar Reporte Excedente PYG</h2>
     <div class="flex gap-8">
         <div class="flex-none w-72">
             <ul class="hidden flex-col gap-y-7 md:flex m-5">

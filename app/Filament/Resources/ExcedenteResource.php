@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -36,7 +37,7 @@ class ExcedenteResource extends Resource
                         '1' => 'Formato Standard',
                         '2' => 'Formato Detallado',
                         '3' => 'Comparativo'
-                    ])->searchable(),
+                    ])->searchable()->live(),
                 DatePicker::make('fecha_desde')
                     ->label('Fecha inicial')
                     ->native(false)
@@ -50,12 +51,47 @@ class ExcedenteResource extends Resource
                 DatePicker::make('fecha_comparacion_desde')
                     ->label('Fecha inicial')
                     ->native(false)
-                    ->visible(false)
+                    ->visible(function (Get $get) {
+                        $tipo_informe = $get('tipo_informe');
+
+                        if ($tipo_informe == '3') {
+                            return true;
+                        }
+
+                        return false;
+                    })
+                    ->required(function (Get $get) {
+                        $tipo_informe = $get('tipo_informe');
+
+                        if ($tipo_informe == '3') {
+                            return true;
+                        }
+
+                        return false;
+                    })
+                    ->live()
                     ->displayFormat('d/m/Y'),
                 DatePicker::make('fecha_comparacion_hasta')
                     ->label('Fecha Final')
                     ->native(false)
-                    ->visible(false)
+                    ->visible(function (Get $get) {
+                        $tipo_informe = $get('tipo_informe');
+
+                        if ($tipo_informe == '3') {
+                            return true;
+                        }
+
+                        return false;
+                    })
+                    ->required(function (Get $get) {
+                        $tipo_informe = $get('tipo_informe');
+
+                        if ($tipo_informe == '3') {
+                            return true;
+                        }
+
+                        return false;
+                    })
                     ->displayFormat('d/m/Y'),
                 Toggle::make('is_mes_13')->label('¿Incluye Mes Trece?')->visible(false),
                 Toggle::make('is_subcentro')->label('Subcentro')

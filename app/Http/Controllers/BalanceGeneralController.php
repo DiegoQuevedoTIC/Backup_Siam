@@ -151,19 +151,6 @@ class BalanceGeneralController extends Controller
                 return response()->json(['status' => 400, 'message' => 'La fecha inicial no puede ser mayor que la fecha final'], 400);
             }
 
-            /* // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
-            $fecha_inicial_dt = new DateTime($fecha_inicial);
-            $fecha_final_dt = new DateTime($fecha_final);
-
-            // Calcular la diferencia en meses
-            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
-            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
-
-            // Validar que la diferencia no exceda 3 meses
-            if ($meses_diferencia > 6) {
-                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
-            } */
-
             // Obtener año de la fecha incial
             $ano_inicial = date('Y', strtotime($fecha_inicial));
 
