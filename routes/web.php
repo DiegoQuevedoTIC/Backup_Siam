@@ -24,6 +24,9 @@ Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'g
 
 Route::post('/export', [BalanceGeneralController::class, 'export'])->name('export');
 
+
+Route::get('/read', [BalanceGeneralController::class, 'readCsvFile']);
+
 Route::get('/x', function () {
     return view('welcome');
 });

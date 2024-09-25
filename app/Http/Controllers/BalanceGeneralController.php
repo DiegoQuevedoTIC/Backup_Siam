@@ -3,20 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Exports\BalancesExport;
+use App\Models\Comprobante;
+use App\Models\ComprobanteLinea;
+use App\Models\Puc;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use League\Csv\Reader;
 
 class BalanceGeneralController extends Controller
 {
     //
-    public function __construct()
+    /* public function __construct()
     {
         $this->middleware('auth');
-    }
+    } */
 
     function generarBalanceHorizontal(Request $request)
     {
@@ -200,9 +205,9 @@ class BalanceGeneralController extends Controller
             }
 
             // Validar que el mes anterior a la fecha inical este cerrado
-            if (validarCierreMes($fecha_inicial)) {
+            /* if (validarCierreMes($fecha_inicial)) {
                 return response()->json(['status' => 400, 'message' => 'El mes anterior a la fecha inicial debe estar cerrado'], 400);
-            }
+            } */
 
             // Almacenar todas las cuentas PUC
             $cuentas_puc = DB::table('pucs')->select('id', 'puc', 'descripcion', 'grupo', 'puc_padre', 'naturaleza')->get()->toArray();
@@ -285,7 +290,7 @@ class BalanceGeneralController extends Controller
             $pdf = Pdf::loadView('pdf.balance-general', $data);
             return response()->json(['pdf' => base64_encode($pdf->output())]);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'message' => $th->getMessage()], 500);
+            return response()->json(['status' => 500, 'message' => 'Ocurrio un error, intentalo mas tarde.'], 500);
         }
     }
 
@@ -312,6 +317,53 @@ class BalanceGeneralController extends Controller
 
 
         return Excel::download(new BalancesExport($tipo_balance, $fecha_inicial, $fecha_final), $nombre);
+    }
+
+    public function readCsvFile()
+    {
+        // Cargar el archivo CSV
+        $csv = Reader::createFromPath(public_path('comprobante_lineas.csv'), 'r');
+        $csv->setHeaderOffset(0); // Si el CSV tiene encabezados
+
+        $data = [];
+
+        // Leer los registros
+        foreach ($csv as $record) {
+            // Procesar cada registro
+            $data[] = $record; // Usar el operador de array para agregar elementos
+        }
+
+        response()->json(['success' => 'Operación completada']);
+
+        // Procedemos a guardar las líneas para cada comprobante
+        DB::transaction(function () use ($data) {
+            foreach ($data as $linea) {
+                // Obtener el comprobante y el PUC, asegurando que existan
+                $comprobante = Comprobante::where('n_documento', $linea['ENC_MOV_CONTA'])->first();
+                $puc = Puc::where('puc', $linea['PUC'])->first();
+
+                // Verificar que el comprobante y el PUC existan antes de crear la línea
+                if ($comprobante && $puc) {
+                    ComprobanteLinea::create([
+                        'comprobante_id' => $comprobante->id,
+                        'pucs_id' => $puc->id,
+                        'descripcion_linea' => $linea['DETALLE'],
+                        'debito' => !empty($linea['DEBITO']) ? $linea['DEBITO'] : null, // Asignar null si está vacío
+                        'credito' => !empty($linea['CREDITO']) ? $linea['CREDITO'] : null, // Asignar null si está vacío
+                        'linea' => !empty($linea['LINEA']) ? $linea['LINEA'] : null, // Asignar null si está vacío
+                        'BASE_GRAVABLE' => !empty($linea['BASE_GRAVABLE']) ? $linea['BASE_GRAVABLE'] : null, // Asignar null si está vacío
+                        'CHEQUE' => !empty($linea['CHEQUE']) ? $linea['CHEQUE'] : null // Asignar null si está vacío
+                    ]);
+                } else {
+                    // Manejo de errores si el comprobante o el PUC no existen
+                    // Puedes registrar un error o lanzar una excepción
+                    Log::warning('Comprobante o PUC no encontrado', [
+                        'n_documento' => $linea['ENC_MOV_CONTA'],
+                        'puc' => $linea['PUC']
+                    ]);
+                }
+            }
+        }, 5);
     }
 }
 
