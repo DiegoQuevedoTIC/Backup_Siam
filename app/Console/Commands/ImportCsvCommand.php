@@ -7,6 +7,7 @@ use League\Csv\Reader;
 use App\Models\Comprobante;
 use App\Models\Puc;
 use App\Models\ComprobanteLinea;
+use App\Models\Tercero;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -43,11 +44,13 @@ class ImportCsvCommand extends Command
             foreach ($data as $linea) {
                 $comprobante = Comprobante::where('n_documento', $linea['ENC_MOV_CONTA'])->first();
                 $puc = Puc::where('puc', $linea['PUC'])->first();
+                $tercero = Tercero::where('tercero_id', $linea['TERCERO'])->first();
 
                 if ($comprobante && $puc) {
                     ComprobanteLinea::create([
                         'comprobante_id' => $comprobante->id,
                         'pucs_id' => $puc->id,
+                        'tercero_id' => $tercero->id ?? null,
                         'descripcion_linea' => $linea['DETALLE'],
                         'debito' => !empty($linea['DEBITO']) ? $linea['DEBITO'] : null,
                         'credito' => !empty($linea['CREDITO']) ? $linea['CREDITO'] : null,

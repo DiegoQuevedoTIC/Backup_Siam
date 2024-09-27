@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Reportes\auxiliares\AuxiliarATerceroResource\Pages;
+namespace App\Filament\Resources\AuxiliarATerceroResource\Pages;
 
-use App\Filament\Resources\Reportes\auxiliares\AuxiliarATerceroResource;
+use App\Filament\Resources\AuxiliarATerceroResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

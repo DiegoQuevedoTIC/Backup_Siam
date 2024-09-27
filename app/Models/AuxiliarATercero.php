@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AuxiliarATercero extends Model
 {
     use HasFactory;
+
+    protected $table = 'auxiliares';
 }

@@ -24,7 +24,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+
 
 class ComprobanteResource extends Resource
 {
@@ -191,7 +192,11 @@ class ComprobanteResource extends Resource
                     ->cloneable()
                     ->grid(4)
                     ->collapsible()
-                    ->defaultItems(1),
+                    ->defaultItems(1)
+                    ->visible(function (){
+                        if(Route::is('filament.admin.procesos-contabilidad.resources.comprobantes.create')) return true;
+                        else return false;
+                    }),
             ]);
     }
 
@@ -256,6 +261,7 @@ class ComprobanteResource extends Resource
             'index' => Pages\ListComprobantes::route('/'),
             'create' => Pages\CreateComprobante::route('/create'),
             'edit' => Pages\EditComprobante::route('/{record}/edit'),
+            'view' => Pages\ViewComprobante::route('/{record}'),
         ];
     }
 }

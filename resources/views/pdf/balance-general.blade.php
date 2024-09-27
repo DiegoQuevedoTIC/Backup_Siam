@@ -17,8 +17,13 @@
         }
 
         .header {
-            text-align: right;
-            font-size: 12px;
+            width: 100%;
+            position: relative;
+        }
+
+        .logo {
+            float: right;
+            width: 100px; /* Ajusta el tamaño del logo según sea necesario */
         }
 
         .descripcion {
@@ -82,8 +87,12 @@
 </head>
 
 <body>
+    <div class="header">
+        <img src="{{ public_path('images/Icons1.png') }}" alt="logo" class="logo">
+    </div>
+
     <div>
-        SIAM ®<br>
+        SIAM ®<br><br>
     </div>
 
     <div>BALANCE DE PRUEBA POR {{ $nombre_compania }}</div>

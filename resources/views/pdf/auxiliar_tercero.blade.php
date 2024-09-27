@@ -24,7 +24,8 @@
 
         .logo {
             float: right;
-            width: 100px; /* Ajusta el tamaño del logo según sea necesario */
+            width: 100px;
+            /* Ajusta el tamaño del logo según sea necesario */
         }
 
         .descripcion {
@@ -54,7 +55,8 @@
         .table td {
             border: 1px solid #ddd;
             /* Bordes de las celdas */
-            padding: 8px;
+            padding: 5px;
+            width: 0.1rem;
             /* Espaciado interno */
             font-size: 10px;
             /* Ajustar el tamaño de la fuente */
@@ -127,91 +129,83 @@
         SIAM ®<br><br>
     </div>
 
-    <div style="text-align: center;">
-        <h1>{{ $nombre_compania }}</h1>
-        <p>NIT: {{ $nit }}</p>
-        <h3>ESTADO DE GANANCIAS Y PERDIDAS POR COMPAÑIA</h3>
-        <p>Fecha: {{ $fecha_inicial->format('d/m/Y') }} hasta {{ $fecha_final->format('d/m/Y') }}</p>
+    <div>AUXILIAR A TERCERO POR {{ $nombre_compania }}</div>
+
+    <div>
+        <p><strong>FONDEP</strong></p>
+        <p>Grupo : {{ $nombre_compania }}</p>
+        <p>Rango : {{ $fecha_inicial->format('d/m/Y') }} hasta {{ $fecha_final->format('d/m/Y') }}</p>
+        <p>Nit : {{ $nit }}</p>
+    </div>
+
+    <div>
+        <table class="table">
+            <tr>
+                <td>Fecha de Control:</td>
+                <td>{{ now()->format('d/m/Y') }}</td>
+            </tr>
+            <tr>
+                <td>Fecha de Impresión:</td>
+                <td>{{ now()->format('d/m/Y') }}</td>
+            </tr>
+            <tr>
+                <td>Hora de Impresión:</td>
+                <td>{{ now()->format('h:i A') }}</td>
+            </tr>
+            <tr>
+                <td>Usuario:</td>
+                <td>{{ auth()->user()->name }}</td>
+            </tr>
+        </table>
     </div>
 
 
-    @if ($tipo_informe === '3')
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>FECHA</th>
+                <th>DOCUMENTO</th>
+                <th>DETALLE</th>
+                <th>DEBITO</th>
+                <th>CREDITO</th>
+                <th>SALDO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="6" style="text-align: left; background-color: #f2f2f2"><strong>TERCERO:
+                        {{ $tercero->tercero . ' ' . $tercero->tercero_nombre . ' ' . $tercero->primer_apellido . ' ' . $tercero->segundo_apellido }}</strong>
+                </td>
+            </tr>
+            @foreach ($cuentas as $puc => $data)
                 <tr>
-                    <th>PUC</th>
-                    <th>Descripción</th>
-                    <th>Saldo (Rango 1)</th>
-                    <th>Saldo (Rango 2)</th>
+                    <td colspan="4" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA :
+                        {{ $puc }}
+                        {{ $data['descripcion'] }}</td>
+                        <td colspan="2" style="font-weight: bold; text-align: left; background-color: #f2f2f2">SALDO ANTERIOR: {{ number_format($data['movimientos'][0]->saldo_anterior, 2) }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($resultados_comparativos as $resultado)
+                @foreach ($data['movimientos'] as $movimiento)
                     <tr>
-                        <td>{{ $resultado['puc'] }}</td>
-                        <td>{{ $resultado['descripcion'] }}</td>
-                        <td>{{ number_format($resultado['saldo_rango_1'], 2) }}</td>
-                        <td>{{ number_format($resultado['saldo_rango_2'], 2) }}</td>
+                        <td>{{ $movimiento->fecha }}</td>
+                        <td>{{ $movimiento->documento }}</td>
+                        <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}</td>
+                        <td>{{ number_format($movimiento->debito, 2) }}</td>
+                        <td>{{ number_format($movimiento->credito, 2) }}</td>
+                        <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
                     </tr>
                 @endforeach
-
-
-                <tr class="total">
-                    <td colspan="2">Total Ingresos: {{ number_format($total_ingresos, 2) }}</td>
-                    <td>Total Egresos: {{ number_format($total_egresos, 2) }}</td>
-                    <td>Total Saldo: {{ number_format($total_saldo, 2) }}</td>
+                <tr style="background-color: #f2f2f2">
+                    <td colspan="3" style="font-weight: bold; text-align: left;">TOTAL {{ $data['descripcion'] }}
+                    </td>
+                    <td>{{ number_format(array_sum(array_column($data['movimientos'], 'debito')), 2) }}</td>
+                    <td>{{ number_format(array_sum(array_column($data['movimientos'], 'credito')), 2) }}</td>
+                    <td>{{ number_format(array_sum(array_column($data['movimientos'], 'saldo_nuevo')), 2) }}
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-    @else
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th style="text-align: center;">INGRESOS</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($ingresos as $ingreso)
-                    <tr>
-                        <td>{{ $ingreso->puc }}</td>
-                        <td class="description">{{ $ingreso->descripcion }}</td>
-                        <td>{{ number_format($ingreso->saldo, 2) ?? 0.0 }}</td>
-                    </tr>
-                @endforeach
-
-                <tr class="total">
-                    <td colspan="2">Total Ingresos</td>
-                    <td>{{ number_format($total_ingresos, 2) ?? 0.0 }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th style="text-align: center;">EGRESOS</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($egresos as $egreso)
-                    <tr>
-                        <td>{{ $egreso->puc }}</td>
-                        <td class="description">{{ $egreso->descripcion }}</td>
-                        <td>{{ number_format($egreso->saldo, 2) ?? 0.0 }}</td>
-                    </tr>
-                @endforeach
-
-                <tr class="total">
-                    <td colspan="2">Total Egresos</td>
-                    <td>{{ number_format($total_egresos, 2) ?? 0.0 }}</td>
-                </tr>
-            </tbody>
-        </table>
-    @endif
+                <br>
+            @endforeach
+        </tbody>
+    </table>
 
     <!-- Sección de firmas -->
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">

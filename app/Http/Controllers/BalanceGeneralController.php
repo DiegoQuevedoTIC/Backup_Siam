@@ -244,7 +244,7 @@ class BalanceGeneralController extends Controller
                 sumarMovimientosPadres($puc->id, $movimientos_por_cuenta, $pucs_normalizados);
             }
 
-            // Sumar los movimientos de las cuentas hijas a las cuentas padres
+            // Calcular saldo_nuevo
             foreach ($movimientos_por_cuenta as $key => $puc) {
                 // Ajustar la lógica según la naturaleza de la cuenta
                 if ($puc['naturaleza'] == 'C') { // Cuenta de crédito
