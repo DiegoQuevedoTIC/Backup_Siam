@@ -12,7 +12,6 @@
 
         .form-container {
             visibility: hidden;
-            border: 2px solid black;
             max-width: 800px;
             margin: 0 auto;
             margin-top: 20px;
@@ -20,13 +19,11 @@
 
         .main-section {
             display: flex;
-            border-bottom: 2px solid black;
         }
 
         .sub-section {
             flex: 1;
             padding: 10px;
-            border-right: 1px solid black;
             min-height: 80px;
         }
 
@@ -50,6 +47,34 @@
             font-size: 12px;
         }
 
+        .space_cheque {
+            height: 30vh;
+            display: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .main-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-section {
+            flex: 1;
+            padding: 10px;
+            min-height: 80px;
+        }
+
+        .description-section {
+            padding: 10px;
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -59,6 +84,30 @@
             .button {
                 display: none;
                 /* Oculta el botón */
+            }
+
+            .space_cheque {
+                border: 1px solid black;
+            }
+
+            .table {
+                border: 1px solid black;
+            }
+
+            .space_cheque {
+                display: block !important;
+            }
+
+            .main-section {
+                border: 1px solid black;
+            }
+
+            .sub-section {
+                border-right: 1px solid black;
+            }
+
+            .description-section {
+                border: 1px solid black;
             }
 
             #print_section,
@@ -90,21 +139,49 @@
         <img style="width: 10%;" src="{{ asset('images/Icons1.png') }}" class="logo" alt="logo" srcset="">
         <br>
 
-
         <x-filament::button style="float: right;" onclick="imprimirDiv()" class="button" icon="heroicon-m-printer">
             Imprimir
         </x-filament::button>
 
-        @if ($this->hasInfolist())
-            {{ $this->infolist }}
-        @else
-            {{ $this->form }}
+        <div>
+            <div class="main-section">
+                <div class="sub-section">
+                    <h2>Número de Comprobante:</h2>
+                    <p>{{ $this->getRecord()->n_documento }}</p>
+                </div>
+                <div class="sub-section">
+                    <h2>Fecha de comprobante:</h2>
+                    <p>{{ $this->getRecord()->fecha_comprobante }}</p>
+                </div>
+                <div class="sub-section">
+                    <h2>Tipo de Comprobante:</h2>
+                    <p>{{ $this->getRecord()->tipoDocumentoContable->tipo_documento }}</p>
+                </div>
+                <div class="sub-section">
+                    <h2>Tercero Comprobante:</h2>
+                    <p>{{ $this->getRecord()->tercero->tercero_id ?? '' }}</p>
+                </div>
+            </div>
+            <div class="description-section">
+                <h2>Descripción del Comprobante:</h2>
+                <p>{{ $this->getRecord()->descripcion_comprobante }}</p>
+            </div>
+        </div>
+
+        @if ($this->getRecord()->tipo_documento_contables_id === 17)
+            <div class="space_cheque">
+                <div class="footer_space_cheque">
+                    <div class="descripcion-completa">
+                        <p>
+                        </p>
+                    </div>
+                </div>
+            </div>
         @endif
 
-        {{-- @if (count($relationManagers = $this->getRelationManagers()))
-            <x-filament-panels::resources.relation-managers :active-manager="$this->activeRelationManager" :managers="$relationManagers" :owner-record="$record"
-                :page-class="static::class" />
-        @endif --}}
+        <br>
+
+        <hr>
 
         @if (count($lineas = $this->getRecord()->comprobanteLinea))
             <table class="filament-table-repeater w-full text-ri rtl:text-right table-auto mx-4 table mt-4">
@@ -228,8 +305,8 @@
                                                     <input style="text-align: right;"
                                                         class="fi-input block w-full border-none py-1.5 text-base text-gray-950 transition duration-75 placeholder:text-gray-400 focus:ring-0 disabled:text-gray-500 disabled:[-webkit-text-fill-color:theme(colors.gray.500)] disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.400)] sm:text-sm sm:leading-6 dark:text-white dark:placeholder:text-gray-500 dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:theme(colors.gray.400)] dark:disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.500)] bg-white/0 ps-3 pe-3"
                                                         disabled="disabled" inputmode="decimal" placeholder="Debito"
-                                                        step="0.00" type="number"
-                                                        value="{{ $linea->debito ?? '0.00' }}">
+                                                        step="0.00" type="text"
+                                                        value="{{ number_format($linea->debito, 2) ?? '0.00' }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -259,8 +336,8 @@
                                                     <input style="text-align: right;"
                                                         class="fi-input block w-full border-none py-1.5 text-base text-gray-950 transition duration-75 placeholder:text-gray-400 focus:ring-0 disabled:text-gray-500 disabled:[-webkit-text-fill-color:theme(colors.gray.500)] disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.400)] sm:text-sm sm:leading-6 dark:text-white dark:placeholder:text-gray-500 dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:theme(colors.gray.400)] dark:disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.500)] bg-white/0 ps-3 pe-3"
                                                         disabled="disabled" inputmode="decimal" placeholder="Credito"
-                                                        step="any" type="number"
-                                                        value="{{ $linea->credito ?? '0.00' }}">
+                                                        step="any" type="text"
+                                                        value="{{ number_format($linea->credito, 2) ?? '0.00' }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -281,9 +358,11 @@
             </div>
         @endif
 
+        <br>
+
         @if (count($lineas))
             <hr>
-            <table class="filament-table-repeater w-full text-left rtl:text-right table-auto mx-4">
+            <table class="filament-table-repeater w-full text-left rtl:text-right table-auto mx-4 table">
                 <thead>
                     <tr>
                         <th class="filament-table-repeater-header-cell p-2">
@@ -310,7 +389,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="3" class="filament-table-repeater-tbody-cell px-1 text-center">
+                        <td colspan="3" class="filament-table-repeater-tbody-cell px-1 text-center"
+                            style="width: 56%">
                             <div data-field-wrapper="" class="fi-fo-field-wrp">
                                 <label class="sr-only">
                                     Descripcion Linea
@@ -341,12 +421,19 @@
                                     <div class="grid gap-y-2">
                                         <div
                                             class="fi-input-wrp flex rounded-lg shadow-sm ring-1 transition duration-75 fi-disabled bg-gray-50 dark:bg-transparent ring-gray-950/10 dark:ring-white/10 fi-fo-text-input overflow-hidden">
+                                            <div
+                                                class="items-center gap-x-3 ps-3 flex border-e border-gray-200 pe-3 ps-3 dark:border-white/10">
+                                                <span
+                                                    class="fi-input-wrp-label whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    $
+                                                </span>
+                                            </div>
                                             <div class="min-w-0 flex-1">
                                                 <input style="text-align: right;"
                                                     class="fi-input block w-full border-none py-1.5 text-base text-gray-950 transition duration-75 placeholder:text-gray-400 focus:ring-0 disabled:text-gray-500 disabled:[-webkit-text-fill-color:theme(colors.gray.500)] disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.400)] sm:text-sm sm:leading-6 dark:text-white dark:placeholder:text-gray-500 dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:theme(colors.gray.400)] dark:disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.500)] bg-white/0 ps-3 pe-3"
                                                     disabled="disabled" inputmode="decimal" placeholder="Debito"
-                                                    step="0.00" type="number"
-                                                    value="{{ $linea->sum('debito') ?? '0.00' }}">
+                                                    step="0.00" type="text"
+                                                    value="{{ number_format($lineas->sum('debito'), 2) ?? '0.00' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -365,12 +452,19 @@
                                     <div class="grid gap-y-2">
                                         <div
                                             class="fi-input-wrp flex rounded-lg shadow-sm ring-1 transition duration-75 fi-disabled bg-gray-50 dark:bg-transparent ring-gray-950/10 dark:ring-white/10 fi-fo-text-input overflow-hidden">
+                                            <div
+                                                class="items-center gap-x-3 ps-3 flex border-e border-gray-200 pe-3 ps-3 dark:border-white/10">
+                                                <span
+                                                    class="fi-input-wrp-label whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    $
+                                                </span>
+                                            </div>
                                             <div class="min-w-0 flex-1">
                                                 <input style="text-align: right;"
                                                     class="fi-input block w-full border-none py-1.5 text-base text-gray-950 transition duration-75 placeholder:text-gray-400 focus:ring-0 disabled:text-gray-500 disabled:[-webkit-text-fill-color:theme(colors.gray.500)] disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.400)] sm:text-sm sm:leading-6 dark:text-white dark:placeholder:text-gray-500 dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:theme(colors.gray.400)] dark:disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.500)] bg-white/0 ps-3 pe-3"
                                                     disabled="disabled" inputmode="decimal" placeholder="Credito"
-                                                    step="any" type="number"
-                                                    value="{{ $linea->sum('credito') ?? '0.00' }}">
+                                                    step="any" type="text"
+                                                    value="{{ number_format($lineas->sum('credito'), 2) ?? '0.00' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -383,29 +477,29 @@
                     </tr>
                 </tbody>
             </table>
+        @endif
 
-            <div id="div_firmas" class="form-container">
-                <div class="main-section">
-                    <div class="sub-section">
-                        <h2>PREPARADO</h2>
-                        <p>{{ strtoupper(Auth::user()->name) }}</p>
-                    </div>
-                    <div class="sub-section">
-                        <h2>REVISADO</h2>
-                    </div>
-                    <div class="sub-section">
-                        <h2>APROBADO</h2>
-                    </div>
-                    <div class="sub-section">
-                        <h2>CONTABILIZADO</h2>
-                    </div>
+        <div id="div_firmas" class="form-container">
+            <div class="main-section">
+                <div class="sub-section">
+                    <h2>PREPARADO</h2>
+                    <p>{{ strtoupper(Auth::user()->name) }}</p>
                 </div>
-                <div class="signature-section">
-                    <h2>FIRMA Y SELLO</h2>
-                    <p>C.C. / Nit</p>
+                <div class="sub-section">
+                    <h2>REVISADO</h2>
+                </div>
+                <div class="sub-section">
+                    <h2>APROBADO</h2>
+                </div>
+                <div class="sub-section">
+                    <h2>CONTABILIZADO</h2>
                 </div>
             </div>
-        @endif
+            <div class="signature-section">
+                <h2>FIRMA Y SELLO</h2>
+                <p>C.C. / Nit</p>
+            </div>
+        </div>
     </div>
 
     <script>

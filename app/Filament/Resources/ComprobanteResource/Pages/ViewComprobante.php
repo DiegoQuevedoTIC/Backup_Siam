@@ -14,4 +14,16 @@ class ViewComprobante extends ViewRecord
     protected static string $resource = ComprobanteResource::class;
 
     protected static string $view = 'custom.comprobante.view-comprobante';
+
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\TextEntry::make('fecha_comprobante'),
+                Infolists\Components\TextEntry::make('tipoDocumentoContable.tipo_documento'),
+                Infolists\Components\TextEntry::make('n_documento'),
+                Infolists\Components\TextEntry::make('tercero.tercero_id'),
+                Infolists\Components\TextEntry::make('descripcion_comprobante'),
+            ]);
+    }
 }

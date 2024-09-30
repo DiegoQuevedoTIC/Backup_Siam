@@ -31,6 +31,16 @@ class AuxiliarATerceroResource extends Resource
         return $form
             ->schema([
                 //
+                Select::make('tipo_auxiliar')
+                ->label('Tipo Auxiliar')
+                ->options([
+                    '1' => 'Auxiliar a tercero',
+                    '2' => 'Auxiliar a cuenta',
+                    '3' => 'Auxiliar detalle cuenta',
+                    '3' => 'Auxiliar tipo de documento',
+                ])
+                ->required()
+                ->searchable(),
                 Select::make('tercero_id')
                     ->label('Tercero')
                     ->native(false)

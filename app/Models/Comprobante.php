@@ -20,7 +20,7 @@ class Comprobante extends Model
 
     public function tipoDocumentoContable(): BelongsTo
     {
-        return $this->belongsTo(TipoDocumentoContable::class);
+        return $this->belongsTo(TipoDocumentoContable::class, 'tipo_documento_contables_id');
     }
 
     public function tercero(): BelongsTo

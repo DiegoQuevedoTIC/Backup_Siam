@@ -215,7 +215,7 @@ class BalanceGeneralController extends Controller
             // Crear un array asociativo para las cuentas PUC
             $pucs_normalizados = [];
             foreach ($cuentas_puc as $puc) {
-                $pucs_normalizados[trim(strtolower($puc->puc))] = $puc->id;
+                $pucs_normalizados[$puc->puc] = $puc->id;
             }
 
             // Obtener los movimientos y los saldos anteriores en una sola consulta
@@ -373,7 +373,7 @@ function sumarMovimientosPadres($puc_id, &$movimientos_por_cuenta, $pucs_normali
     if (isset($movimientos_por_cuenta[$puc_id])) {
         $puc = $movimientos_por_cuenta[$puc_id];
         if (!empty($puc['puc_padre'])) {
-            $puc_padre_normalizado = trim(strtolower($puc['puc_padre']));
+            $puc_padre_normalizado = $puc['puc_padre'];
             $padre_id = $pucs_normalizados[$puc_padre_normalizado] ?? false;
 
             if ($padre_id !== false) {

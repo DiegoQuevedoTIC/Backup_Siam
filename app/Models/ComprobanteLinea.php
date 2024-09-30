@@ -22,11 +22,11 @@ class ComprobanteLinea extends Model
 
     public function tercero(): BelongsTo
     {
-        return $this->belongsTo(Tercero::class);
+        return $this->belongsTo(Tercero::class, 'tercero_id');
     }
 
     public function puc(): BelongsTo
     {
-        return $this->belongsTo(Puc::class);
+        return $this->belongsTo(Puc::class, 'pucs_id');
     }
 }

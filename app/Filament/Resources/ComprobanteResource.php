@@ -25,11 +25,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Support\Facades\Route;
+use Filament\Tables\Filters\SelectFilter;
 
 
 class ComprobanteResource extends Resource
 {
-    protected static ?string     $model = Comprobante::class;
+    protected static ?string    $model = Comprobante::class;
     protected static ?string    $cluster = ProcesosContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-calculator';
     protected static ?string    $navigationLabel = 'Creacion Comprobantes';
@@ -193,9 +194,9 @@ class ComprobanteResource extends Resource
                     ->grid(4)
                     ->collapsible()
                     ->defaultItems(1)
-                    ->visible(function (){
-                        if(Route::is('filament.admin.procesos-contabilidad.resources.comprobantes.create')) return true;
-                        else return false;
+                    ->visible(function () {
+                        if (Route::is('filament.admin.procesos-contabilidad.resources.comprobantes.view')) return false;
+                        else return true;
                     }),
             ]);
     }
@@ -207,9 +208,8 @@ class ComprobanteResource extends Resource
                 //
                 TextColumn::make('id')
                     ->label('Nº'),
-                TextColumn::make('tipo_documento_contables_id')
+                TextColumn::make('tipoDocumentoContable.tipo_documento')
                     ->label('Tipo de Documento Contable')
-                    ->formatStateUsing(fn(string $state): string => TipoDocumentoContable::all()->find($state)['tipo_documento'])
                     ->searchable(),
                 TextColumn::make('n_documento')
                     ->label('Nº de documento')
@@ -225,18 +225,17 @@ class ComprobanteResource extends Resource
                     DatePicker::make('created_until')
                         ->label('Creado hasta')
                         ->native(false)
-                ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', ">=", $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', "<=", $date),
-                            );
-                    })
+                ])->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', ">=", $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn(Builder $query, $date): Builder => $query->whereDate('fecha_comprobante', "<=", $date),
+                        );
+                })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->label('Ver'),
