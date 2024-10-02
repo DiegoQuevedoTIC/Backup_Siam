@@ -155,6 +155,40 @@ class EditComprobante extends EditRecord
                     ->columnSpan(8)
                     ->required(),
 
+                TextInput::make('total_debito')->label('Total Debitos')
+                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                    ->prefix('$')
+                    ->readOnly(function (Get $get, Set $set) {
+                        $total = 0;
+                        foreach ($get('detalle') as $detalle) {
+                            $total += floatval($detalle['debito']);
+                        }
+                        $set('total_debito', $total);
+                        return true;
+                    })
+                    ->columnSpan([
+                        'sm' => 2,
+                        'xl' => 3,
+                        '2xl' => 4,
+                    ]),
+
+                TextInput::make('total_credito')->label('Total Creditos')
+                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                    ->prefix('$')
+                    ->readOnly(function (Get $get, Set $set) {
+                        $total = 0;
+                        foreach ($get('detalle') as $detalle) {
+                            $total += floatval($detalle['credito']);
+                        }
+                        $set('total_credito', $total);
+                        return true;
+                    })
+                    ->columnSpan([
+                        'sm' => 2,
+                        'xl' => 3,
+                        '2xl' => 4,
+                    ]),
+
                 TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea', function ($query) {
@@ -180,15 +214,16 @@ class EditComprobante extends EditRecord
                             ->required(),
                         TextInput::make('debito')
                             ->placeholder('Debito')
-                            ->numeric()
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                             ->inputMode('decimal')
                             ->prefix('$'),
                         TextInput::make('credito')
                             ->placeholder('Credito')
-                            ->numeric()
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                             ->inputMode('decimal')
                             ->prefix('$')
                     ])
+                    ->live()
                     ->reorderable()
                     ->cloneable()
                     ->grid(4)
