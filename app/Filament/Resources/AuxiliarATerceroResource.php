@@ -12,6 +12,7 @@ use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,21 +33,30 @@ class AuxiliarATerceroResource extends Resource
             ->schema([
                 //
                 Select::make('tipo_auxiliar')
-                ->label('Tipo Auxiliar')
-                ->options([
-                    '1' => 'Auxiliar a tercero',
-                    '2' => 'Auxiliar a cuenta',
-                    '3' => 'Auxiliar detalle cuenta',
-                    '3' => 'Auxiliar tipo de documento',
-                ])
-                ->required()
-                ->searchable(),
+                    ->label('Tipo Auxiliar')
+                    ->options([
+                        '1' => 'Auxiliar a tercero',
+                        '2' => 'Auxiliar a cuenta',
+                        '3' => 'Auxiliar detalle cuenta',
+                        '4' => 'Auxiliar tipo de documento',
+                    ])
+                    ->required()
+                    ->live()
+                    ->searchable(),
                 Select::make('tercero_id')
                     ->label('Tercero')
                     ->native(false)
                     ->searchable()
-                    ->options(Tercero::all()->pluck('nombres', 'id')->toArray())
+                    ->visible(function (Get $get) {
+                        $tipo_auxiliar = $get('tipo_auxiliar');
+
+                        if ($tipo_auxiliar == '1') {
+                            return true;
+                        }
+                        return false;
+                    })
                     ->required()
+                    ->options(Tercero::all()->pluck('nombres', 'id')->toArray())
                     ->columnSpanFull(),
                 DatePicker::make('fecha_inicial')->label('Fecha Inicial')->format('d/m/Y')->native(false)->required(),
                 DatePicker::make('fecha_final')->label('Fecha Final')->format('d/m/Y')->native(false)->required(),

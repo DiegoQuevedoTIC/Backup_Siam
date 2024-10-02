@@ -154,7 +154,7 @@
             </tr>
             <tr>
                 <td>Usuario:</td>
-                <td>{{ auth()->user()->name }}</td>
+                <td>{{ auth()->user()->name ?? '' }}</td>
             </tr>
         </table>
     </div>
@@ -162,41 +162,95 @@
 
     <table class="table">
         <thead>
-            <tr>
-                <th>FECHA</th>
-                <th>DOCUMENTO</th>
-                <th>DETALLE</th>
-                <th>DEBITO</th>
-                <th>CREDITO</th>
-                <th>SALDO</th>
-            </tr>
+            @switch($tipo_balance)
+                @case('auxiliar_cuentas')
+                    <tr>
+                        <th>FECHA</th>
+                        <th>DOCUMENTO</th>
+                        <th>DETALLE</th>
+                        <th>TERCERO</th>
+                        <th>DEBITO</th>
+                        <th>CREDITO</th>
+                        <th>SALDO</th>
+                    </tr>
+                @break
+
+                @default
+                    <tr>
+                        <th>FECHA</th>
+                        <th>DOCUMENTO</th>
+                        <th>DETALLE</th>
+                        <th>DEBITO</th>
+                        <th>CREDITO</th>
+                        <th>SALDO</th>
+                    </tr>
+            @endswitch
+
         </thead>
         <tbody>
-            <tr>
-                <td colspan="6" style="text-align: left; background-color: #f2f2f2"><strong>TERCERO:
-                        {{ $tercero->tercero . ' ' . $tercero->tercero_nombre . ' ' . $tercero->primer_apellido . ' ' . $tercero->segundo_apellido }}</strong>
-                </td>
-            </tr>
+            @if ($tipo_balance == 'auxiliar_tercero')
+                <tr>
+                    <td colspan="6" style="text-align: left; background-color: #f2f2f2"><strong>TERCERO:
+                            {{ $tercero->tercero . ' ' . $tercero->tercero_nombre . ' ' . $tercero->primer_apellido . ' ' . $tercero->segundo_apellido }}</strong>
+                    </td>
+                </tr>
+            @endif
             @foreach ($cuentas as $puc => $data)
                 <tr>
-                    <td colspan="4" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA :
-                        {{ $puc }}
-                        {{ $data['descripcion'] }}</td>
-                        <td colspan="2" style="font-weight: bold; text-align: left; background-color: #f2f2f2">SALDO ANTERIOR: {{ number_format($data['movimientos'][0]->saldo_anterior, 2) }}</td>
+                    @if ($tipo_balance == 'auxiliar_cuentas')
+                        <td colspan="5" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA
+                            :
+                            {{ $puc }}
+                            {{ $data['descripcion'] }}</td>
+                    @else
+                        <td colspan="4" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA
+                            :
+                            {{ $puc }}
+                            {{ $data['descripcion'] }}</td>
+                    @endif
+                    <td colspan="2" style="font-weight: bold; text-align: left; background-color: #f2f2f2">SALDO
+                        ANTERIOR: {{ number_format($data['movimientos'][0]->saldo_anterior, 2) }}</td>
                 </tr>
-                @foreach ($data['movimientos'] as $movimiento)
-                    <tr>
-                        <td>{{ $movimiento->fecha }}</td>
-                        <td>{{ $movimiento->documento }}</td>
-                        <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}</td>
-                        <td>{{ number_format($movimiento->debito, 2) }}</td>
-                        <td>{{ number_format($movimiento->credito, 2) }}</td>
-                        <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
-                    </tr>
-                @endforeach
+
+                @switch($tipo_balance)
+                    @case('auxiliar_cuentas')
+                        @foreach ($data['movimientos'] as $movimiento)
+                            <tr>
+                                <td>{{ $movimiento->fecha }}</td>
+                                <td>{{ $movimiento->documento }}</td>
+                                <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}
+                                </td>
+                                <td>{{ $movimiento->tercero ?? 'N/A' }}</td>
+                                <td>{{ number_format($movimiento->debito, 2) }}</td>
+                                <td>{{ number_format($movimiento->credito, 2) }}</td>
+                                <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @break
+
+                    @default
+                        @foreach ($data['movimientos'] as $movimiento)
+                            <tr>
+                                <td>{{ $movimiento->fecha }}</td>
+                                <td>{{ $movimiento->documento }}</td>
+                                <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}
+                                </td>
+                                <td>{{ number_format($movimiento->debito, 2) }}</td>
+                                <td>{{ number_format($movimiento->credito, 2) }}</td>
+                                <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
+                            </tr>
+                        @endforeach
+                @endswitch
                 <tr style="background-color: #f2f2f2">
-                    <td colspan="3" style="font-weight: bold; text-align: left;">TOTAL {{ $data['descripcion'] }}
-                    </td>
+                    @if ($tipo_balance == 'auxiliar_cuentas')
+                        <td colspan="4" style="font-weight: bold; text-align: left;">TOTAL
+                            {{ $data['descripcion'] }}
+                        </td>
+                    @else
+                        <td colspan="3" style="font-weight: bold; text-align: left;">TOTAL
+                            {{ $data['descripcion'] }}
+                        </td>
+                    @endif
                     <td>{{ number_format(array_sum(array_column($data['movimientos'], 'debito')), 2) }}</td>
                     <td>{{ number_format(array_sum(array_column($data['movimientos'], 'credito')), 2) }}</td>
                     <td>{{ number_format(array_sum(array_column($data['movimientos'], 'saldo_nuevo')), 2) }}

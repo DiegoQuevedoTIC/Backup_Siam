@@ -26,7 +26,7 @@ use Filament\Tables\Filters\Filter;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Support\Facades\Route;
 use Filament\Tables\Filters\SelectFilter;
-
+use Filament\Support\RawJs;
 
 class ComprobanteResource extends Resource
 {
@@ -155,6 +155,40 @@ class ComprobanteResource extends Resource
                     ->autocomplete(false)
                     ->required(),
 
+                TextInput::make('total_debito')->label('Total Debitos')
+                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                    ->prefix('$')
+                    ->readOnly(function (Get $get, Set $set) {
+                        $total = 0;
+                        foreach ($get('detalle') as $detalle) {
+                            $total += floatval($detalle['debito']);
+                        }
+                        $set('total_debito', $total);
+                        return true;
+                    })
+                    ->columnSpan([
+                        'sm' => 2,
+                        'xl' => 3,
+                        '2xl' => 4,
+                    ]),
+
+                TextInput::make('total_credito')->label('Total Creditos')
+                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                    ->prefix('$')
+                    ->readOnly(function (Get $get, Set $set) {
+                        $total = 0;
+                        foreach ($get('detalle') as $detalle) {
+                            $total += floatval($detalle['credito']);
+                        }
+                        $set('total_credito', $total);
+                        return true;
+                    })
+                    ->columnSpan([
+                        'sm' => 2,
+                        'xl' => 3,
+                        '2xl' => 4,
+                    ]),
+
                 TableRepeater::make('detalle')
                     ->label('Detalle comprobante')
                     ->relationship('comprobanteLinea', function ($query) {
@@ -180,15 +214,14 @@ class ComprobanteResource extends Resource
                             ->required(),
                         TextInput::make('debito')
                             ->placeholder('Debito')
-                            ->numeric()
-                            ->inputMode('decimal')
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                             ->prefix('$'),
                         TextInput::make('credito')
                             ->placeholder('Credito')
-                            ->numeric()
-                            ->inputMode('decimal')
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                             ->prefix('$'),
                     ])
+                    ->live()
                     ->reorderable()
                     ->cloneable()
                     ->grid(4)
@@ -198,6 +231,7 @@ class ComprobanteResource extends Resource
                         if (Route::is('filament.admin.procesos-contabilidad.resources.comprobantes.view')) return false;
                         else return true;
                     }),
+
             ]);
     }
 

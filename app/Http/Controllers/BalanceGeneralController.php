@@ -247,14 +247,14 @@ class BalanceGeneralController extends Controller
             // Calcular saldo_nuevo
             foreach ($movimientos_por_cuenta as $key => $puc) {
                 // Ajustar la lógica según la naturaleza de la cuenta
-                if ($puc['naturaleza'] == 'C') { // Cuenta de crédito
-                    $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
-                    $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
-                    $saldo_nuevo = $puc['saldo_anterior'] + $creditos - $debitos; // Créditos positivos, débitos negativos
-                } else { // Cuenta de débito
-                    $debitos = $puc['debitos'] ?? 0; // Acceso correcto a propiedades
-                    $creditos = $puc['creditos'] ?? 0; // Acceso correcto a propiedades
-                    $saldo_nuevo = $puc['saldo_anterior'] - $creditos + $debitos; // Créditos negativos, débitos positivos
+                if ($puc['naturaleza'] == 'C') {
+                    $debitos = $puc[$key]['debitos'] ?? 0;
+                    $creditos = $puc[$key]['creditos'] ?? 0;
+                    $saldo_nuevo = $puc['saldo_anterior'] + $creditos - $debitos;
+                } else {
+                    $debitos = $puc['debitos'] ?? 0;
+                    $creditos = $puc['creditos'] ?? 0;
+                    $saldo_nuevo = $puc['saldo_anterior'] - $creditos + $debitos;
                 }
 
                 // Actualizar el saldo nuevo en el array
@@ -262,15 +262,15 @@ class BalanceGeneralController extends Controller
             }
 
             // Filtrar resultados para incluir solo cuentas con movimientos
-            $resultados = array_filter($movimientos_por_cuenta, function ($mov) {
+            /* $resultados = array_filter($movimientos_por_cuenta, function ($mov) {
                 return $mov['debitos'] > 0 || $mov['creditos'] > 0 || $mov['saldo_anterior'] > 0;
-            });
+            }); */
 
             // Totalizaciones
-            $total_saldo_anteriores = array_sum(array_column($resultados, 'saldo_anterior'));
-            $total_debitos = array_sum(array_column($resultados, 'debitos'));
-            $total_creditos = array_sum(array_column($resultados, 'creditos'));
-            $total_saldo_nuevo = array_sum(array_column($resultados, 'saldo_nuevo'));
+            $total_saldo_anteriores = array_sum(array_column($movimientos_por_cuenta, 'saldo_anterior'));
+            $total_debitos = array_sum(array_column($movimientos_por_cuenta, 'debitos'));
+            $total_creditos = array_sum(array_column($movimientos_por_cuenta, 'creditos'));
+            $total_saldo_nuevo = array_sum(array_column($movimientos_por_cuenta, 'saldo_nuevo'));
 
             // Preparar los datos para el PDF
             $data = [
@@ -278,7 +278,7 @@ class BalanceGeneralController extends Controller
                 'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
                 'nit' => '8.000.903.753',
                 'tipo_balance' => 'balance_general',
-                'cuentas' => array_values($resultados),
+                'cuentas' => array_values($movimientos_por_cuenta),
                 'total_saldo_anteriores' => $total_saldo_anteriores,
                 'total_debitos' => $total_debitos,
                 'total_creditos' => $total_creditos,
@@ -382,7 +382,6 @@ function sumarMovimientosPadres($puc_id, &$movimientos_por_cuenta, $pucs_normali
                     $movimientos_por_cuenta[$padre_id] = [
                         'debitos' => 0,
                         'creditos' => 0,
-                        'saldo_anterior' => 0,
                     ];
                 }
 
@@ -425,8 +424,8 @@ function buscarSaldoAnterior($fecha_inicial, $puc): string
 function buscarMovimientos($fecha_inicial, $fecha_final): object
 {
     return DB::table('comprobantes as c')
-        ->join('comprobante_lineas as cl', 'cl.comprobante_id', 'c.id')
-        ->leftJoin('pucs as p', 'cl.pucs_id', 'p.id')
+        ->leftJoin('comprobante_lineas as cl', 'cl.comprobante_id', 'c.id')
+        ->rightJoin('pucs as p', 'cl.pucs_id', 'p.id')
         ->whereBetween('c.fecha_comprobante', [$fecha_inicial, $fecha_final])
         ->select(
             'p.puc',

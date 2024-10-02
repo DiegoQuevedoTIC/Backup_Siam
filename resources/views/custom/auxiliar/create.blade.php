@@ -15,17 +15,33 @@
                 </button>
             </ul>
         </div>
-        <div class="flex-1 mt-6 border border-dashed border-gray-300 rounded-lg flex items-center justify-center relative">
+        <div
+            class="flex-1 mt-6 border border-dashed border-gray-300 rounded-lg flex items-center justify-center relative">
 
             @if ($showPDF)
                 <embed id="pdf" src="{{ $src }}" type="application/pdf" width="100%" height="600px"
                     class="rounded-lg" />
             @else
-                <div id="empty">
-                    <x-filament::icon icon="heroicon-m-document-text"
-                        class="h-20 w-20 text-gray-500 dark:text-gray-400" />
-                </div>
+                @if ($loading)
+                    <x-filament::loading-indicator class="h-20 w-20" />
+                @else
+                    <div id="empty">
+                        <x-filament::icon icon="heroicon-m-document-text"
+                            class="h-20 w-20 text-gray-500 dark:text-gray-400" />
+                    </div>
+                    <br>
+                    <div wire:poll.5s="checkJobStatus">
+                        @if ($this->checkJobStatus())
+                            @if ($this->checkJobStatus())
+                                <p>El PDF ha sido generado y está listo para descargar.</p>
+                                <a href="{{ Storage::url('pdfs/auxiliar_tercero.pdf') }}" target="_blank">Descargar
+                                    PDF</a>
+                            @endif
+                        @endif
+                    </div>
+                @endif
             @endif
         </div>
     </div>
+
 </x-filament-panels::page>
