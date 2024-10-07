@@ -301,7 +301,7 @@ class BalanceGeneralController extends Controller
             $pdf = Pdf::loadView('pdf.balance-general', $data);
             return response()->json(['pdf' => base64_encode($pdf->output())]);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'message' => $th->getMessage()], 500);
+            return response()->json(['status' => 500, 'message' => 'Ocurrio un error!, intentalo mas tarde.'], 500);
         }
     }
 }
