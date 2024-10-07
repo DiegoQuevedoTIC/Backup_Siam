@@ -10,6 +10,23 @@ class Puc extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'puc',
+        'grupo',
+        'descripcion',
+        'nivel',
+        'naturaleza',
+        'mayor_rep',
+        'movimiento',
+        'subcentro',
+        'bancaria',
+        'tercero',
+        'puc_padre',
+        'base_gravable',
+        'mueve_modulo',
+        'codigo_dian',
+    ];
+
 
     public function comprobanteLinea(): HasMany
     {

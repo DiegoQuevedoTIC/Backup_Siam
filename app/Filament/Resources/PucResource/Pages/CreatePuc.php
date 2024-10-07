@@ -12,8 +12,6 @@ class CreatePuc extends CreateRecord
 {
     protected static string $resource = PucResource::class;
 
-
-
     protected function getCreatedNotification(): ?Notification
     {
         return Notification::make()
@@ -22,9 +20,10 @@ class CreatePuc extends CreateRecord
             ->body('La Cuenta PUC se ha creado de manera correcta');
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    /* protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (!is_null($data['puc_padre'])) {
+        //dd($data);
+        /* if (!is_null($data['puc_padre'])) {
             $puc_id = Puc::where('puc', '=', $data['puc_padre'])->get()->toArray();
             $data['pucs_id'] = $puc_id[0]['id'];
             return $data;
@@ -34,8 +33,8 @@ class CreatePuc extends CreateRecord
             $data['puc_padre'] = '';
             $data['pucs_id'] = NULL;
             return $data;
-        }
-    }
+        } *
+    } */
 
 
 }

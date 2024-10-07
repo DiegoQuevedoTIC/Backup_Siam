@@ -15,13 +15,15 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use League\Csv\Reader;
 
+use function Laravel\Prompts\error;
+
 class BalanceGeneralController extends Controller
 {
     //
-    /* public function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
-    } */
+    }
 
     function generarBalanceHorizontal(Request $request)
     {
@@ -192,108 +194,6 @@ class BalanceGeneralController extends Controller
         }
     }
 
-    public function generateBalanceGeneral(Request $request)
-    {
-        try {
-            // Validar parámetros
-            $fecha_inicial = $request->fecha_inicial;
-            $fecha_final = $request->fecha_final;
-
-            // Validar que la fecha inicial sea el 1 de mes
-            if (date('d', strtotime($fecha_inicial)) !== '01') {
-                return response()->json(['status' => 400, 'message' => 'La fecha inicial debe ser el 1 de mes'], 400);
-            }
-
-            // Validar que el mes anterior a la fecha inical este cerrado
-            /* if (validarCierreMes($fecha_inicial)) {
-                return response()->json(['status' => 400, 'message' => 'El mes anterior a la fecha inicial debe estar cerrado'], 400);
-            } */
-
-            // Almacenar todas las cuentas PUC
-            $cuentas_puc = DB::table('pucs')->select('id', 'puc', 'descripcion', 'grupo', 'puc_padre', 'naturaleza')->get()->toArray();
-
-            // Crear un array asociativo para las cuentas PUC
-            $pucs_normalizados = [];
-            foreach ($cuentas_puc as $puc) {
-                $pucs_normalizados[$puc->puc] = $puc->id;
-            }
-
-            // Obtener los movimientos y los saldos anteriores en una sola consulta
-            $movimientos = buscarMovimientos($fecha_inicial, $fecha_final);
-
-            // Generar el array de movimientos por cuenta
-            $movimientos_por_cuenta = [];
-            foreach ($cuentas_puc as $puc) {
-                $saldo_anterior = buscarSaldoAnterior($fecha_inicial, $puc->puc);
-
-                // Filtrar los movimientos de la cuenta actual
-                $movimiento = $movimientos->firstWhere('puc', $puc->puc);
-
-                // Inicializar el registro de la cuenta en el array
-                $movimientos_por_cuenta[$puc->id] = [
-                    'puc' => $puc->puc,
-                    'descripcion' => $puc->descripcion,
-                    'debitos' => $movimiento->debitos ?? 0,
-                    'creditos' => $movimiento->creditos ?? 0,
-                    'saldo_anterior' => $saldo_anterior,
-                    'puc_padre' => $puc->puc_padre,
-                    'naturaleza' => $puc->naturaleza
-                ];
-
-                // Llamar a la función para sumar movimientos de cuentas hijas a cuentas padres
-                sumarMovimientosPadres($puc->id, $movimientos_por_cuenta, $pucs_normalizados);
-            }
-
-            // Calcular saldo_nuevo
-            foreach ($movimientos_por_cuenta as $key => $puc) {
-                // Ajustar la lógica según la naturaleza de la cuenta
-                if ($puc['naturaleza'] == 'C') {
-                    $debitos = $puc[$key]['debitos'] ?? 0;
-                    $creditos = $puc[$key]['creditos'] ?? 0;
-                    $saldo_nuevo = $puc['saldo_anterior'] + $creditos - $debitos;
-                } else {
-                    $debitos = $puc['debitos'] ?? 0;
-                    $creditos = $puc['creditos'] ?? 0;
-                    $saldo_nuevo = $puc['saldo_anterior'] - $creditos + $debitos;
-                }
-
-                // Actualizar el saldo nuevo en el array
-                $movimientos_por_cuenta[$key]['saldo_nuevo'] = $saldo_nuevo;
-            }
-
-            // Filtrar resultados para incluir solo cuentas con movimientos
-            /* $resultados = array_filter($movimientos_por_cuenta, function ($mov) {
-                return $mov['debitos'] > 0 || $mov['creditos'] > 0 || $mov['saldo_anterior'] > 0;
-            }); */
-
-            // Totalizaciones
-            $total_saldo_anteriores = array_sum(array_column($movimientos_por_cuenta, 'saldo_anterior'));
-            $total_debitos = array_sum(array_column($movimientos_por_cuenta, 'debitos'));
-            $total_creditos = array_sum(array_column($movimientos_por_cuenta, 'creditos'));
-            $total_saldo_nuevo = array_sum(array_column($movimientos_por_cuenta, 'saldo_nuevo'));
-
-            // Preparar los datos para el PDF
-            $data = [
-                'titulo' => 'Balance General',
-                'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
-                'nit' => '8.000.903.753',
-                'tipo_balance' => 'balance_general',
-                'cuentas' => array_values($movimientos_por_cuenta),
-                'total_saldo_anteriores' => $total_saldo_anteriores,
-                'total_debitos' => $total_debitos,
-                'total_creditos' => $total_creditos,
-                'total_saldo_nuevo' => $total_saldo_nuevo,
-                'fecha_inicial' => $fecha_inicial,
-                'fecha_final' => $fecha_final,
-            ];
-
-            $pdf = Pdf::loadView('pdf.balance-general', $data);
-            return response()->json(['pdf' => base64_encode($pdf->output())]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'message' => 'Ocurrio un error, intentalo mas tarde.'], 500);
-        }
-    }
-
     public function export(Request $request)
     {
         $fecha_inicial = $request->fecha_inicial;
@@ -365,76 +265,45 @@ class BalanceGeneralController extends Controller
             }
         }, 5);
     }
-}
 
-// Función recursiva para sumar movimientos de cuentas hijas a cuentas padres
-function sumarMovimientosPadres($puc_id, &$movimientos_por_cuenta, $pucs_normalizados): void
-{
-    if (isset($movimientos_por_cuenta[$puc_id])) {
-        $puc = $movimientos_por_cuenta[$puc_id];
-        if (!empty($puc['puc_padre'])) {
-            $puc_padre_normalizado = $puc['puc_padre'];
-            $padre_id = $pucs_normalizados[$puc_padre_normalizado] ?? false;
+    public function generateBalanceGeneral(Request $request)
+    {
+        try {
+            $fecha_inicial = $request->fecha_inicial;
+            $fecha_final = $request->fecha_final;
 
-            if ($padre_id !== false) {
-                // Asegurarse de que el padre tenga un array inicializado
-                if (!isset($movimientos_por_cuenta[$padre_id])) {
-                    $movimientos_por_cuenta[$padre_id] = [
-                        'debitos' => 0,
-                        'creditos' => 0,
-                    ];
-                }
+            $resultados = DB::select('SELECT * FROM obtener_saldos(?, ?)', [$fecha_inicial, $fecha_final]);
 
-                // Sumar los movimientos de la cuenta hija al padre
-                $movimientos_por_cuenta[$padre_id]['debitos'] += $puc['debitos'];
-                $movimientos_por_cuenta[$padre_id]['creditos'] += $puc['creditos'];
+            // Convertir resultados a array
+            $resultadosArray = json_decode(json_encode($resultados), true);
 
-                // Llamar recursivamente para el padre
-                sumarMovimientosPadres($padre_id, $movimientos_por_cuenta, $pucs_normalizados);
-            }
+            // Totalizaciones
+            $total_saldo_anteriores = array_sum(array_column($resultadosArray, 'saldo_anterior'));
+            $total_debitos = array_sum(array_column($resultadosArray, 'total_debito'));
+            $total_creditos = array_sum(array_column($resultadosArray, 'total_credito'));
+            $total_saldo_nuevo = array_sum(array_column($resultadosArray, 'saldo_nuevo'));
+
+            // Preparar los datos para el PDF
+            $data = [
+                'titulo' => 'Balance General',
+                'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+                'nit' => '8.000.903.753',
+                'tipo_balance' => 'balance_general',
+                'cuentas' => array_values($resultadosArray),
+                'total_saldo_anteriores' => $total_saldo_anteriores,
+                'total_debitos' => $total_debitos,
+                'total_creditos' => $total_creditos,
+                'total_saldo_nuevo' => $total_saldo_nuevo,
+                'fecha_inicial' => $fecha_inicial,
+                'fecha_final' => $fecha_final,
+            ];
+
+            $pdf = Pdf::loadView('pdf.balance-general', $data);
+            return response()->json(['pdf' => base64_encode($pdf->output())]);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 500, 'message' => $th->getMessage()], 500);
         }
     }
-}
-
-// Funcion para buscar el saldo anterior de la fecha inicial
-function buscarSaldoAnterior($fecha_inicial, $puc): string
-{
-    // Convertir la fecha inicial a un objeto DateTime
-    $fecha = new DateTime($fecha_inicial);
-
-    // Restar un día para obtener la fecha del día anterior
-    $fecha->modify('-1 day');
-
-    // Obtener año y mes de la nueva fecha
-    $ano_inicial = $fecha->format('Y');
-    $mes_inicial = $fecha->format('n');
-
-    // Consultar el saldo anterior
-    $cuenta = DB::table('saldo_pucs')
-        ->where('amo', $ano_inicial)
-        ->where('mes', $mes_inicial)
-        ->where('puc', $puc)
-        ->orderBy('id', 'DESC')
-        ->first();
-
-    return $cuenta->saldo ?? 0.00;
-}
-
-// Funcion para buscar movimientos de las cuentas puc
-function buscarMovimientos($fecha_inicial, $fecha_final): object
-{
-    return DB::table('comprobantes as c')
-        ->leftJoin('comprobante_lineas as cl', 'cl.comprobante_id', 'c.id')
-        ->rightJoin('pucs as p', 'cl.pucs_id', 'p.id')
-        ->whereBetween('c.fecha_comprobante', [$fecha_inicial, $fecha_final])
-        ->select(
-            'p.puc',
-            DB::raw('SUM(CASE WHEN cl.debito > 0 THEN cl.debito ELSE 0.00 END) AS debitos'),
-            DB::raw('SUM(CASE WHEN cl.credito > 0 THEN cl.credito ELSE 0.00 END) AS creditos'),
-            'p.naturaleza'
-        )
-        ->groupBy('p.puc', 'p.naturaleza')
-        ->get();
 }
 
 // Funcion para validar si el mes anterior a la fecha inicial esta cerrado

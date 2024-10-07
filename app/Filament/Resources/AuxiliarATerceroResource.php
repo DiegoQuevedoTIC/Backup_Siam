@@ -68,7 +68,7 @@ class AuxiliarATerceroResource extends Resource
                     ->native(false)
                     ->searchable()
                     ->options(Puc::all(['id', 'puc'])->pluck('puc', 'id')->toArray()),
-            ])->columns(1);
+            ]);
     }
 
     public static function table(Table $table): Table

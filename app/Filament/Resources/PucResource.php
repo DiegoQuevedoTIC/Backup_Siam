@@ -81,7 +81,7 @@ class PucResource extends Resource
                     ->columnSpan(1)
                     ->required()
                     ->label('Grupo Cuenta')
-                    ->disabled()
+                    ->readOnly()
                     ->live(),
                 TextInput::make('descripcion')
                     ->maxLength(255)
@@ -94,7 +94,7 @@ class PucResource extends Resource
                     ->live()
                     ->columnSpan(1)
                     ->required()
-                    ->disabled()
+                    ->readOnly()
                     ->label('Nivel Cuenta'),
                 TextInput::make('puc_padre')
                     ->label('Puc Padre')
@@ -104,7 +104,7 @@ class PucResource extends Resource
                     ->validationMessages([
                         'exists' => 'El :attribute no existe en Plan Unico de cuentas.',
                     ])
-                    ->disabled()
+                    ->readOnly()
                     ->live()
                     ->maxLength(8),
                 Select::make('naturaleza')

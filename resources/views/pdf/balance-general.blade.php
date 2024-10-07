@@ -223,11 +223,11 @@
                     {{--  @dd($cuentas) --}}
                     @foreach ($cuentas as $cuenta)
                         <tr>
-                            <td>{{ $cuenta['puc'] }}</td>
+                            <td>{{ $cuenta['cuenta_puc'] }}</td>
                             <td class="description">{{ $cuenta['descripcion'] }}</td>
                             <td>{{ number_format($cuenta['saldo_anterior'], 2) ?? 0.0 }}</td>
-                            <td>{{ number_format($cuenta['debitos'], 2) ?? 0.0 }}</td>
-                            <td>{{ number_format($cuenta['creditos'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['total_debito'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['total_credito'], 2) ?? 0.0 }}</td>
                             <td>{{ number_format($cuenta['saldo_nuevo'], 2) ?? 0.0 }}</td>
                         </tr>
                     @endforeach
