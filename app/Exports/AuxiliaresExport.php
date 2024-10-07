@@ -30,6 +30,9 @@ class AuxiliaresExport implements FromView
             case '2':
                 $this->data = $this->generateAuxiliarCuentas($fecha_inicial, $fecha_final);
                 break;
+            case '3':
+                $this->data = $this->generateAuxiliarCuentaDetalle($fecha_inicial, $fecha_final);
+                break;
             default:
                 $this->data = $this->generateAuxiliarTercero($fecha_inicial, $fecha_final, $tercero_id);
                 break;
@@ -139,6 +142,57 @@ class AuxiliaresExport implements FromView
         // Preparar los datos para el PDF
         return [
             'titulo' => 'Auxiliar a Cuentas',
+            'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+            'nit' => '8.000.903.753',
+            'tipo_balance' => 'auxiliar_cuentas',
+            'cuentas' => $movimientos_por_cuenta,
+            'fecha_inicial' => new \DateTime($fecha_inicial),
+            'fecha_final' => new \DateTime($fecha_final),
+        ];
+    }
+
+    public function generateAuxiliarCuentaDetalle($fecha_inicial, $fecha_final, $cuenta_inicial = null, $cuenta_final = null): array
+    {
+        $movimientos = buscarMovimientosCuentas($fecha_inicial, $fecha_final);
+
+        if (count($movimientos) == 0) {
+            return [];
+        }
+
+        // Variable para agrupar cuentas por puc
+        $movimientos_por_cuenta = [];
+
+        // Inicializar un arreglo para almacenar saldos anteriores por cuenta PUC
+        $saldos_anteriores = [];
+
+        foreach ($movimientos as $key => $movimiento) {
+            // Verificar si ya se ha calculado el saldo anterior para esta cuenta PUC
+            if (!isset($saldos_anteriores[$movimiento->puc])) {
+                // Si no se ha calculado, llamar a la función y almacenar el resultado
+                $saldos_anteriores[$movimiento->puc] = buscarSaldoAnterior($fecha_inicial, $movimiento->puc);
+            }
+
+            // Asignar el saldo anterior desde el arreglo
+            $movimiento->saldo_anterior = $saldos_anteriores[$movimiento->puc];
+
+            // Calcular saldo nuevo
+            if ($movimiento->naturaleza == 'C') {
+                $movimiento->saldo_nuevo = $movimiento->saldo_anterior + $movimiento->credito - $movimiento->debito;
+            } else {
+                $movimiento->saldo_nuevo = $movimiento->saldo_anterior - $movimiento->debito + $movimiento->credito;
+            }
+
+            // Actualizar el saldo anterior para la siguiente iteración
+            $saldos_anteriores[$movimiento->puc] = $movimiento->saldo_nuevo;
+
+            // Agrupar por cuenta PUC
+            $movimientos_por_cuenta[$movimiento->puc]['movimientos'][] = $movimiento;
+            $movimientos_por_cuenta[$movimiento->puc]['descripcion'] = $movimiento->descripcion_linea; // Asumiendo que hay una descripción
+        }
+
+        // Preparar los datos para el PDF
+        return [
+            'titulo' => 'Auxiliar a Cuentas Detalles',
             'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
             'nit' => '8.000.903.753',
             'tipo_balance' => 'auxiliar_cuentas',

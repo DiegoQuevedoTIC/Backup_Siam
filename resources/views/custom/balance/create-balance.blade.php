@@ -190,7 +190,7 @@
                                 .success()
                                 .send();
 
-                            //exportExcel();
+                            exportExcel();
                         },
                         error: function(xhr, status, error) {
                             //console.error('Error al generar el PDF:', error);

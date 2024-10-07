@@ -197,7 +197,7 @@
             @endif
             @foreach ($cuentas as $puc => $data)
                 <tr>
-                    @if ($tipo_balance == 'auxiliar_cuentas')
+                    @if ($tipo_balance == 'auxiliar_cuentas' || $tipo_balance == 'auxiliar_cuentas_detalles')
                         <td colspan="5" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA
                             :
                             {{ $puc }}
@@ -214,6 +214,21 @@
 
                 @switch($tipo_balance)
                     @case('auxiliar_cuentas')
+                        @foreach ($data['movimientos'] as $movimiento)
+                            <tr>
+                                <td>{{ $movimiento->fecha }}</td>
+                                <td>{{ $movimiento->documento }}</td>
+                                <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}
+                                </td>
+                                <td>{{ $movimiento->tercero ?? 'N/A' }}</td>
+                                <td>{{ number_format($movimiento->debito, 2) }}</td>
+                                <td>{{ number_format($movimiento->credito, 2) }}</td>
+                                <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @break
+
+                    @case('auxiliar_cuentas_detalles')
                         @foreach ($data['movimientos'] as $movimiento)
                             <tr>
                                 <td>{{ $movimiento->fecha }}</td>
