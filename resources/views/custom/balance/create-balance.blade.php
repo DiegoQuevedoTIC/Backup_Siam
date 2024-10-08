@@ -178,6 +178,7 @@
                         type: 'POST',
                         data: data,
                         success: function(response) {
+                            //console.log(response);
                             // Mostrar el PDF en un iframe o elemento embebido
                             pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
                             loading.addClass('hidden');
