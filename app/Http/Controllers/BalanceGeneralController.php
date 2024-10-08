@@ -303,16 +303,18 @@ class BalanceGeneralController extends Controller
             $pdfOutput = $pdf->output();
             $pdfBase64 = base64_encode($pdfOutput);
 
-            // Generar el Excel
+            // Generar el Excel en memoria
             $excelFileName = 'balance_general_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
-            Excel::store(new BalancesExport($data), $excelFileName);
+            $excelFile = Excel::raw(new BalancesExport($data), \Maatwebsite\Excel\Excel::XLSX);
 
+            // Devolver ambos archivos
             return response()->json([
                 'pdf' => $pdfBase64,
-                'excel' => url('storage/' . $excelFileName)
+                'excel' => base64_encode($excelFile),
+                'excel_file_name' => $excelFileName
             ]);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'message' => $th->getMessage()/* 'Ocurrio un error!, intentalo mas tarde.' */], 500);
+            return response()->json(['status' => 500, 'message' => 'Ocurrio un error!, intentalo mas tarde.'], 500);
         }
     }
 }

@@ -178,7 +178,6 @@
                         type: 'POST',
                         data: data,
                         success: function(response) {
-                            //console.log(response);
                             // Mostrar el PDF en un iframe o elemento embebido
                             pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
                             loading.addClass('hidden');
@@ -187,16 +186,23 @@
 
                             if (response.excel) {
                                 // Descargar el archivo Excel
+                                var excelBlob = new Blob([new Uint8Array(atob(response.excel)
+                                    .split("").map(function(c) {
+                                        return c.charCodeAt(0);
+                                    }))], {
+                                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                });
+
                                 var excelLink = document.createElement('a');
-                                excelLink.href = response.excel;
-                                excelLink.download = `balance_general_${data.fecha_inicial}_${data.fecha_final}.xlsx`;
+                                excelLink.href = URL.createObjectURL(excelBlob);
+                                excelLink.download = response.excel_file_name;
                                 document.body.appendChild(excelLink);
                                 excelLink.click();
                                 document.body.removeChild(excelLink);
                             }
                         },
                         error: function(xhr, status, error) {
-                            //console.error('Error al generar el PDF:', error);
+                            // Manejo de errores
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 new FilamentNotification()
                                     .title(xhr.responseJSON.message)
