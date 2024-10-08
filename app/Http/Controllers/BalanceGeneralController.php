@@ -298,10 +298,21 @@ class BalanceGeneralController extends Controller
                 'fecha_final' => $fecha_final,
             ];
 
+            // Generar el PDF
             $pdf = Pdf::loadView('pdf.balance-general', $data);
-            return response()->json(['pdf' => base64_encode($pdf->output())]);
+            $pdfOutput = $pdf->output();
+            $pdfBase64 = base64_encode($pdfOutput);
+
+            // Generar el Excel
+            $excelFileName = 'balance_general_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+            Excel::store(new BalancesExport($data), $excelFileName);
+
+            return response()->json([
+                'pdf' => $pdfBase64,
+                'excel' => url('storage/' . $excelFileName)
+            ]);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'message' => 'Ocurrio un error!, intentalo mas tarde.'], 500);
+            return response()->json(['status' => 500, 'message' => $th->getMessage()/* 'Ocurrio un error!, intentalo mas tarde.' */], 500);
         }
     }
 }

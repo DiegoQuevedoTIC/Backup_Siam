@@ -12,21 +12,25 @@
         }
 
         .header {
-            text-align: right;
-            font-size: 12px;
+            width: 100%;
+            position: relative;
+        }
+
+        .logo {
+            float: right;
+            width: 100px; /* Ajusta el tamaño del logo según sea necesario */
+        }
+        .image {
+            display: flex;
+            flex-direction: column;
+            width: 100px;
+            float: right;
         }
 
         .descripcion {
             width: 80px;
             overflow: auto;
             word-wrap: break-word;
-        }
-
-        .image {
-            display: flex;
-            flex-direction: column;
-            width: 100px;
-            float: right;
         }
 
         /* Estilo general para la tabla */
@@ -77,6 +81,11 @@
 </head>
 
 <body>
+
+    <div class="header">
+        <img src="{{ public_path('images/Icons1.png') }}" alt="logo" class="logo">
+    </div>
+
     <div>
         SIAM ®<br>
     </div>
@@ -209,11 +218,11 @@
                     {{--  @dd($cuentas) --}}
                     @foreach ($data['cuentas'] as $cuenta)
                         <tr>
-                            <td>{{ $cuenta['puc'] }}</td>
+                            <td>{{ $cuenta['cuenta_puc'] }}</td>
                             <td class="description">{{ $cuenta['descripcion'] }}</td>
                             <td>{{ number_format($cuenta['saldo_anterior'], 2) ?? 0.0 }}</td>
-                            <td>{{ number_format($cuenta['debitos'], 2) ?? 0.0 }}</td>
-                            <td>{{ number_format($cuenta['creditos'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['total_debito'], 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta['total_credito'], 2) ?? 0.0 }}</td>
                             <td>{{ number_format($cuenta['saldo_nuevo'], 2) ?? 0.0 }}</td>
                         </tr>
                     @endforeach

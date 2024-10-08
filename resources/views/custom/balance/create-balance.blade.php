@@ -178,19 +178,21 @@
                         type: 'POST',
                         data: data,
                         success: function(response) {
-                            //console.log('PDF generado con éxito:', response);
+                            // Mostrar el PDF en un iframe o elemento embebido
                             pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
                             loading.addClass('hidden');
                             pdf.removeClass('hidden');
                             buttonGenerate.prop('disabled', true);
-                            //buttonExport.removeClass('hidden');
 
-                            new FilamentNotification()
-                                .title('PDF Generado exitosamente.')
-                                .success()
-                                .send();
-
-                            exportExcel();
+                            if (response.excel) {
+                                // Descargar el archivo Excel
+                                var excelLink = document.createElement('a');
+                                excelLink.href = response.excel;
+                                excelLink.download = `balance_general_${data.fecha_inicial}_${data.fecha_final}.xlsx`;
+                                document.body.appendChild(excelLink);
+                                excelLink.click();
+                                document.body.removeChild(excelLink);
+                            }
                         },
                         error: function(xhr, status, error) {
                             //console.error('Error al generar el PDF:', error);
