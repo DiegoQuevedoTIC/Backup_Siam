@@ -35,8 +35,8 @@ class CierreMensualResource extends Resource
                             ->displayFormat('d/m/Y')
                             ->format('Y-m-d')
                             ->native(false)
-                            ->required()
-                            ->maxDate(now()),
+                            ->required(),
+                            //->maxDate(now()),
                         Select::make('mes_cierre')
                             ->label('Mes Cierre')
                             ->searchable()
