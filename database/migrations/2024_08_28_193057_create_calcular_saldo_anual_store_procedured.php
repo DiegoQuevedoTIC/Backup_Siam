@@ -13,7 +13,7 @@ return new class extends Migration
     public function up()
     {
         $sql = <<<SQL
-        CREATE OR REPLACE PROCEDURE calcular_saldo_anual(anio INT, proceso INT)
+        CREATE OR REPLACE PROCEDURE cierre_anual(anio INT, proceso INT)
         LANGUAGE plpgsql AS $$
         DECLARE
             saldo NUMERIC(15, 2);

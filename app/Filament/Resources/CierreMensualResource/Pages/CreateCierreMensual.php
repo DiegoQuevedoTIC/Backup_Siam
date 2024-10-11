@@ -67,7 +67,7 @@ class CreateCierreMensual extends CreateRecord
 
     protected function afterCreate(): void
     {
-        DB::statement('CALL calcular_saldo_mes(CAST(? AS DATE), CAST(? AS DATE), CAST(? AS INT));', [
+        DB::statement('CALL cierre_mensual(CAST(? AS DATE), CAST(? AS DATE), CAST(? AS INT));', [
             $this->rango_fechas['primer_dia'],
             $this->rango_fechas['ultimo_dia'],
             $this->getRecord()->id

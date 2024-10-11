@@ -28,8 +28,8 @@ class BalanceGeneralController extends Controller
     function generarBalanceHorizontal(Request $request)
     {
         try {
-            $fecha_inicial = $request->fecha_inicial; //$request->fecha_inicial; // '2024-01-01'
-            $fecha_final = $request->fecha_final; //$request->fecha_final; // '2024-02-01'
+            $fecha_inicial = $request->fecha_inicial;
+            $fecha_final = $request->fecha_final;
 
             // permitir rango de fecha solo maximo de 3 meses
             $fecha_final = date('Y-m-d', strtotime($fecha_final . '+ 3 months'));
@@ -44,20 +44,6 @@ class BalanceGeneralController extends Controller
 
             // Obtener año de la fecha final
             $ano_final = date('Y', strtotime($fecha_final));
-
-
-            /* // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
-            $fecha_inicial_dt = new DateTime($fecha_inicial);
-            $fecha_final_dt = new DateTime($fecha_final);
-
-            // Calcular la diferencia en meses
-            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
-            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
-
-            // Validar que la diferencia no exceda 3 meses
-            if ($meses_diferencia > 6) {
-                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
-            } */
 
             $cuentas = DB::table('saldo_pucs as sp')
                 ->join('pucs as ps', 'sp.puc', '=', 'ps.puc')
@@ -81,7 +67,19 @@ class BalanceGeneralController extends Controller
             ];
 
             $pdf = Pdf::loadView('pdf.balance-general', $data);
-            return response()->json(['pdf' => base64_encode($pdf->output())]);
+            $pdfOutput = $pdf->output();
+            $pdfBase64 = base64_encode($pdfOutput);
+
+            // Generar el Excel en memoria
+            $excelFileName = 'balance_horizontal_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+            $excelFile = Excel::raw(new BalancesExport($data), \Maatwebsite\Excel\Excel::XLSX);
+
+            // Devolver ambos archivos
+            return response()->json([
+                'pdf' => $pdfBase64,
+                'excel' => base64_encode($excelFile),
+                'excel_file_name' => $excelFileName
+            ]);
         } catch (Exception $e) {
             return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
         }
@@ -90,57 +88,37 @@ class BalanceGeneralController extends Controller
     function generateBalanceTercero(Request $request)
     {
         try {
-            $fecha_inicial = $request->fecha_inicial; //$request->fecha_inicial; // '2024-01-01'
-            $fecha_final = $request->fecha_final; //$request->fecha_final; // '2024-02-01'
-
-            // permitir rango de fecha solo maximo de 3 meses
-            $fecha_final = date('Y-m-d', strtotime($fecha_final . '+ 3 months'));
+            $fecha_inicial = $request->fecha_inicial;
+            $fecha_final = $request->fecha_final;
 
             // validar que la fecha inicial sea menor que la fecha final
             if ($fecha_inicial > $fecha_final) {
                 return response()->json(['status' => 400, 'message' => 'La fecha inicial no puede ser mayor que la fecha final'], 400);
             }
 
-            // Validar que el rango de fecha incial y final solo tengan como maximo de 3 meses
-            $fecha_inicial_dt = new DateTime($fecha_inicial);
-            $fecha_final_dt = new DateTime($fecha_final);
-
-            // Calcular la diferencia en meses
-            $diferencia = $fecha_inicial_dt->diff($fecha_final_dt);
-            $meses_diferencia = ($diferencia->y * 12) + $diferencia->m;
-
-            // Validar que la diferencia no exceda 3 meses
-            if ($meses_diferencia > 6) {
-                return response()->json(['status' => 400, 'message' => 'El rango de fechas no puede ser mayor a 3 meses.'], 400);
-            }
-
-            // Obtener las cuentas con movimiento en el rango de fechas
-            $cuentas = DB::table('vista_balance_tercero')
-                ->whereBetween('fecha_comprobante', [$fecha_inicial, $fecha_final])
-                ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
-
-            // Consulta adicional para incluir el registro con puc = 1
-            $registro_adicional = DB::table('vista_balance_tercero')
-                ->whereIn('puc', ['1', '11', '1105', '110505', '11050501', '110510', '11051001', '1110', '111005']) // Asegúrate de que este registro exista
-                ->select('puc', 'descripcion', 'tercero', 'saldo_anterior', 'debitos', 'creditos', 'saldo_nuevo');
-
-            // Combinar ambas consultas
-            $cuentas_completas = $cuentas->union($registro_adicional)->distinct()->orderBy('puc')->get();
+            $cuentas = DB::select('SELECT * FROM obtener_saldos_terceros(?, ?)', [$fecha_inicial, $fecha_final]);
 
             $data = [
                 'titulo' => 'Balance Tercero',
                 'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
                 'tipo_balance' => 'balance_tercero',
                 'nit' => '8.000.903.753',
-                'cuentas' => $cuentas_completas, // Usar cuentas únicas
+                'cuentas' => $cuentas,
                 'fecha_inicial' => $fecha_inicial,
                 'fecha_final' => $fecha_final,
             ];
 
-            $pdf = Pdf::loadView('pdf.balance-general', $data);
-            return response()->json(['pdf' => base64_encode($pdf->output())]);
+            // Generar el Excel en memoria
+            $excelFileName = 'balance_terceros_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+            $excelFile = Excel::raw(new BalancesExport($data), \Maatwebsite\Excel\Excel::XLSX);
+
+            // Devolver ambos archivos
+            return response()->json([
+                'excel' => base64_encode($excelFile),
+                'excel_file_name' => $excelFileName
+            ]);
         } catch (Exception $e) {
-            return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
+            return response()->json(['status' => 500, 'message' => 'Ocurrio un error!. Por favor intenta mas tarde.'], 500);
         }
     }
 
@@ -188,7 +166,19 @@ class BalanceGeneralController extends Controller
             ];
 
             $pdf = Pdf::loadView('pdf.balance-general', $data);
-            return response()->json(['pdf' => base64_encode($pdf->output())]);
+            $pdfOutput = $pdf->output();
+            $pdfBase64 = base64_encode($pdfOutput);
+
+            // Generar el Excel en memoria
+            $excelFileName = 'balance_comparativo_' . $fecha_inicial . '_' . $fecha_final . '.xlsx';
+            $excelFile = Excel::raw(new BalancesExport($data), \Maatwebsite\Excel\Excel::XLSX);
+
+            // Devolver ambos archivos
+            return response()->json([
+                'pdf' => $pdfBase64,
+                'excel' => base64_encode($excelFile),
+                'excel_file_name' => $excelFileName
+            ]);
         } catch (Exception $e) {
             return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
         }
@@ -217,53 +207,6 @@ class BalanceGeneralController extends Controller
 
 
         return Excel::download(new BalancesExport($tipo_balance, $fecha_inicial, $fecha_final), $nombre);
-    }
-
-    public function readCsvFile()
-    {
-        // Cargar el archivo CSV
-        $csv = Reader::createFromPath(public_path('comprobante_lineas.csv'), 'r');
-        $csv->setHeaderOffset(0); // Si el CSV tiene encabezados
-
-        $data = [];
-
-        // Leer los registros
-        foreach ($csv as $record) {
-            // Procesar cada registro
-            $data[] = $record; // Usar el operador de array para agregar elementos
-        }
-
-        response()->json(['success' => 'Operación completada']);
-
-        // Procedemos a guardar las líneas para cada comprobante
-        DB::transaction(function () use ($data) {
-            foreach ($data as $linea) {
-                // Obtener el comprobante y el PUC, asegurando que existan
-                $comprobante = Comprobante::where('n_documento', $linea['ENC_MOV_CONTA'])->first();
-                $puc = Puc::where('puc', $linea['PUC'])->first();
-
-                // Verificar que el comprobante y el PUC existan antes de crear la línea
-                if ($comprobante && $puc) {
-                    ComprobanteLinea::create([
-                        'comprobante_id' => $comprobante->id,
-                        'pucs_id' => $puc->id,
-                        'descripcion_linea' => $linea['DETALLE'],
-                        'debito' => !empty($linea['DEBITO']) ? $linea['DEBITO'] : null, // Asignar null si está vacío
-                        'credito' => !empty($linea['CREDITO']) ? $linea['CREDITO'] : null, // Asignar null si está vacío
-                        'linea' => !empty($linea['LINEA']) ? $linea['LINEA'] : null, // Asignar null si está vacío
-                        'BASE_GRAVABLE' => !empty($linea['BASE_GRAVABLE']) ? $linea['BASE_GRAVABLE'] : null, // Asignar null si está vacío
-                        'CHEQUE' => !empty($linea['CHEQUE']) ? $linea['CHEQUE'] : null // Asignar null si está vacío
-                    ]);
-                } else {
-                    // Manejo de errores si el comprobante o el PUC no existen
-                    // Puedes registrar un error o lanzar una excepción
-                    Log::warning('Comprobante o PUC no encontrado', [
-                        'n_documento' => $linea['ENC_MOV_CONTA'],
-                        'puc' => $linea['PUC']
-                    ]);
-                }
-            }
-        }, 5);
     }
 
     public function generateBalanceGeneral(Request $request)

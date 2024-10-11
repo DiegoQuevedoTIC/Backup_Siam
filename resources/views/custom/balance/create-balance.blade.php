@@ -63,14 +63,9 @@
                     </span>
                 </button>
 
+                <div id="export_button" style="display: contents;">
 
-                {{-- <button style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);"
-                    class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-primary fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
-                    type="button" id="export">
-                    <span class="fi-btn-label">
-                        Exportar
-                    </span>
-                </button> --}}
+                </div>
             </ul>
         </div>
         <div
@@ -78,8 +73,9 @@
 
             <embed id="pdf" type="application/pdf" width="100%" height="600px" class="rounded-lg hidden" />
 
-            <div id="empty">
-                <x-filament::icon icon="heroicon-m-document-text" class="h-20 w-20 text-gray-500 dark:text-gray-400" />
+            <div id="divEmpty">
+                <x-filament::icon id="empty" icon="heroicon-m-document-text"
+                    class="h-20 w-20 text-gray-500 dark:text-gray-400" />
             </div>
 
             <x-filament::loading-indicator id="loading" class="h-20 w-20 hidden" />
@@ -89,203 +85,19 @@
 
     <script src="{{ asset('js/lib/jquery.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            console.log("ready!");
-
-            // Configurar el token CSRF para las solicitudes AJAX
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            var form = $('#form_data');
-            var buttonGenerate = $('#generar');
-            var pdf = $('#pdf');
-            var empty = $('#empty');
-            var loading = $('#loading');
-            var tipo_balance = $('#tipo_balance');
-            var fecha_inicial = $('#fecha_inicial');
-            var fecha_final = $('#fecha_final');
-            var is_13_month = $('#is_13_month');
-            var nivel = $('#nivel');
-            var buttonExport = $('#export');
-
-            // Función para verificar si todos los campos están llenos
-            function validateForm() {
-                var isValid = true;
-
-                form.find('input, select').each(function() {
-                    if ($(this).val() === '') {
-                        isValid = false;
-                        buttonGenerate.addClass('pointer-events-none opacity-70');
-                        return false;
-                    }
-                });
-
-                buttonGenerate.prop('disabled', !isValid);
-                if (isValid) {
-                    buttonGenerate.removeClass('pointer-events-none opacity-70');
-                }
-            }
-
-            // Escuchar cambios en los campos del formulario
-            form.on('input change', validateForm);
-
-            buttonGenerate.on('click', function() {
-                // Mostrar el efecto de carga
-                loading.removeClass('hidden');
-                empty.addClass('hidden');
-                pdf.addClass('hidden');
-                console.log('Generating PDF...');
-
-                // Preparar los datos para enviar
-                var data = {
-                    tipo_balance: tipo_balance.val(),
-                    fecha_inicial: fecha_inicial.val(),
-                    fecha_final: fecha_final.val(),
-                    is_13_month: is_13_month.is(':checked'),
-                    nivel: nivel.val()
-                };
-
-                var url = "{{ route('generarpdf') }}";
-
-                //console.log(data.tipo_balance);
-
-                switch (data.tipo_balance) {
-                    case '2':
-                        url = "{{ route('generar.balance.horizontal') }}"
-                        generateReport(url);
-                        break;
-                    case '3':
-                        url = "{{ route('generar.balance.tercero') }}"
-                        generateReport(url);
-                        break;
-                    case '4':
-                        url = "{{ route('generar.balance.comparativo') }}"
-                        generateReport(url);
-                        break;
-                    default:
-                        generateReport(url);
-                        return;
-                }
-
-                function generateReport(url) {
-                    //console.log(url);
-
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: data,
-                        success: function(response) {
-                            // Mostrar el PDF en un iframe o elemento embebido
-                            pdf.attr('src', 'data:application/pdf;base64,' + response.pdf);
-                            loading.addClass('hidden');
-                            pdf.removeClass('hidden');
-                            buttonGenerate.prop('disabled', true);
-
-                            if (response.excel) {
-                                // Descargar el archivo Excel
-                                var excelBlob = new Blob([new Uint8Array(atob(response.excel)
-                                    .split("").map(function(c) {
-                                        return c.charCodeAt(0);
-                                    }))], {
-                                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                                });
-
-                                var excelLink = document.createElement('a');
-                                excelLink.href = URL.createObjectURL(excelBlob);
-                                excelLink.download = response.excel_file_name;
-                                document.body.appendChild(excelLink);
-                                excelLink.click();
-                                document.body.removeChild(excelLink);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            // Manejo de errores
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                new FilamentNotification()
-                                    .title(xhr.responseJSON.message)
-                                    .danger()
-                                    .send();
-                            } else {
-                                new FilamentNotification()
-                                    .title('Ocurrió un error inesperado.')
-                                    .danger()
-                                    .send();
-                            }
-                            loading.addClass('hidden');
-                            empty.removeClass('hidden'); // Mostrar mensaje de error
-                        }
-                    });
-                }
-
-                buttonExport.on('click', function(e) {
-                    e.preventDefault();
-                    //exportExcel();
-                });
-
-                function exportExcel() {
-                    console.log('Exportando a Excel...');
-
-                    var data = {
-                        tipo_balance: tipo_balance.val(),
-                        fecha_inicial: fecha_inicial.val(),
-                        fecha_final: fecha_final.val(),
-                    };
-
-                    $.ajax({
-                        url: "{{ route('export') }}",
-                        type: 'POST',
-                        data: data,
-                        xhrFields: {
-                            responseType: 'blob' // Esto es importante para manejar el archivo
-                        },
-                        success: function(response, status, xhr) {
-                            // Crear un enlace para descargar el archivo
-                            var filename =
-                                ""; // Aquí puedes obtener el nombre del archivo desde el encabezado de la respuesta
-                            var disposition = xhr.getResponseHeader('Content-Disposition');
-                            if (disposition && disposition.indexOf('attachment') !== -1) {
-                                var matches = /filename[^;=\n]*=((['"]).*?\2|([^;\n]*))/;
-                                var parts = matches.exec(disposition);
-                                if (parts != null && parts[3]) {
-                                    filename = parts[3];
-                                }
-                            }
-
-                            // Crear un objeto Blob y un enlace para descargar
-                            var blob = new Blob([response], {
-                                type: xhr.getResponseHeader('Content-Type')
-                            });
-                            var link = document.createElement('a');
-                            link.href = window.URL.createObjectURL(blob);
-                            link.download = filename || 'export.xlsx';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-
-                            new FilamentNotification()
-                                .title('Excel exportado exitosamente.')
-                                .success()
-                                .send();
-                        },
-                        error: function(xhr, status, error) {
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                new FilamentNotification()
-                                    .title(xhr.responseJSON.message)
-                                    .danger()
-                                    .send();
-                            } else {
-                                new FilamentNotification()
-                                    .title('Ocurrió un error inesperado.')
-                                    .danger()
-                                    .send();
-                            }
-                        }
-                    });
-                }
-            });
-        });
+    $(document).ready(function(){$.ajaxSetup({headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")}});var e=$("#form_data"),a=$("#generar"),n=$("#pdf"),t=$("#empty"),o=$("#loading"),r=$("#tipo_balance"),i=$("#fecha_inicial"),s=$("#fecha_final"),c=$("#is_13_month"),l=$("#nivel"),d=$("#export_button");e.on("input change",function n(){var t=!0;e.find("input, select").each(function(){if(""===$(this).val())return t=!1,a.addClass("pointer-events-none opacity-70"),!1}),a.prop("disabled",!t),t&&a.removeClass("pointer-events-none opacity-70")}),a.on("click",function(){o.removeClass("hidden"),t.addClass("hidden"),n.addClass("hidden");var e={tipo_balance:r.val(),fecha_inicial:i.val(),fecha_final:s.val(),is_13_month:c.is(":checked"),nivel:l.val()},p="{{ route('generarpdf') }}";switch(e.tipo_balance){case"2":f(p="{{ route('generar.balance.horizontal') }}");break;case"3":f(p="{{ route('generar.balance.tercero') }}");break;case"4":f(p="{{ route('generar.balance.comparativo') }}");break;default:f(p);return}function f(r){d.has("button_export_excel")&&$(".button_export_excel").remove(),$.ajax({url:r,type:"POST",data:e,success:function(e){if(e.pdf&&n.attr("src","data:application/pdf;base64,"+e.pdf),e.excel){var t=new Blob([new Uint8Array(atob(e.excel).split("").map(function(e){return e.charCodeAt(0)}))],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});d.append(`
+    <x-filament::button
+        color="info"
+        class="button_export_excel"
+        style="witdh: 100%;"
+        href="${URL.createObjectURL(t)}"
+        tag="a"
+        download="${e.excel_file_name}"
+        icon="heroicon-o-document-arrow-down"
+        icon-position="after"
+    >
+        Exportar Excel
+    </x-filament::button>
+    `),new FilamentNotification().title("El reporte se encuentra disponible para la exportaci\xf3n a excel.").success().send()}o.addClass("hidden"),n.removeClass("hidden"),a.prop("disabled",!0)},error:function(e,a,n){console.log(n),e.responseJSON&&e.responseJSON.message?new FilamentNotification().title(e.responseJSON.message).danger().send():new FilamentNotification().title("Ocurri\xf3 un error inesperado.").danger().send(),o.addClass("hidden"),t.removeClass("hidden")}})}})});
     </script>
 </div>

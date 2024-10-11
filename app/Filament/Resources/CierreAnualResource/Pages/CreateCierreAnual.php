@@ -71,6 +71,6 @@ class CreateCierreAnual extends CreateRecord
 
     protected function afterCreate(): void
     {
-        DB::statement('CALL calcular_saldo_anual(?, ?);', [$this->ano_actual, $this->getRecord()->id]);
+        DB::statement('CALL cierre_anual(?, ?);', [$this->ano_actual, $this->getRecord()->id]);
     }
 }

@@ -23,7 +23,8 @@
 
         .logo {
             float: right;
-            width: 100px; /* Ajusta el tamaño del logo según sea necesario */
+            width: 100px;
+            /* Ajusta el tamaño del logo según sea necesario */
         }
 
         .descripcion {
@@ -176,8 +177,8 @@
                         <tr>
                             <td>{{ $cuenta->puc }}</td>
                             <td class="description">{{ $cuenta->descripcion ?? 'sin descripción' }}</td>
-                            <td>{{ $cuenta->primer_rango ?? 0.0 }}</td>
-                            <td>{{ $cuenta->segundo_rango ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->primer_rango, 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->segundo_rango, 2) ?? 0.0 }}</td>
                         </tr>
                     @endforeach
                 @break
@@ -187,7 +188,7 @@
                         <tr>
                             <td>{{ $cuenta->puc }}</td>
                             <td class="description">{{ $cuenta->descripcion ?? 'sin descripción' }}</td>
-                            <td>{{ $cuenta->saldo ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->saldo, 2) ?? 0.0 }}</td>
                             <td>
                                 @if ($total_saldo > 0)
                                     {{ number_format(($cuenta->saldo / $total_saldo) * 100, 2) }}%
@@ -208,13 +209,13 @@
                 @case('balance_tercero')
                     @foreach ($cuentas as $cuenta)
                         <tr>
-                            <td>{{ $cuenta->puc }}</td>
+                            <td>{{ $cuenta->cuenta_puc }}</td>
                             <td class="description">{{ $cuenta->descripcion }}</td>
                             <td>{{ $cuenta->tercero ?? '' }}</td>
-                            <td>{{ $cuenta->saldo_anterior ?? 0.0 }}</td>
-                            <td>{{ $cuenta->debitos ?? 0.0 }}</td>
-                            <td>{{ $cuenta->creditos ?? 0.0 }}</td>
-                            <td>{{ $cuenta->saldo_nuevo ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->saldo_anterior, 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->total_debito, 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->total_credito, 2) ?? 0.0 }}</td>
+                            <td>{{ number_format($cuenta->saldo_nuevo, 2) ?? 0.0 }}</td>
                         </tr>
                     @endforeach
                 @break
