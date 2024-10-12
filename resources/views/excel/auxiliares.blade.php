@@ -117,6 +117,13 @@
             flex: 1;
             /* Permite que cada firma ocupe el mismo espacio */
         }
+
+
+        .td_custom {
+            font-weight: bold;
+            text-align: left;
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 
@@ -175,6 +182,18 @@
                     </tr>
                 @break
 
+                @case('auxiliar_cuentas_detalles')
+                    <tr>
+                        <th>FECHA</th>
+                        <th>DOCUMENTO</th>
+                        <th>DETALLE</th>
+                        <th>TERCERO</th>
+                        <th>DEBITO</th>
+                        <th>CREDITO</th>
+                        <th>SALDO</th>
+                    </tr>
+                @break
+
                 @default
                     <tr>
                         <th>FECHA</th>
@@ -196,6 +215,20 @@
                 </tr>
             @endif
             @foreach ($cuentas as $puc => $data)
+                @if ($tipo_balance == 'auxiliar_cuentas_detalles')
+                    <tr>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_tatarabuelo'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_bisabuelo'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_abuelo'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_padre'] ?? 'N/A' }}</td>
+                    </tr>
+                @endif
                 <tr>
                     @if ($tipo_balance == 'auxiliar_cuentas' || $tipo_balance == 'auxiliar_cuentas_detalles')
                         <td colspan="5" style="font-weight: bold; text-align: left; background-color: #f2f2f2">CUENTA
@@ -229,6 +262,21 @@
                     @break
 
                     @case('auxiliar_cuentas_detalles')
+                        @foreach ($data['movimientos'] as $movimiento)
+                            <tr>
+                                <td>{{ $movimiento->fecha }}</td>
+                                <td>{{ $movimiento->documento }}</td>
+                                <td class="description">{{ $movimiento->n_documento . ' ' . $movimiento->descripcion_linea }}
+                                </td>
+                                <td>{{ $movimiento->tercero ?? 'N/A' }}</td>
+                                <td>{{ number_format($movimiento->debito, 2) }}</td>
+                                <td>{{ number_format($movimiento->credito, 2) }}</td>
+                                <td>{{ number_format($movimiento->saldo_nuevo, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @break
+
+                    @case('auxiliar_tipo_documento')
                         @foreach ($data['movimientos'] as $movimiento)
                             <tr>
                                 <td>{{ $movimiento->fecha }}</td>

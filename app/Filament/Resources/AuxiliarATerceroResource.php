@@ -56,8 +56,7 @@ class AuxiliarATerceroResource extends Resource
                         return false;
                     })
                     ->required()
-                    ->options(Tercero::all()->pluck('nombres', 'id')->toArray())
-                    ->columnSpanFull(),
+                    ->options(Tercero::all()->pluck('nombres', 'id')->toArray()),
                 DatePicker::make('fecha_inicial')->label('Fecha Inicial')->format('d/m/Y')->native(false)->required(),
                 DatePicker::make('fecha_final')->label('Fecha Final')->format('d/m/Y')->native(false)->required(),
                 Select::make('cuenta_inicial')

@@ -10,7 +10,7 @@ return new class extends Migration
     public function up()
     {
         DB::statement("
-            CREATE MATERIALIZED VIEW movimiento_auxiliar_cuentas AS
+            CREATE VIEW movimiento_auxiliar_cuentas AS
             SELECT
                 p.puc,
                 p.naturaleza,
