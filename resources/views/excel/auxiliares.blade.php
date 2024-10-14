@@ -194,6 +194,18 @@
                     </tr>
                 @break
 
+                @case('auxiliar_tipo_documento')
+                    <tr>
+                        <th>FECHA</th>
+                        <th>DOCUMENTO</th>
+                        <th>DETALLE</th>
+                        <th>TERCERO</th>
+                        <th>DEBITO</th>
+                        <th>CREDITO</th>
+                        <th>SALDO</th>
+                    </tr>
+                @break
+
                 @default
                     <tr>
                         <th>FECHA</th>
@@ -214,19 +226,34 @@
                     </td>
                 </tr>
             @endif
+
+
             @foreach ($cuentas as $puc => $data)
                 @if ($tipo_balance == 'auxiliar_cuentas_detalles')
                     <tr>
-                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_tatarabuelo'] ?? 'N/A' }}</td>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">
+                            {{ $data['cuenta_tatarabuelo'] ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_bisabuelo'] ?? 'N/A' }}</td>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">
+                            {{ $data['cuenta_bisabuelo'] ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_abuelo'] ?? 'N/A' }}</td>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">
+                            {{ $data['cuenta_abuelo'] ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">{{ $data['cuenta_padre'] ?? 'N/A' }}</td>
+                        <td colspan="7" style="font-weight: bold; text-align: left; background-color: #f2f2f2">
+                            {{ $data['cuenta_padre'] ?? 'N/A' }}</td>
+                    </tr>
+                @endif
+                @if ($tipo_balance == 'auxiliar_tipo_documento')
+                    <tr>
+                        <td colspan="7" style="text-align: left; background-color: #f2f2f2">
+                            <strong>
+                                DOCUMENTO: {{ $puc }}
+                            </strong>
+                        </td>
                     </tr>
                 @endif
                 <tr>

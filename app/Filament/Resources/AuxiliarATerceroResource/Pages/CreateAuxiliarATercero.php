@@ -293,7 +293,7 @@ class CreateAuxiliarATercero extends CreateRecord
         ];
     }
 
-    public function generateAuxiliarTipoDocumento($fecha_inicial, $fecha_final): array
+    /* public function generateAuxiliarTipoDocumento($fecha_inicial, $fecha_final): array
     {
         $movimientos = buscarMovimientosCuentas($fecha_inicial, $fecha_final);
 
@@ -339,6 +339,60 @@ class CreateAuxiliarATercero extends CreateRecord
             'nit' => '8.000.903.753',
             'tipo_balance' => 'auxiliar_tipo_documento',
             'cuentas' => $movimientos_por_cuenta,
+            'fecha_inicial' => new \DateTime($fecha_inicial),
+            'fecha_final' => new \DateTime($fecha_final),
+        ];
+    } */
+
+    public function generateAuxiliarTipoDocumento($fecha_inicial, $fecha_final): array
+    {
+        $movimientos = buscarMovimientosCuentas($fecha_inicial, $fecha_final);
+
+        if (count($movimientos) == 0) {
+            return [];
+        }
+
+        // Variable para agrupar movimientos por sigla
+        $movimientos_por_sigla = [];
+
+        // Inicializar un arreglo para almacenar saldos anteriores por cuenta PUC
+        $saldos_anteriores = [];
+
+        foreach ($movimientos as $key => $movimiento) {
+            // Verificar si ya se ha calculado el saldo anterior para esta cuenta PUC
+            if (!isset($saldos_anteriores[$movimiento->puc])) {
+                // Si no se ha calculado, llamar a la función y almacenar el resultado
+                $saldos_anteriores[$movimiento->puc] = buscarSaldoAnterior($fecha_inicial, $movimiento->puc);
+            }
+
+            // Asignar el saldo anterior desde el arreglo
+            $movimiento->saldo_anterior = $saldos_anteriores[$movimiento->puc];
+
+            // Calcular saldo nuevo
+            if ($movimiento->naturaleza == 'C') {
+                $movimiento->saldo_nuevo = $movimiento->saldo_anterior + $movimiento->credito - $movimiento->debito;
+            } else {
+                $movimiento->saldo_nuevo = $movimiento->saldo_anterior - $movimiento->debito + $movimiento->credito;
+            }
+
+            // Actualizar el saldo anterior para la siguiente iteración
+            $saldos_anteriores[$movimiento->puc] = $movimiento->saldo_nuevo;
+
+            // Agrupar por sigla
+            $movimientos_por_sigla[$movimiento->documento]['movimientos'][] = $movimiento;
+            $movimientos_por_sigla[$movimiento->documento]['descripcion'] = $movimiento->descripcion_linea; // Asumiendo que hay una descripción
+        }
+
+        // Ordenar los movimientos por sigla
+        ksort($movimientos_por_sigla);
+
+        // Preparar los datos para el PDF
+        return [
+            'titulo' => 'Auxiliar a Cuentas',
+            'nombre_compania' => 'GRUPO FINANCIERO - FONDEP',
+            'nit' => '8.000.903.753',
+            'tipo_balance' => 'auxiliar_tipo_documento',
+            'cuentas' => $movimientos_por_sigla,
             'fecha_inicial' => new \DateTime($fecha_inicial),
             'fecha_final' => new \DateTime($fecha_final),
         ];
