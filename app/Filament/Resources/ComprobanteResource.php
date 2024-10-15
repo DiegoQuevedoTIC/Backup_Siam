@@ -215,13 +215,14 @@ class ComprobanteResource extends Resource
                         TextInput::make('debito')
                             ->placeholder('Debito')
                             ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
-                            ->prefix('$'),
+                            ->prefix('$')
+                            ->live(onBlur: true),
                         TextInput::make('credito')
                             ->placeholder('Credito')
                             ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
-                            ->prefix('$'),
+                            ->prefix('$')
+                            ->live(onBlur: true),
                     ])
-                    ->live()
                     ->reorderable()
                     ->cloneable()
                     ->grid(4)
