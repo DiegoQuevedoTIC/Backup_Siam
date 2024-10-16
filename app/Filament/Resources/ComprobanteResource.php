@@ -158,7 +158,7 @@ class ComprobanteResource extends Resource
                 TextInput::make('total_debito')->label('Total Debitos')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->prefix('$')
-                    ->readOnly(function (Get $get, Set $set) {
+                    ->disabled(function (Get $get, Set $set) {
                         $total = 0;
                         foreach ($get('detalle') as $detalle) {
                             $total += floatval($detalle['debito']);
@@ -175,7 +175,7 @@ class ComprobanteResource extends Resource
                 TextInput::make('total_credito')->label('Total Creditos')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->prefix('$')
-                    ->readOnly(function (Get $get, Set $set) {
+                    ->disabled(function (Get $get, Set $set) {
                         $total = 0;
                         foreach ($get('detalle') as $detalle) {
                             $total += floatval($detalle['credito']);
