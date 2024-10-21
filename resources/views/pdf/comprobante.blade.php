@@ -1,17 +1,18 @@
-@php
-    use App\Models\Puc;
-    use App\Models\Tercero;
-@endphp
-<x-filament-panels::page>
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Comprobante PDF</title>
     <style>
         .logo {
             width: 100px;
             margin-top: 10px;
+            border: none;
         }
 
         .form-container {
-            visibility: hidden;
             max-width: 800px;
             margin: 0 auto;
             margin-top: 20px;
@@ -49,7 +50,7 @@
         }
 
         .space_cheque {
-            display: none;
+            display: block !important;
             flex-direction: column;
             height: 30vh;
             border: 1px solid black;
@@ -78,6 +79,7 @@
             padding: 8px;
             font-size: 10px;
             text-align: right;
+            color: black;
         }
 
         /* Estilo para el encabezado de la tabla */
@@ -89,116 +91,64 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid black;
+            color: black;
         }
 
         .sub-section {
             flex: 1;
             padding: 10px;
             min-height: 80px;
+            border-right: 1px solid black;
+            color: black;
         }
 
         .description-section {
             padding: 10px;
+            border: 1px solid black;
+            color: black;
         }
 
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            .button {
-                display: none;
-            }
-
-            .table td, th{
-                color: black;
-            }
-
-            .space_cheque {
-                border: 1px solid black;
-            }
-
-            .space_cheque {
-                display: block !important;
-            }
-
-            .main-section {
-                border: 1px solid black;
-                color: black;
-            }
-
-            .sub-section {
-                border-right: 1px solid black;
-                color: black;
-            }
-
-            .description-section {
-                border: 1px solid black;
-                color: black;
-            }
-
-            #print_section,
-            #print_section * {
-                visibility: visible;
-                /* Solo muestra el div que queremos imprimir */
-            }
-
-            #print_section {
-                position: absolute;
-                /* Asegura que el div se imprima correctamente */
-                left: 0;
-                top: 0;
-            }
-
-            .form-container {
-                visibility: visible;
-            }
-
-            .descripcion-completa {
-                display: block;
-                /* Muestra la descripción completa al imprimir */
-            }
+        .descripcion-completa {
+            display: block;
         }
     </style>
 
-
-    <div id="print_section">
-        <img style="width: 10%;" src="{{ asset('images/Icons1.png') }}" class="logo" alt="logo" srcset="">
+<body>
+    <div>
+        <img style="width: 10%;" src="{{ public_path('images/Icons1.png') }}" class="logo" alt="logo" srcset="">
         <br>
 
-        <x-filament::button style="float: right;" onclick="imprimirDiv()" class="button" icon="heroicon-m-printer">
-            Imprimir
-        </x-filament::button>
 
         <div>
             <div class="main-section">
                 <div class="sub-section">
                     <h2>Número de Comprobante:</h2>
-                    <p>{{ $this->getRecord()->n_documento }}</p>
+                    <p>{{ $n_documento }}</p>
                 </div>
                 <div class="sub-section">
                     <h2>Fecha de comprobante:</h2>
-                    <p>{{ $this->getRecord()->fecha_comprobante }}</p>
+                    <p>{{ $fecha_comprobante }}</p>
                 </div>
                 <div class="sub-section">
                     <h2>Tipo de Comprobante:</h2>
-                    <p>{{ $this->getRecord()->tipoDocumentoContable->tipo_documento }}</p>
+                    <p>{{ $tipoDocumentoContable }}</p>
                 </div>
                 <div class="sub-section">
                     <h2>Tercero Comprobante:</h2>
-                    <p>{{ $this->getRecord()->tercero->tercero_id ?? '' }}</p>
+                    <p>{{ $tercero ?? '' }}</p>
                 </div>
             </div>
             <div class="description-section">
                 <h2>Descripción del Comprobante:</h2>
-                <p>{{ $this->getRecord()->descripcion_comprobante }}</p>
+                <p>{{ $descripcion_comprobante }}</p>
             </div>
         </div>
 
-        @if (isset($this->getRecord()->tipo_documento_contables_id) &&
-                ($this->getRecord()->tipo_documento_contables_id === 17 ||
-                    $this->getRecord()->tipo_documento_contables_id === 28 ||
-                    $this->getRecord()->tipo_documento_contables_id === 35))
+        @if (isset($tipo_documento_contables_id) &&
+                ($tipo_documento_contables_id === 17 ||
+                    $tipo_documento_contables_id === 28 ||
+                    $tipo_documento_contables_id === 35))
             <div class="space_cheque">
                 <div class="content">
                 </div>
@@ -225,7 +175,8 @@
 
         <br>
 
-        @if (count($lineas = $this->getRecord()->comprobanteLinea))
+
+        @if (count($comprobanteLinea) > 0)
             <table class="table">
                 <thead>
                     <tr>
@@ -238,7 +189,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($lineas as $linea)
+                    @foreach ($comprobanteLinea as $linea)
                         <tr>
                             <td>{{ $linea->puc->puc ?? '' }}</td>
                             <td>{{ $linea->puc->descripcion ?? '' }}</td>
@@ -250,8 +201,8 @@
                     @endforeach
                     <tr class="total">
                         <td colspan="4"><strong>Sumas iguales:</strong></td>
-                        <td><strong>{{ number_format($lineas->sum('debito'), 2) }}</strong></td>
-                        <td><strong>{{ number_format($lineas->sum('credito'), 2) }}</strong></td>
+                        <td><strong>{{ number_format($comprobanteLinea->sum('debito'), 2) }}</strong></td>
+                        <td><strong>{{ number_format($comprobanteLinea->sum('credito'), 2) }}</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -287,10 +238,6 @@
             </div>
         </div>
     </div>
+</body>
 
-    <script>
-        function imprimirDiv() {
-            window.print();
-        }
-    </script>
-</x-filament-panels::page>
+</html>

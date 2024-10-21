@@ -1,13 +1,28 @@
-@php
-    use App\Models\Puc;
-    use App\Models\Tercero;
-@endphp
 <x-filament-panels::page>
+
+
+    <div id="no_print_section">
+        <x-filament-panels::form wire:submit="save">
+            {{ $this->form }}
+
+            <x-filament-panels::form.actions :actions="$this->getCachedFormActions()" :full-width="$this->hasFullWidthFormActions()" />
+        </x-filament-panels::form>
+
+        @if (count($relationManagers = $this->getRelationManagers()))
+            <x-filament-panels::resources.relation-managers :active-manager="$this->activeRelationManager" :managers="$relationManagers" :owner-record="$record"
+                :page-class="static::class" />
+        @endif
+    </div>
+
 
     <style>
         .logo {
             width: 100px;
             margin-top: 10px;
+        }
+
+        #print_section {
+            visibility: hidden;
         }
 
         .form-container {
@@ -110,7 +125,8 @@
                 display: none;
             }
 
-            .table td, th{
+            .table td,
+            th {
                 color: black;
             }
 
@@ -135,6 +151,10 @@
             .description-section {
                 border: 1px solid black;
                 color: black;
+            }
+
+            #no_print_section {
+                display: none;
             }
 
             #print_section,
@@ -165,10 +185,6 @@
     <div id="print_section">
         <img style="width: 10%;" src="{{ asset('images/Icons1.png') }}" class="logo" alt="logo" srcset="">
         <br>
-
-        <x-filament::button style="float: right;" onclick="imprimirDiv()" class="button" icon="heroicon-m-printer">
-            Imprimir
-        </x-filament::button>
 
         <div>
             <div class="main-section">
@@ -288,9 +304,10 @@
         </div>
     </div>
 
+
     <script>
-        function imprimirDiv() {
+        window.addEventListener('print', event => {
             window.print();
-        }
+        })
     </script>
 </x-filament-panels::page>

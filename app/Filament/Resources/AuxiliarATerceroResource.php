@@ -24,8 +24,9 @@ class AuxiliarATerceroResource extends Resource
     protected static ?string    $model = AuxiliarATercero::class;
     protected static ?string    $cluster = InformesContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string    $navigationLabel = 'Auxiliar A Tercero';
-    protected static ?string    $modelLabel = 'Auxiliar A Tercero';
+    protected static ?string    $navigationLabel = 'Auxiliares';
+    protected static ?string    $modelLabel = 'Auxiliares';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

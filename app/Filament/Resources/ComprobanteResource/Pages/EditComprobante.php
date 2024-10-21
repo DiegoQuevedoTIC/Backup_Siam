@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ComprobanteResource\Pages;
 
+use App\Exports\ComprobanteExport;
 use App\Exports\ComprobanteLineasExport;
 use App\Filament\Resources\ComprobanteResource;
 use App\Models\Comprobante;
@@ -28,7 +29,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EditComprobante extends EditRecord
 {
+    protected $listeners = ['print' => '$refresh'];
+
     protected static string $resource = ComprobanteResource::class;
+
+    protected static string $view = 'custom.comprobante.edit-comprobante';
 
     protected function getHeaderActions(): array
     {
@@ -72,17 +77,8 @@ class EditComprobante extends EditRecord
                 ->color('primary')
                 ->icon('heroicon-c-printer')
                 ->action(function () {
-                    $nameFile = $this->getRecord()->descripcion_comprobante . '.pdf';
-                    return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::DOMPDF);
-                })->after(function () {
-                    Notification::make()
-                        ->title('Se exporto la información de manera correcta.')
-                        ->icon('heroicon-m-check-circle')
-                        ->body('Los datos exportados correctamente')
-                        ->success()
-                        ->color('primary')
-                        ->send();
-                }),
+                    $this->dispatch('print');
+                })
         ];
     }
 
