@@ -3,43 +3,41 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\ConsultasContabilidad;
-use App\Filament\Resources\DesbalanceResource\Pages;
-use App\Filament\Resources\DesbalanceResource\RelationManagers;
-use App\Models\Desbalance;
+use App\Filament\Resources\ConsultaComprobanteResource\Pages;
+use App\Filament\Resources\ConsultaComprobanteResource\RelationManagers;
+use App\Models\ConsultaComprobante;
+use App\Models\TipoDocumentoContable;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 
-class DesbalanceResource extends Resource
+class ConsultaComprobanteResource extends Resource
 {
-    protected static ?string    $model = Desbalance::class;
+    protected static ?string    $model = ConsultaComprobante::class;
     protected static ?string    $cluster = ConsultasContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string    $navigationLabel = 'Descuadre Comprobantes';
-    protected static ?string    $modelLabel = 'Descuadre Comprobantes';
-    protected static ?int       $navigationSort = -2;
+    protected static ?string    $navigationLabel = 'Comprobantes Movimiento';
+    protected static ?string    $modelLabel = 'Comprobantes Movimiento';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 //
-                Select::make('tipo_revision')
-                ->label('Tipo de Revisión')
-                ->options([
-                    '1' => 'Debito = Credito',
-                    '2' => 'Cuentas de movimiento',
-                    '3' => 'Partidas con tercero',
-                ])
-                ->required()
-                ->live()
-                ->searchable()
-                ->columnSpanFull(),
+                Select::make('tipo_documento')
+                    ->options(TipoDocumentoContable::all()->pluck('tipo_documento', 'id'))
+                    ->required()
+                    ->searchable()
+                    ->placeholder('Seleccione el tipo de documento'),
+                TextInput::make('n_documento')
+                    ->label('Nro de comprobante')
+                    ->required(),
             ]);
     }
 
@@ -72,9 +70,9 @@ class DesbalanceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDesbalances::route('/'),
-            'create' => Pages\CreateDesbalance::route('/create'),
-            'edit' => Pages\EditDesbalance::route('/{record}/edit'),
+            'index' => Pages\ListConsultaComprobantes::route('/'),
+            'create' => Pages\CreateConsultaComprobante::route('/create'),
+            'edit' => Pages\EditConsultaComprobante::route('/{record}/edit'),
         ];
     }
 }

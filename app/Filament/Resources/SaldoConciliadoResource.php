@@ -3,11 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\ConsultasContabilidad;
-use App\Filament\Resources\DesbalanceResource\Pages;
-use App\Filament\Resources\DesbalanceResource\RelationManagers;
-use App\Models\Desbalance;
+use App\Filament\Resources\SaldoConciliadoResource\Pages;
+use App\Filament\Resources\SaldoConciliadoResource\RelationManagers;
+use App\Models\SaldoConciliado;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -15,31 +14,19 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class DesbalanceResource extends Resource
+class SaldoConciliadoResource extends Resource
 {
-    protected static ?string    $model = Desbalance::class;
+    protected static ?string    $model = SaldoConciliado::class;
     protected static ?string    $cluster = ConsultasContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string    $navigationLabel = 'Descuadre Comprobantes';
-    protected static ?string    $modelLabel = 'Descuadre Comprobantes';
-    protected static ?int       $navigationSort = -2;
+    protected static ?string    $navigationLabel = 'Saldo Conciliado';
+    protected static ?string    $modelLabel = 'Saldo Conciliado';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 //
-                Select::make('tipo_revision')
-                ->label('Tipo de Revisión')
-                ->options([
-                    '1' => 'Debito = Credito',
-                    '2' => 'Cuentas de movimiento',
-                    '3' => 'Partidas con tercero',
-                ])
-                ->required()
-                ->live()
-                ->searchable()
-                ->columnSpanFull(),
             ]);
     }
 
@@ -72,9 +59,9 @@ class DesbalanceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDesbalances::route('/'),
-            'create' => Pages\CreateDesbalance::route('/create'),
-            'edit' => Pages\EditDesbalance::route('/{record}/edit'),
+            'index' => Pages\ListSaldoConciliados::route('/'),
+            'create' => Pages\CreateSaldoConciliado::route('/create'),
+            'edit' => Pages\EditSaldoConciliado::route('/{record}/edit'),
         ];
     }
 }
