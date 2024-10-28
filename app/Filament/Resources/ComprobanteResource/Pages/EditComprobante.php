@@ -52,7 +52,7 @@ class EditComprobante extends EditRecord
                 ->action(function (array $data) {
 
                     try {
-                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $data['file_import']);
+                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), storage_path($data['file_import']));
 
                         $this->fillForm();
 
@@ -64,7 +64,7 @@ class EditComprobante extends EditRecord
                             ->color('primary')
                             ->send();
                     } catch (\Exception $e) {
-                        dd('Excel import error: ' . $e->getMessage());
+                        //dd('Excel import error: ' . $e->getMessage());
 
                         Notification::make()
                             ->title('Ocurrio un error!')

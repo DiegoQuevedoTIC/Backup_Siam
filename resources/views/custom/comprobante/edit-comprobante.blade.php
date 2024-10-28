@@ -309,10 +309,5 @@
         window.addEventListener('print', event => {
             window.print();
         });
-
-        window.addEventListener('refresh', event => {
-            console.log(event)
-            //location.reload();
-        });
     </script>
 </x-filament-panels::page>
