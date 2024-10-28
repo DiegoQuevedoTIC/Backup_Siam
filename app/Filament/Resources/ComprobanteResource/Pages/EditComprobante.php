@@ -53,13 +53,18 @@ class EditComprobante extends EditRecord
                 ->action(function (array $data) {
 
                     try {
-                        $file = Utils::tryFopen("storage/{$data['file_import']}", 'r');
-                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $file);
+                        $filePath = storage_path('app/public/uploads/' . $data['file_import']->getClientOriginalName());
+
+                        if (!file_exists($filePath)) {
+                            throw new \Exception('El archivo no existe en la ruta: ' . $filePath);
+                        }
+
+                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
 
                         $this->fillForm();
 
                         Notification::make()
-                            ->title('Se importo la información de manera correcta.')
+                            ->title('Se importó la información de manera correcta.')
                             ->icon('heroicon-m-check-circle')
                             ->body('Los datos importados correctamente')
                             ->success()
@@ -69,7 +74,7 @@ class EditComprobante extends EditRecord
                         dd('Excel import error: ' . $e->getMessage());
 
                         Notification::make()
-                            ->title('Ocurrio un error!')
+                            ->title('Ocurrió un error!')
                             ->icon('heroicon-o-exclamation-circle')
                             ->body('Ha ocurrido un error al importar los datos.')
                             ->danger()
