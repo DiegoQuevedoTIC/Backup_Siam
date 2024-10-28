@@ -53,7 +53,7 @@ class EditComprobante extends EditRecord
                 ->action(function (array $data) {
 
                     try {
-                        $filePath = storage_path('app/public/uploads/' . $data['file_import']->getClientOriginalName());
+                        $filePath = storage_path('app/public/uploads/' . $data['file_import']);
 
                         if (!file_exists($filePath)) {
                             throw new \Exception('El archivo no existe en la ruta: ' . $filePath);
