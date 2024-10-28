@@ -19,8 +19,8 @@ class SaldoConciliadoResource extends Resource
     protected static ?string    $model = SaldoConciliado::class;
     protected static ?string    $cluster = ConsultasContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string    $navigationLabel = 'Saldo Conciliado';
-    protected static ?string    $modelLabel = 'Saldo Conciliado';
+    protected static ?string    $navigationLabel = 'Saldo Conciliados';
+    protected static ?string    $modelLabel = 'Saldo Conciliados';
 
     public static function form(Form $form): Form
     {

@@ -119,11 +119,15 @@ class CreateDesbalance extends CreateRecord
         try {
             // Ejecutar la consulta
             $query = DB::table('comprobantes AS c')
-                ->select('c.fecha_comprobante', 'c.n_documento', 'c.descripcion_comprobante')
+                ->select('c.fecha_comprobante', 'c.n_documento', 'c.descripcion_comprobante', 'cl.linea', 'td.sigla')
                 ->join('comprobante_lineas AS cl', 'c.id', '=', 'cl.comprobante_id')
                 ->join('pucs AS p', 'cl.pucs_id', '=', 'p.id')
+                ->join('tipo_documento_contables as td', 'c.tipo_documento_contables_id', 'td.id')
                 ->where('p.tercero', true)
                 ->whereNull('cl.tercero_id')
+                ->orderBy('c.fecha_comprobante')
+                ->orderBy('c.n_documento')
+                ->orderBy('cl.linea')
                 ->get();
 
             if (count($query) == 0) {
@@ -140,7 +144,7 @@ class CreateDesbalance extends CreateRecord
             return Excel::download(new partidaTerceroExport($query), $nameFile);
         } catch (\Exception $e) {
             // Capturar y mostrar cualquier error
-            //dd('Error: ' . $e->getMessage());
+            dd('Error: ' . $e->getMessage());
 
             Notification::make()
                 ->title('Ocurrio un error!.')

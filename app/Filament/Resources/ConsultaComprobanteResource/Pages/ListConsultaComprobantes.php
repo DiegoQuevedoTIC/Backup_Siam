@@ -13,7 +13,7 @@ class ListConsultaComprobantes extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Generar Revision'),
         ];
     }
 }

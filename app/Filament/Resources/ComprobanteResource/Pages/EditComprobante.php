@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ComprobanteResource\Pages;
 use App\Exports\ComprobanteExport;
 use App\Exports\ComprobanteLineasExport;
 use App\Filament\Resources\ComprobanteResource;
+use App\Imports\ComprobanteLineaImport;
 use App\Models\Comprobante;
 use Filament\Actions;
 use Filament\Forms\Form;
@@ -17,7 +18,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
@@ -26,11 +27,10 @@ use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Support\Colors\Color;
 
 class EditComprobante extends EditRecord
 {
-    protected $listeners = ['print' => '$refresh'];
-
     protected static string $resource = ComprobanteResource::class;
 
     protected static string $view = 'custom.comprobante.edit-comprobante';
@@ -38,6 +38,31 @@ class EditComprobante extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+
+            Action::make('import_excel')
+                ->label('Importar Lineas')
+                ->color(Color::Blue)
+                ->icon('heroicon-o-document-arrow-up')
+                ->form([
+                    FileUpload::make('file_import')
+                        ->label('Archivo Excel')
+                        ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
+                        ->required(),
+                ])
+                ->action(function (array $data) {
+                    Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $data['file_import']);
+
+                    $this->fillForm();
+
+                    Notification::make()
+                        ->title('Se importo la información de manera correcta.')
+                        ->icon('heroicon-m-check-circle')
+                        ->body('Los datos importados correctamente')
+                        ->success()
+                        ->color('primary')
+                        ->send();
+                }),
+
             Action::make('export_excel')
                 ->label('Exportar EXCEL')
                 ->color('primary')

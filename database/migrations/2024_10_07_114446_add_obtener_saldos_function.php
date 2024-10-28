@@ -79,8 +79,6 @@ return new class extends Migration
                 SaldoAnterior AS sa ON c.puc = sa.puc
             GROUP BY
                 c.puc, c.descripcion, sa.saldo, c.naturaleza
-            HAVING
-                SUM(c.total_debito) > 0 OR SUM(c.total_credito) > 0
             ORDER BY
                 c.puc;
             $$ LANGUAGE SQL;

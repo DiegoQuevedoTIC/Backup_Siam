@@ -18,7 +18,9 @@
         <thead>
             <tr>
                 <th class="h">Fecha comprobante</th>
+                <th class="h">Sigla documento</th>
                 <th class="h">Nro Documento</th>
+                <th class="h">Linea</th>
                 <th class="h">Descripcion comprobante</th>
             </tr>
         </thead>
@@ -26,7 +28,9 @@
             @foreach ($data as $row)
                 <tr>
                     <td>{{ $row->fecha_comprobante }}</td>
+                    <td>{{ $row->sigla }}</td>
                     <td>{{ $row->n_documento }}</td>
+                    <td>{{ $row->linea }}</td>
                     <td>{{ $row->descripcion_comprobante }}</td>
                 </tr>
             @endforeach

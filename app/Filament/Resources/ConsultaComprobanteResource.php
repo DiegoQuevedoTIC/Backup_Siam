@@ -23,7 +23,7 @@ class ConsultaComprobanteResource extends Resource
     protected static ?string    $cluster = ConsultasContabilidad::class;
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Comprobantes Movimiento';
-    protected static ?string    $modelLabel = 'Comprobantes Movimiento';
+    protected static ?string    $modelLabel = 'Comprobantes';
 
     public static function form(Form $form): Form
     {
@@ -36,8 +36,7 @@ class ConsultaComprobanteResource extends Resource
                     ->searchable()
                     ->placeholder('Seleccione el tipo de documento'),
                 TextInput::make('n_documento')
-                    ->label('Nro de comprobante')
-                    ->required(),
+                    ->label('Nro de comprobante'),
             ]);
     }
 
