@@ -28,6 +28,7 @@ use Filament\Actions\Action;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Support\Colors\Color;
+use GuzzleHttp\Psr7\Utils;
 
 class EditComprobante extends EditRecord
 {
@@ -52,7 +53,8 @@ class EditComprobante extends EditRecord
                 ->action(function (array $data) {
 
                     try {
-                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), asset('upload/' . $data['file_import']));
+                        $file = Utils::tryFopen("storage/{$data['file_import']}", 'r');
+                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $file);
 
                         $this->fillForm();
 
