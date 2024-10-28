@@ -64,7 +64,7 @@ class EditComprobante extends EditRecord
                             ->color('primary')
                             ->send();
                     } catch (\Exception $e) {
-                        //dd('Excel import error: ' . $e->getMessage());
+                        dd('Excel import error: ' . $e->getMessage());
 
                         Notification::make()
                             ->title('Ocurrio un error!')
