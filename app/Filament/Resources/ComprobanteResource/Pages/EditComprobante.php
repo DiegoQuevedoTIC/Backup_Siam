@@ -52,7 +52,8 @@ class EditComprobante extends EditRecord
                 ->action(function (array $data) {
 
                     try {
-                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), storage_path($data['file_import']));
+                        $path = $data['file_import']->store('uploads');
+                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), storage_path('app/' . $path));
 
                         $this->fillForm();
 
