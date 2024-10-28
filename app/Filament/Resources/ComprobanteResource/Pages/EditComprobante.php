@@ -50,17 +50,29 @@ class EditComprobante extends EditRecord
                         ->required(),
                 ])
                 ->action(function (array $data) {
-                    Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $data['file_import']);
 
-                    $this->fillForm();
+                    try {
+                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $data['file_import']);
 
-                    Notification::make()
-                        ->title('Se importo la información de manera correcta.')
-                        ->icon('heroicon-m-check-circle')
-                        ->body('Los datos importados correctamente')
-                        ->success()
-                        ->color('primary')
-                        ->send();
+                        $this->fillForm();
+
+                        Notification::make()
+                            ->title('Se importo la información de manera correcta.')
+                            ->icon('heroicon-m-check-circle')
+                            ->body('Los datos importados correctamente')
+                            ->success()
+                            ->color('primary')
+                            ->send();
+                    } catch (\Exception $e) {
+                        dd('Excel import error: ' . $e->getMessage());
+
+                        Notification::make()
+                            ->title('Ocurrio un error!')
+                            ->icon('heroicon-o-exclamation-circle')
+                            ->body('Ha ocurrido un error al importar los datos.')
+                            ->danger()
+                            ->send();
+                    }
                 }),
 
             Action::make('export_excel')
