@@ -67,7 +67,7 @@ class ComprobanteResource extends Resource
                     ->headerActions([
                         Action::make('Descargar plantilla')
                             ->icon('heroicon-o-arrow-down-tray')
-                            ->url(fn (): string => \asset('storage/plantilla.xlsx')),
+                            ->url(fn(): string => \storage_path('app/public/plantilla.xlsx')),
                     ])
                     ->schema([
                         Toggle::make('usar_plantilla')
