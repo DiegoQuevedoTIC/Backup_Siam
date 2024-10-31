@@ -69,8 +69,8 @@ class ConsultaComprobanteResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListConsultaComprobantes::route('/'),
-            'create' => Pages\CreateConsultaComprobante::route('/create'),
+            'index' => Pages\CreateConsultaComprobante::route('/create'),
+            'create' => Pages\CreateConsultaComprobante::route('/'),
             'edit' => Pages\EditConsultaComprobante::route('/{record}/edit'),
         ];
     }

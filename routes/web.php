@@ -22,6 +22,8 @@ Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'g
 
 Route::post('/export', [BalanceGeneralController::class, 'export'])->name('export');
 
+Route::get('/consulta/comprobantes', [App\Http\Controllers\ConsultaController::class, 'consultaComprobante'])->name('consulta.comprobantes');
+
 Route::get('/read', [BalanceGeneralController::class, 'readCsvFile']);
 
 Route::get('/x', function () {

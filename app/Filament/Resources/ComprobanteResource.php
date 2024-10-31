@@ -27,6 +27,9 @@ use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Illuminate\Support\Facades\Route;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Support\RawJs;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Section;
+
 
 class ComprobanteResource extends Resource
 {
@@ -59,134 +62,144 @@ class ComprobanteResource extends Resource
             ->columns(8)
             ->schema([
                 //
-                Toggle::make('usar_plantilla')
-                    ->label('Usar plantilla')
-                    ->live()
-                    ->visibleOn('create')
-                    ->columnSpan(2),
-                Select::make('plantilla')
-                    ->label('Plantilla')
-                    ->columnSpan(2)
-                    ->options(function () {
-                        $query = Comprobante::where('is_plantilla', '=', true)->get()->pluck('descripcion_comprobante', 'id');
-                        return $query;
-                    })
-                    ->disabled(function (Get $get, Set $set): bool {
-                        if ($get('usar_plantilla')) {
-                            $template = Comprobante::all()->find($get('plantilla'));
-                            if (!is_null($template)) {
-                                $template = $template->toArray();
-                                $set('tipo_documento_contables_id', $template['tipo_documento_contables_id']);
-                                $set('n_documento', $template['n_documento']);
-                                $set('tercero_id', $template['tercero_id']);
-                                $set('is_plantilla', 0);
-                                $set('descripcion_comprobante', $template['descripcion_comprobante']);
-                            }
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    })
-                    ->visibleOn('create')
-                    ->live(),
-                Toggle::make('is_plantilla')
-                    ->label('¿Guardar Plantilla?')
-                    ->required()
-                    ->visibleOn('create')
-                    ->columnSpan(2),
-                DatePicker::make('fecha_comprobante')
-                    ->label('Fecha de comprobante')
-                    ->required()
-                    ->suffixIcon('heroicon-m-calendar-days')
-                    ->columnSpan(2)
-                    ->native(false)
-                    ->disabled(function (Get $get, Set $set): bool {
-                        $id = $get('tipo_documento_contables_id');
-                        if (!is_null($id)) {
-                            $isDateModified = TipoDocumentoContable::find($id)->toArray()['fecha_modificable'];
-                            if ($isDateModified == 1) {
-                                return false;
-                            } else {
-                                $set('fecha_comprobante', date('Y-m-d'));
+
+                Section::make('Creación de Comprobante')
+                    ->headerActions([
+                        Action::make('Descargar plantilla')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->url(fn (): string => \asset('storage/plantilla.xlsx')),
+                    ])
+                    ->schema([
+                        Toggle::make('usar_plantilla')
+                            ->label('Usar plantilla')
+                            ->live()
+                            ->visibleOn('create')
+                            ->columnSpan(2),
+                        Select::make('plantilla')
+                            ->label('Plantilla')
+                            ->columnSpan(2)
+                            ->options(function () {
+                                $query = Comprobante::where('is_plantilla', '=', true)->get()->pluck('descripcion_comprobante', 'id');
+                                return $query;
+                            })
+                            ->disabled(function (Get $get, Set $set): bool {
+                                if ($get('usar_plantilla')) {
+                                    $template = Comprobante::all()->find($get('plantilla'));
+                                    if (!is_null($template)) {
+                                        $template = $template->toArray();
+                                        $set('tipo_documento_contables_id', $template['tipo_documento_contables_id']);
+                                        $set('n_documento', $template['n_documento']);
+                                        $set('tercero_id', $template['tercero_id']);
+                                        $set('is_plantilla', 0);
+                                        $set('descripcion_comprobante', $template['descripcion_comprobante']);
+                                    }
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            })
+                            ->visibleOn('create')
+                            ->live(),
+                        Toggle::make('is_plantilla')
+                            ->label('¿Guardar Plantilla?')
+                            ->required()
+                            ->visibleOn('create')
+                            ->columnSpan(2),
+                        DatePicker::make('fecha_comprobante')
+                            ->label('Fecha de comprobante')
+                            ->required()
+                            ->suffixIcon('heroicon-m-calendar-days')
+                            ->columnSpan(2)
+                            ->native(false)
+                            ->disabled(function (Get $get, Set $set): bool {
+                                $id = $get('tipo_documento_contables_id');
+                                if (!is_null($id)) {
+                                    $isDateModified = TipoDocumentoContable::find($id)->toArray()['fecha_modificable'];
+                                    if ($isDateModified == 1) {
+                                        return false;
+                                    } else {
+                                        $set('fecha_comprobante', date('Y-m-d'));
+                                        return true;
+                                    }
+                                } else {
+                                    return false;
+                                }
+                            }),
+
+                        Select::make('tipo_documento_contables_id')
+                            ->label('Tipo de Documento')
+                            ->columnSpan(2)
+                            ->options(TipoDocumentoContable::where('uso_contable', true)->pluck('tipo_documento', 'id'))
+                            ->required()
+                            ->native(false)
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                if ($state) {
+                                    // Usa el modelo para obtener el último numerador del tipo de documento seleccionado
+                                    $ultimoNumerador = TipoDocumentoContable::where('id', $state)
+                                        ->value('numerador');
+
+                                    // Si se encontró un numerador, incrementar en 1 y asignarlo al campo n_documento
+                                    if ($ultimoNumerador !== null) {
+                                        $set('n_documento', $ultimoNumerador + 1);
+                                    }
+                                }
+                            })
+                            ->live(),
+
+                        TextInput::make('n_documento')
+                            ->label('Nº de Documento')
+                            ->columnSpan(2)
+                            ->rule('regex:/^[0-9]+$/')
+                            ->required(),
+                        Select::make('tercero_id')
+                            ->label('Tercero Comprobante')
+                            ->required()
+                            ->columnSpan(4)
+                            ->native(false)
+                            ->relationship('tercero', 'tercero_id')
+                            ->searchable(),
+
+
+                        Textarea::make('descripcion_comprobante')
+                            ->label('Descripcion del Comprobante')
+                            ->columnSpan(8)
+                            ->autocomplete(false)
+                            ->required(),
+
+                        TextInput::make('total_debito')->label('Total Debitos')
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                            ->prefix('$')
+                            ->disabled(function (Get $get, Set $set) {
+                                $total = 0;
+                                foreach ($get('detalle') as $detalle) {
+                                    $total += floatval($detalle['debito']);
+                                }
+                                $set('total_debito', $total);
                                 return true;
-                            }
-                        } else {
-                            return false;
-                        }
-                    }),
+                            })
+                            ->columnSpan([
+                                'sm' => 2,
+                                'xl' => 3,
+                                '2xl' => 4,
+                            ]),
 
-                Select::make('tipo_documento_contables_id')
-                    ->label('Tipo de Documento')
-                    ->columnSpan(2)
-                    ->options(TipoDocumentoContable::where('uso_contable', true)->pluck('tipo_documento', 'id'))
-                    ->required()
-                    ->native(false)
-                    ->afterStateUpdated(function (callable $set, $state) {
-                        if ($state) {
-                            // Usa el modelo para obtener el último numerador del tipo de documento seleccionado
-                            $ultimoNumerador = TipoDocumentoContable::where('id', $state)
-                                ->value('numerador');
+                        TextInput::make('total_credito')->label('Total Creditos')
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                            ->prefix('$')
+                            ->disabled(function (Get $get, Set $set) {
+                                $total = 0;
+                                foreach ($get('detalle') as $detalle) {
+                                    $total += floatval($detalle['credito']);
+                                }
+                                $set('total_credito', $total);
+                                return true;
+                            })
+                            ->columnSpan([
+                                'sm' => 2,
+                                'xl' => 3,
+                                '2xl' => 4,
+                            ]),
 
-                            // Si se encontró un numerador, incrementar en 1 y asignarlo al campo n_documento
-                            if ($ultimoNumerador !== null) {
-                                $set('n_documento', $ultimoNumerador + 1);
-                            }
-                        }
-                    })
-                    ->live(),
-
-                TextInput::make('n_documento')
-                    ->label('Nº de Documento')
-                    ->columnSpan(2)
-                    ->rule('regex:/^[0-9]+$/')
-                    ->required(),
-                Select::make('tercero_id')
-                    ->label('Tercero Comprobante')
-                    ->required()
-                    ->columnSpan(4)
-                    ->native(false)
-                    ->relationship('tercero', 'tercero_id')
-                    ->searchable(),
-
-
-                Textarea::make('descripcion_comprobante')
-                    ->label('Descripcion del Comprobante')
-                    ->columnSpan(8)
-                    ->autocomplete(false)
-                    ->required(),
-
-                TextInput::make('total_debito')->label('Total Debitos')
-                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
-                    ->prefix('$')
-                    ->disabled(function (Get $get, Set $set) {
-                        $total = 0;
-                        foreach ($get('detalle') as $detalle) {
-                            $total += floatval($detalle['debito']);
-                        }
-                        $set('total_debito', $total);
-                        return true;
-                    })
-                    ->columnSpan([
-                        'sm' => 2,
-                        'xl' => 3,
-                        '2xl' => 4,
-                    ]),
-
-                TextInput::make('total_credito')->label('Total Creditos')
-                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
-                    ->prefix('$')
-                    ->disabled(function (Get $get, Set $set) {
-                        $total = 0;
-                        foreach ($get('detalle') as $detalle) {
-                            $total += floatval($detalle['credito']);
-                        }
-                        $set('total_credito', $total);
-                        return true;
-                    })
-                    ->columnSpan([
-                        'sm' => 2,
-                        'xl' => 3,
-                        '2xl' => 4,
                     ]),
 
                 TableRepeater::make('detalle')
