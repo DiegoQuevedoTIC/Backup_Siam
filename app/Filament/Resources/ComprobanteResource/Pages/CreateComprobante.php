@@ -30,23 +30,6 @@ class CreateComprobante extends CreateRecord
     protected function beforeCreate(): void
     {
         $data = $this->data;
-        $credito = array();
-        $debito = array();
-        foreach ($data['detalle'] as $key => $value) {
-            if ($value['debito'] == '') {
-                $credito[] = floatval($value['credito']);
-            } else {
-                $debito[] = floatval($value['debito']);
-            }
-        }
-
-        if ((array_sum($credito) - array_sum($debito)) != 0.0) {
-            Notification::make()
-                ->title('No puede guardar un comprobante desbalanceado')
-                ->danger()
-                ->send();
-            $this->halt();
-        }
 
         $comprobante = DB::table('comprobantes')->where('n_documento', $data['n_documento'])->first();
 
@@ -58,10 +41,22 @@ class CreateComprobante extends CreateRecord
 
             $this->halt();
         }
+
+        // Validamos que la fecha del comprobante ya no este cerrada
+        $validator = DB::table('cierre_mensuales')->where('mes_cierre', date('m', strtotime($data['fecha_comprobante'])))->first();
+
+        if ($validator) {
+            Notification::make()
+                ->title('El mes de cierre no ha sido realizado')
+                ->danger()
+                ->send();
+
+            $this->halt();
+        }
     }
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
     }
 }

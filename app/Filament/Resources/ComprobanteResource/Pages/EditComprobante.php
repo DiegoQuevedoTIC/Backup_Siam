@@ -25,10 +25,12 @@ use Filament\Notifications\Notification;
 use Filament\Support\RawJs;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Support\Colors\Color;
 use GuzzleHttp\Psr7\Utils;
+use Filament\Support\Enums\ActionSize;
 
 class EditComprobante extends EditRecord
 {
@@ -40,85 +42,158 @@ class EditComprobante extends EditRecord
     {
         return [
 
-            Action::make('import_excel')
-                ->label('Importar Lineas')
+
+            ActionGroup::make([
+                Action::make('Descargar plantilla')
+                    ->tooltip('Plantilla para carga masiva de lineas')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color(Color::Blue)
+                    ->url(fn(): string => 'https://www.dropbox.com/scl/fi/seidlg604qasmakc2wvno/plantilla.xlsx?rlkey=eb6ddc7jma289rtpp7yynea6e&st=wiyb9sv1&dl=1'),
+
+                Action::make('import_excel')
+                    ->label('Importar Lineas')
+                    ->color(Color::Blue)
+                    ->icon('heroicon-o-document-arrow-up')
+                    ->form([
+                        FileUpload::make('file_import')
+                            ->label('Archivo Excel')
+                            ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+
+                        try {
+                            $filePath = storage_path('app/public/' . $data['file_import']);
+
+                            $data = Excel::toArray(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
+
+                            $total_debito = 0;
+                            $total_credito = 0;
+
+                            foreach ($data[0] as $row) {
+                                $total_debito += $row['debito'];
+                                $total_credito += $row['credito'];
+                            }
+
+                            if ($total_debito !== $total_credito) {
+
+                                Notification::make()
+                                    ->title('Ocurrio un error!.')
+                                    ->icon('heroicon-m-check-circle')
+                                    ->body('No se puede cargar lineas desbalanceadas')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            // Insertamos las lineas
+                            Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
+                            $this->fillForm();
+
+                            Notification::make()
+                                ->title('Se importó la información de manera correcta.')
+                                ->icon('heroicon-m-check-circle')
+                                ->body('Los datos importados correctamente')
+                                ->success()
+                                ->color('primary')
+                                ->send();
+
+                            return;
+                        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+                            //dd('Excel import error: ' . $e->getMessage());
+                            $failures = $e->failures();
+
+                            if (!$failures) {
+
+                                Notification::make()
+                                    ->title('Ocurrió un error!')
+                                    ->icon('heroicon-o-exclamation-circle')
+                                    ->body('Por favor verifica que los datos estén correctos y que el archivo sea correcto.')
+                                    ->seconds(3000)
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            Notification::make()
+                                ->title('Ocurrió un error!')
+                                ->icon('heroicon-o-exclamation-circle')
+                                ->body(function () use ($failures) {
+
+                                    $errors = [];
+
+                                    foreach ($failures as $failure) {
+                                        $message = "Tienes un error en la fila: " . $failure->row() . "<br><br>Error: " . implode(", ", $failure->errors());
+                                        array_push($errors, $message);
+                                    }
+
+                                    return implode("<br><br>", $errors);
+                                })
+                                ->seconds(3000)
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+            ])
+                ->label('Opciones de importación')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size(ActionSize::Small)
                 ->color(Color::Blue)
-                ->icon('heroicon-o-document-arrow-up')
-                ->form([
-                    FileUpload::make('file_import')
-                        ->label('Archivo Excel')
-                        ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
-                        ->required(),
-                ])
-                ->action(function (array $data) {
+                ->button(),
 
-                    try {
-                        $filePath = storage_path('app/public/' . $data['file_import']);
 
-                        Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
 
-                        $this->fillForm();
-
+            ActionGroup::make([
+                Action::make('export_excel')
+                    ->label('Exportar EXCEL')
+                    ->color('primary')
+                    ->icon('heroicon-c-arrow-down-on-square')
+                    ->action(function () {
+                        $nameFile = $this->getRecord()->descripcion_comprobante . '.xlsx';
+                        return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::XLSX);
+                    })->after(function () {
                         Notification::make()
-                            ->title('Se importó la información de manera correcta.')
+                            ->title('Se exporto la información de manera correcta.')
                             ->icon('heroicon-m-check-circle')
-                            ->body('Los datos importados correctamente')
+                            ->body('Los datos exportados correctamente')
                             ->success()
                             ->color('primary')
                             ->send();
-                    } catch (\Exception $e) {
-                        //dd('Excel import error: ' . $e->getMessage());
+                    }),
 
+                Action::make('export_csv')
+                    ->label('Exportar CSV')
+                    ->color('primary')
+                    ->icon('heroicon-c-arrow-down-on-square')
+                    ->action(function () {
+                        $nameFile = $this->getRecord()->descripcion_comprobante . '.csv';
+                        return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::CSV);
+                    })->after(function () {
                         Notification::make()
-                            ->title('Ocurrió un error!')
-                            ->icon('heroicon-o-exclamation-circle')
-                            ->body('Ha ocurrido un error al importar los datos.')
-                            ->danger()
+                            ->title('Se exporto la información de manera correcta.')
+                            ->icon('heroicon-m-check-circle')
+                            ->body('Los datos exportados correctamente')
+                            ->success()
+                            ->color('primary')
                             ->send();
-                    }
-                }),
+                    }),
 
-            Action::make('export_excel')
-                ->label('Exportar EXCEL')
+                Action::make('export_pdf')
+                    ->label('Exportar PDF')
+                    ->color('primary')
+                    ->icon('heroicon-c-printer')
+                    ->action(function () {
+                        $this->dispatch('print');
+                    })
+            ])
+                ->label('Opciones de exportación')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size(ActionSize::Small)
                 ->color('primary')
-                ->icon('heroicon-c-arrow-down-on-square')
-                ->action(function () {
-                    $nameFile = $this->getRecord()->descripcion_comprobante . '.xlsx';
-                    return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::XLSX);
-                })->after(function () {
-                    Notification::make()
-                        ->title('Se exporto la información de manera correcta.')
-                        ->icon('heroicon-m-check-circle')
-                        ->body('Los datos exportados correctamente')
-                        ->success()
-                        ->color('primary')
-                        ->send();
-                }),
-
-            Action::make('export_csv')
-                ->label('Exportar CSV')
-                ->color('primary')
-                ->icon('heroicon-c-arrow-down-on-square')
-                ->action(function () {
-                    $nameFile = $this->getRecord()->descripcion_comprobante . '.csv';
-                    return Excel::download(new ComprobanteLineasExport($this->getRecord()->id), $nameFile, \Maatwebsite\Excel\Excel::CSV);
-                })->after(function () {
-                    Notification::make()
-                        ->title('Se exporto la información de manera correcta.')
-                        ->icon('heroicon-m-check-circle')
-                        ->body('Los datos exportados correctamente')
-                        ->success()
-                        ->color('primary')
-                        ->send();
-                }),
-
-            Action::make('export_pdf')
-                ->label('Exportar PDF')
-                ->color('primary')
-                ->icon('heroicon-c-printer')
-                ->action(function () {
-                    $this->dispatch('print');
-                })
+                ->button()
         ];
     }
 
@@ -289,12 +364,10 @@ class EditComprobante extends EditRecord
         $data = $this->data;
         $credito = array();
         $debito = array();
-        foreach ($data['detalle'] as $key => $value) {
-            if ($value['debito'] == '') {
-                $credito[] = floatval($value['credito']);
-            } else {
-                $debito[] = floatval($value['debito']);
-            }
+
+        foreach ($data['detalle'] as $value) {
+            $credito[] = floatval($value['credito']) ?? 0.00;
+            $debito[] = floatval($value['debito']) ?? 0.00;
         }
 
         if ((array_sum($credito) - array_sum($debito)) != 0.0) {
