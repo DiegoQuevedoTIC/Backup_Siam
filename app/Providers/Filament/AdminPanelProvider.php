@@ -22,7 +22,6 @@ use Filament\Support\Enums\MaxWidth;
 use Joaopaulolndev\FilamentGeneralSettings\FilamentGeneralSettingsPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 
-
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -95,7 +94,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])->spa()
+            ])
+            ->spa()
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make());
     }
 }
