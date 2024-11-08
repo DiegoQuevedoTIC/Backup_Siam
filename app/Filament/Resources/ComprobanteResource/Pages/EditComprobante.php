@@ -65,28 +65,6 @@ class EditComprobante extends EditRecord
                         try {
                             $filePath = storage_path('app/public/' . $data['file_import']);
 
-                            $data = Excel::toArray(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
-
-                            $total_debito = 0;
-                            $total_credito = 0;
-
-                            foreach ($data[0] as $row) {
-                                $total_debito += $row['debito'];
-                                $total_credito += $row['credito'];
-                            }
-
-                            if ($total_debito !== $total_credito) {
-
-                                Notification::make()
-                                    ->title('Ocurrio un error!.')
-                                    ->icon('heroicon-m-check-circle')
-                                    ->body('No se puede cargar lineas desbalanceadas')
-                                    ->danger()
-                                    ->send();
-
-                                return;
-                            }
-
                             // Insertamos las lineas
                             Excel::import(new ComprobanteLineaImport($this->getRecord()->id), $filePath);
                             $this->fillForm();
