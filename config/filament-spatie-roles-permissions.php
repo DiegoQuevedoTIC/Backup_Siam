@@ -21,11 +21,11 @@ return [
      * Set as false to remove from navigation.
      */
     'should_register_on_navigation' => [
-        'permissions' => false,
+        'permissions' => true,
         'roles' => true,
     ],
 
-    'should_show_permissions_for_roles' => false,
+    'should_show_permissions_for_roles' => true,
 
     /*
      * Set as true to use simple modal resource.
