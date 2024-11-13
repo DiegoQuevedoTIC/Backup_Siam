@@ -40,7 +40,7 @@ class ConsultaController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btn = '<button data-id="' . $row->id . '" style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);" class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-primary fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50" type="button">
+                    $btn = '<button data-id="' . base64_encode($row->id) . '" style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);" class="show_comprobante fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-primary fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50" type="button">
                             <span class="fi-btn-label">
                                 Ver
                             </span>
@@ -50,5 +50,25 @@ class ConsultaController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+    }
+
+
+    public function showComprobante(Request $request)
+    {
+        $id = base64_decode($request->comprobante);
+
+        $comprobante = Comprobante::where('id', $id)
+            ->with(['tipoDocumentoContable', 'comprobanteLinea.puc', 'comprobanteLinea.tercero'])
+            ->first();
+
+        // Verificamos si se encontró el comprobante
+        if (!$comprobante) {
+            return response()->json(['error' => 'Comprobante no encontrado.'], 404);
+        }
+
+        // Aseguramos que las líneas del comprobante sean un array
+        $comprobante->comprobanteLinea = $comprobante->comprobanteLinea ?? [];
+
+        return response()->json(['comprobante' => $comprobante], 200);
     }
 }
