@@ -13,9 +13,9 @@ class CreateReaperturaCierre extends CreateRecord
 
     protected function afterCreate(): void
     {
-        DB::statement('CALL reaperturar_cierre(?, ?);', [
+        /* DB::statement('CALL reaperturar_cierre(?, ?);', [
             $this->getRecord()->amo,
             $this->getRecord()->mes,
-        ]);
+        ]); */
     }
 }
