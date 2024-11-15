@@ -8,5 +8,5 @@ class ConsultasContabilidad extends Cluster
 {
     protected static ?string    $navigationIcon = 'heroicon-o-document-check';
     protected static ?string    $navigationGroup = 'Contabilidad';
-    protected static ?int       $navigationSort = 4;
+    protected static ?int       $navigationSort = 2;
 }

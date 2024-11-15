@@ -41,13 +41,16 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Siam_ERP')
             ->brandLogo(asset('images/Icons.png'))
             ->darkModeBrandLogo(asset('images/Icons1.png'))
-            ->brandLogoHeight('5rem')
+            ->brandLogoHeight('3rem')
             ->navigationGroups([
                 NavigationGroup::make('Parametros Generales')
                     ->label('Parametros Generales')
                     ->collapsed(),
                 NavigationGroup::make('Administracion de Terceros')
                     ->label('Administracion de Terceros')
+                    ->collapsed(),
+                NavigationGroup::make('Comunicación Externa')
+                    ->label('Comunicación Externa')
                     ->collapsed(),
                 NavigationGroup::make('Contabilidad')
                     ->label('Contabilidad')
@@ -57,6 +60,15 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
                 NavigationGroup::make('Gestion Documental')
                     ->label('Gestion Documental')
+                    ->collapsed(),
+                NavigationGroup::make('Informes Cumplimiento')
+                    ->label('Informes Cumplimiento')
+                    ->collapsed(),
+                NavigationGroup::make('Solidaridad y Bienestar')
+                    ->label('Solidaridad y Bienestar')
+                    ->collapsed(),
+                NavigationGroup::make('Tesorería')
+                    ->label('Tesorería')
                     ->collapsed(),
                 NavigationGroup::make('Roles y Permisos')
                     ->label('Roles y Permisos')
