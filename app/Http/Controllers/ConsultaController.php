@@ -58,16 +58,17 @@ class ConsultaController extends Controller
         $id = base64_decode($request->comprobante);
 
         $comprobante = Comprobante::where('id', $id)
-            ->with(['tipoDocumentoContable', 'comprobanteLinea.puc', 'comprobanteLinea.tercero'])
+            ->with(['comprobanteLinea' => function ($query) {
+                $query->join('terceros as t', 'comprobante_lineas.tercero_id', '=', 't.id')
+                    ->join('pucs as p', 'comprobante_lineas.pucs_id', '=', 'p.id')
+                    ->select('comprobante_lineas.*', 't.tercero_id as tercero', 'p.puc', 'p.descripcion as descripcion_puc');
+            }])
             ->first();
 
         // Verificamos si se encontró el comprobante
         if (!$comprobante) {
             return response()->json(['error' => 'Comprobante no encontrado.'], 404);
         }
-
-        // Aseguramos que las líneas del comprobante sean un array
-        $comprobante->comprobanteLinea = $comprobante->comprobanteLinea ?? [];
 
         return response()->json(['comprobante' => $comprobante], 200);
     }
