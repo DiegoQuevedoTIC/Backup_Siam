@@ -34,14 +34,11 @@ class EditPuc extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        
         if (!is_null($data['puc_padre'])) {
             $puc_id = Puc::where('puc', '=', $data['puc_padre'])->get()->toArray();
-            $data['pucs_id'] = $puc_id[0]['id'];
+            $data['puc_padre'] = $puc_id[0]['id'];
             return $data;
-        }
-        else
-        {
+        } else {
             $data['puc_padre'] = '';
             return $data;
         }
@@ -50,13 +47,11 @@ class EditPuc extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         //dd($data);
-        if(!$data['puc_padre'] === '')
-        {
+        if (!$data['puc_padre'] === '') {
             $puc_id = Puc::where('puc', '=', $data['puc_padre'])->get()->toArray();
             $data['puc_padre'] = $puc_id['id'];
             return $data;
-        }
-        else{
+        } else {
             return $data;
         }
     }

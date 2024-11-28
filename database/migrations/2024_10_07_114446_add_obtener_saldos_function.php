@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         DB::statement("
-            CREATE OR REPLACE FUNCTION obtener_saldos(fecha_inicio DATE, fecha_fin DATE)
+            CREATE OR REPLACE FUNCTION obtener_saldos(fecha_inicio DATE, fecha_fin DATE, mes_trece BOOLEAN)
             RETURNS TABLE(cuenta_puc TEXT, descripcion TEXT, saldo_anterior NUMERIC, total_debito NUMERIC, total_credito NUMERIC, saldo_nuevo NUMERIC) AS $$
             WITH RECURSIVE Cuentas AS (
                 SELECT
@@ -33,6 +33,8 @@ return new class extends Migration
                     pucs AS p ON cl.pucs_id = p.id
                 WHERE
                     c.fecha_comprobante BETWEEN fecha_inicio AND fecha_fin
+                AND
+                    c.estado = 'Activo'
                 GROUP BY
                     p.puc, p.descripcion, p.puc_padre, p.naturaleza
 
@@ -52,25 +54,30 @@ return new class extends Migration
             ),
 
             SaldoAnterior AS (
-                SELECT
-                    puc,
-                    saldo
+            SELECT
+                    sp.puc,
+                    CASE
+                        WHEN p.naturaleza = 'C' THEN -sp.saldo  -- Invertir el saldo para cuentas de naturaleza crédito
+                        WHEN p.naturaleza = 'D' THEN sp.saldo   -- Mantener el saldo para cuentas de naturaleza débito
+                        ELSE sp.saldo
+                    END AS saldo
                 FROM
-                    saldo_pucs
+                    saldo_pucs sp
+                LEFT JOIN pucs p ON sp.puc = p.puc
                 WHERE
-                    amo = CAST(EXTRACT(YEAR FROM fecha_inicio) AS VARCHAR) AND
-                    mes = CAST(EXTRACT(MONTH FROM fecha_inicio) - 1 AS VARCHAR)
+                    sp.amo = CAST(EXTRACT(YEAR FROM fecha_inicio) - CASE WHEN EXTRACT(MONTH FROM fecha_inicio) = 1 THEN 1 ELSE 0 END AS VARCHAR) AND
+                    sp.mes = CAST(CASE WHEN EXTRACT(MONTH FROM fecha_inicio) = 1 THEN 12 ELSE EXTRACT(MONTH FROM fecha_inicio) - 1 END AS VARCHAR)
             )
 
             SELECT
                 c.puc AS cuenta_puc,
                 c.descripcion AS descripcion,
                 COALESCE(sa.saldo, 0) AS saldo_anterior,
-                SUM(c.total_debito) AS total_debito,
-                SUM(c.total_credito) AS total_credito,
+                COALESCE(SUM(c.total_debito), 0.00) AS total_debito,
+                COALESCE(SUM(c.total_credito), 0.00) AS total_credito,
                 CASE
-                    WHEN c.naturaleza = 'C' THEN COALESCE(sa.saldo, 0) + SUM(c.total_credito) - SUM(c.total_debito)
-                    WHEN c.naturaleza = 'D' THEN COALESCE(sa.saldo, 0) - SUM(c.total_credito) + SUM(c.total_debito)
+                    WHEN c.naturaleza = 'C' THEN COALESCE(sa.saldo, 0) + COALESCE(SUM(c.total_credito), 0) - COALESCE(SUM(c.total_debito), 0)
+                    WHEN c.naturaleza = 'D' THEN COALESCE(sa.saldo, 0) - COALESCE(SUM(c.total_credito), 0) + COALESCE(SUM(c.total_debito), 0)
                     ELSE 0
                 END AS saldo_nuevo
             FROM
@@ -79,8 +86,29 @@ return new class extends Migration
                 SaldoAnterior AS sa ON c.puc = sa.puc
             GROUP BY
                 c.puc, c.descripcion, sa.saldo, c.naturaleza
+
+            UNION ALL
+
+            SELECT
+                p.puc AS cuenta_puc,
+                p.descripcion AS descripcion,
+                COALESCE(sa.saldo, 0) AS saldo_anterior,
+                0.00 AS total_debito,
+                0.00 AS total_credito,
+                COALESCE(sa.saldo, 0) AS saldo_nuevo
+            FROM
+                pucs AS p
+            LEFT JOIN
+                SaldoAnterior AS sa ON p.puc = sa.puc
+            WHERE
+                COALESCE(sa.saldo, 0) != 0
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Cuentas c
+                WHERE c.puc = p.puc
+            )
             ORDER BY
-                c.puc;
+                cuenta_puc;
             $$ LANGUAGE SQL;
         ");
     }

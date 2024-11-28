@@ -85,7 +85,97 @@
 
     <script src="{{ asset('js/lib/jquery.min.js') }}"></script>
     <script>
-    $(document).ready(function(){$.ajaxSetup({headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")}});var e=$("#form_data"),a=$("#generar"),n=$("#pdf"),t=$("#empty"),o=$("#loading"),r=$("#tipo_balance"),i=$("#fecha_inicial"),s=$("#fecha_final"),c=$("#is_13_month"),l=$("#nivel"),d=$("#export_button");e.on("input change",function n(){var t=!0;e.find("input, select").each(function(){if(""===$(this).val())return t=!1,a.addClass("pointer-events-none opacity-70"),!1}),a.prop("disabled",!t),t&&a.removeClass("pointer-events-none opacity-70")}),a.on("click",function(){o.removeClass("hidden"),t.addClass("hidden"),n.addClass("hidden");var e={tipo_balance:r.val(),fecha_inicial:i.val(),fecha_final:s.val(),is_13_month:c.is(":checked"),nivel:l.val()},p="{{ route('generarpdf') }}";switch(e.tipo_balance){case"2":f(p="{{ route('generar.balance.horizontal') }}");break;case"3":f(p="{{ route('generar.balance.tercero') }}");break;case"4":f(p="{{ route('generar.balance.comparativo') }}");break;default:f(p);return}function f(r){d.has("button_export_excel")&&$(".button_export_excel").remove(),$.ajax({url:r,type:"POST",data:e,success:function(e){if(e.pdf&&n.attr("src","data:application/pdf;base64,"+e.pdf),e.excel){var t=new Blob([new Uint8Array(atob(e.excel).split("").map(function(e){return e.charCodeAt(0)}))],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});d.append(`
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                }
+            });
+            var e = $("#form_data"),
+                a = $("#generar"),
+                n = $("#pdf"),
+                t = $("#empty"),
+                o = $("#loading"),
+                r = $("#tipo_balance"),
+                i = $("#fecha_inicial"),
+                s = $("#fecha_final"),
+                c = $("#is_13_month"),
+                l = $("#nivel"),
+                d = $("#export_button");
+            e.on("input change", function n() {
+                var t = !0;
+                e.find("input, select").each(function() {
+                        if ("" === $(this).val()) return t = !1,
+                            a.addClass("pointer-events-none opacity-70"),
+                            !1
+                    }),
+                    a.prop("disabled", !t),
+                    t && a.removeClass("pointer-events-none opacity-70")
+            }), a.on("click", function() {
+                o.removeClass("hidden"),
+                    t.addClass("hidden"),
+                    n.addClass("hidden");
+                var e = {
+                        tipo_balance: r.val(),
+                        fecha_inicial: i.val(),
+                        fecha_final: s.val(),
+                        is_13_month: c.is(":checked"),
+                        nivel: l.val()
+                    },
+                    p = "{{ route('generarpdf') }}";
+                switch (e.tipo_balance) {
+                    case "2":
+                        f(p = "{{ route('generar.balance.horizontal') }}");
+                        break;
+                    case "3":
+                        f(p = "{{ route('generar.balance.tercero') }}");
+                        break;
+                    case "4":
+                        f(p = "{{ route('generar.balance.comparativo') }}");
+                        break;
+                    default:
+                        f(p);
+                        return
+                }
+
+                function f(r) {
+                    d.has("button_export_excel") && $(".button_export_excel").remove(),
+                        $.ajax({
+                            url: r,
+                            type: "POST",
+                            data: e,
+                            success: function(e) {
+                                if (e.pdf && n.attr("src", "data:application/pdf;base64," + e.pdf),
+                                    e.excel) {
+                                    var t = new Blob([new Uint8Array(atob(e.excel).split("").map(
+                                        function(e) {
+                                            return e.charCodeAt(0)
+                                        }))], {
+                                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    });
+                                    d.append(
+                                            `<x-filament::button color="info" class="button_export_excel" style="witdh: 100%;" href="${URL.createObjectURL(t)}" tag="a" download="${e.excel_file_name}" icon="heroicon-o-document-arrow-down" icon-position="after">  Exportar Excel </x-filament::button>`
+                                            ),
+
+                                            new FilamentNotification()
+                                            .title("El reporte se encuentra disponible para la exportaci\xf3n a excel.")
+                                            .success()
+                                            .send()
+                                }
+                                o.addClass("hidden"), n.removeClass("hidden"), a.prop("disabled", !0)
+                            },
+                            error: function(e, a, n) {
+                                console.log(n), e.responseJSON && e.responseJSON.message ?
+                                    new FilamentNotification().title(e.responseJSON.message)
+                                    .danger().send() : new FilamentNotification().title(
+                                        "Ocurri\xf3 un error inesperado.").danger().send(), o
+                                    .addClass("hidden"), t.removeClass("hidden")
+                            }
+                        })
+                }
+            })
+        });
+        /*     $(document).ready(function(){$.ajaxSetup({headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")}});var e=$("#form_data"),a=$("#generar"),n=$("#pdf"),t=$("#empty"),o=$("#loading"),r=$("#tipo_balance"),i=$("#fecha_inicial"),s=$("#fecha_final"),c=$("#is_13_month"),l=$("#nivel"),d=$("#export_button");e.on("input change",function n(){var t=!0;e.find("input, select").each(function(){if(""===$(this).val())return t=!1,a.addClass("pointer-events-none opacity-70"),!1}),a.prop("disabled",!t),t&&a.removeClass("pointer-events-none opacity-70")}),a.on("click",function(){o.removeClass("hidden"),t.addClass("hidden"),n.addClass("hidden");var e={tipo_balance:r.val(),fecha_inicial:i.val(),fecha_final:s.val(),is_13_month:c.is(":checked"),nivel:l.val()},p="{{ route('generarpdf') }}";switch(e.tipo_balance){case"2":f(p="{{ route('generar.balance.horizontal') }}");break;case"3":f(p="{{ route('generar.balance.tercero') }}");break;case"4":f(p="{{ route('generar.balance.comparativo') }}");break;default:f(p);return}function f(r){d.has("button_export_excel")&&$(".button_export_excel").remove(),$.ajax({url:r,type:"POST",data:e,success:function(e){if(e.pdf&&n.attr("src","data:application/pdf;base64,"+e.pdf),e.excel){var t=new Blob([new Uint8Array(atob(e.excel).split("").map(function(e){return e.charCodeAt(0)}))],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});d.append(`
     <x-filament::button
         color="info"
         class="button_export_excel"
@@ -99,5 +189,6 @@
         Exportar Excel
     </x-filament::button>
     `),new FilamentNotification().title("El reporte se encuentra disponible para la exportaci\xf3n a excel.").success().send()}o.addClass("hidden"),n.removeClass("hidden"),a.prop("disabled",!0)},error:function(e,a,n){console.log(n),e.responseJSON&&e.responseJSON.message?new FilamentNotification().title(e.responseJSON.message).danger().send():new FilamentNotification().title("Ocurri\xf3 un error inesperado.").danger().send(),o.addClass("hidden"),t.removeClass("hidden")}})}})});
+             */
     </script>
 </div>

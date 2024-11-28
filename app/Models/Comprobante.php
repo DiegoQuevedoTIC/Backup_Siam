@@ -11,7 +11,7 @@ class Comprobante extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tipo_documento_contables_id', 'n_documento', 'tercero_comprobante', 'is_plantilla', 'descripcion_comprobante'];
+    protected $fillable = ['tipo_documento_contables_id', 'n_documento', 'tercero_comprobante', 'is_plantilla', 'descripcion_comprobante', 'estado'];
 
     public function comprobanteLinea(): HasMany
     {

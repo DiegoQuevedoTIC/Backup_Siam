@@ -3,39 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ExportPDFJob;
+use App\Models\Asociado;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ExportController extends Controller
 {
-    //
-
-    public function exportPDF(Request $request)
+    public function exportSolicitudCredito(Request $request)
     {
-        $data = $request->all(); // Obtener los datos necesarios
+        $asociado = Asociado::findOrFail($request->asociado);
 
-        // Despachar el Job
-        $job = ExportPDFJob::dispatch($data);
+        // Imprimimos la solicitud de credito
+        $tercero = $asociado->tercero;
 
-        // Devolver el ID del Job para poder consultarlo después
-        return response()->json(['job_id' => $job]);
-    }
+        // Asegúrate de que 'tercero' sea un objeto que contenga el teléfono
+        $data = [
+            'telefono' => $tercero->telefono, // Cambia esto si necesitas más datos
+        ];
 
-    public function checkJobStatus($jobId)
-    {
-        // Verificar el estado del Job en la base de datos
-        $jobStatus = DB::table('jobs_status')->where('job_id', $jobId)->first();
+        // Cargar la vista y pasar los datos como un array
+        $pdf = Pdf::loadView('pdf.solicitud_credito', $data);
+        $pdfOutput = $pdf->output();
+        $pdfBase64 = base64_encode($pdfOutput);
 
-        if ($jobStatus) {
-            if ($jobStatus->status === 'completed') {
-                error_log('verdadero');
-                return response()->json(['status' => 'completed']);
-            } elseif ($jobStatus->status === 'failed') {
-                error_log('failed');
-                return response()->json(['status' => 'failed']);
-            }
-        }
-
-        return response()->json(['status' => 'not found']);
+        return response()->json(['status' => 200, 'pdf' => $pdfBase64]);
     }
 }

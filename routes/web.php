@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BalanceGeneralController;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -21,6 +22,8 @@ Route::post('/generar-balance-por-tercero', [BalanceGeneralController::class, 'g
 Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'generateBalanceComparativo'])->name('generar.balance.comparativo');
 
 Route::post('/export', [BalanceGeneralController::class, 'export'])->name('export');
+
+Route::post('/exportar-solicitud', [ExportController::class, 'exportSolicitudCredito'])->name('exportar.solicitud');
 
 Route::get('/consulta/comprobantes', [App\Http\Controllers\ConsultaController::class, 'consultaComprobante'])->name('consulta.comprobantes');
 Route::get('/consulta/comprobante', [App\Http\Controllers\ConsultaController::class, 'showComprobante'])->name('consulta.comprobante');

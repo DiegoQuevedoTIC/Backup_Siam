@@ -16,6 +16,8 @@ class EditGestionAsociado extends EditRecord
 {
     protected static string $resource = GestionAsociadoResource::class;
 
+    protected static string $view = 'custom.gestion-asociados.edit';
+
     protected function getHeaderActions(): array
     {
         return [

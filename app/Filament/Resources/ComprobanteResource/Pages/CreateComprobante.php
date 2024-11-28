@@ -21,6 +21,8 @@ class CreateComprobante extends CreateRecord
         }
         if (!array_key_exists('fecha_comprobante', $data)) {
             $data['fecha_comprobante'] = date('Y-m-d');
+            if ($data['estado'] == false) $data['estado'] = 'Activo';
+            else $data['estado'] = 'Inactivo';
             return $data;
         } else {
             return $data;

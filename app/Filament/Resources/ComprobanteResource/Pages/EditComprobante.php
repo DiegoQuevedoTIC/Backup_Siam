@@ -26,6 +26,8 @@ use Filament\Support\RawJs;
 use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Support\Colors\Color;
@@ -230,6 +232,15 @@ class EditComprobante extends EditRecord
                     ->columnSpan(2)
                     ->rule('regex:/^[0-9]+$/')
                     ->required(),
+
+                Toggle::make('estado')
+                    ->label('Estado')
+                    ->inline(false)
+                    ->columnSpan(1)
+                    ->beforeStateDehydrated(function (callable $set, callable $get, $state) {
+                        $set('estado', false);
+                    }),
+
                 Select::make('tercero_id')
                     ->label('Tercero Comprobante')
                     ->required()
