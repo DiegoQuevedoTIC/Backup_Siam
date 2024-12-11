@@ -19,8 +19,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\MaxWidth;
-use Joaopaulolndev\FilamentGeneralSettings\FilamentGeneralSettingsPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -54,6 +54,9 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
                 NavigationGroup::make('Contabilidad')
                     ->label('Contabilidad')
+                    ->collapsed(),
+                NavigationGroup::make('Parametros Cartera')
+                    ->label('Parametros Cartera')
                     ->collapsed(),
                 NavigationGroup::make('Gestión de Asociados')
                     ->label('Gestión de Asociados')
@@ -108,6 +111,9 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->spa()
-            ->plugin(FilamentSpatieRolesPermissionsPlugin::make());
+            ->plugins([
+                FilamentSpatieRolesPermissionsPlugin::make(),
+                SpotlightPlugin::make(),
+            ]);
     }
 }

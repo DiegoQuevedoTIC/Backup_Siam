@@ -45,6 +45,7 @@ class TerceroResource extends Resource
     protected static ?string    $navigationIcon = 'heroicon-o-user-group';
     protected static ?string    $navigationLabel = 'Creacion de Terceros';
     protected static ?string    $navigationGroup = 'Administracion de Terceros';
+    protected static ?string    $recordTitleAttribute = 'tercero_id';
     protected static ?string    $modelLabel = 'Tercero';
     protected static ?string    $pluralModelLabel = 'Terceros';
     protected static ?string    $slug = 'Par/Tab/Terc';
