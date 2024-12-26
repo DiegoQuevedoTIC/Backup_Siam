@@ -34,23 +34,19 @@ use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\TryCatch;
 use Filament\Notifications\Actions\Action as NAction;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Forms\Get;
 use Illuminate\Support\Facades\Response;
 
 class CreditoSolicitudesRelationManager extends RelationManager
 {
     protected static string $relationship = 'creditoSolicitudes';
 
+    public $disabled = true;
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([]);
-    }
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        dd($data);
-
-        return $data;
     }
 
     public function table(Table $table): Table
@@ -76,7 +72,10 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 Forms\Components\Select::make('linea')
                                     ->label('Linea de credito')
                                     ->searchable()
-                                    ->options(fn() => CreditoLinea::query()->pluck('descripcion', 'id'))
+                                    ->options(function () {
+                                        return CreditoLinea::all()->pluck('descripcion', 'id');
+                                    })
+                                    ->live()
                                     ->required(),
                                 Forms\Components\Select::make('empresa')
                                     ->label('Pagaduria')
@@ -88,20 +87,35 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         'descuento_ventanilla' => 'Descuento ventanilla',
                                         'descuento_nomina' => 'Descuento nomina'
                                     ])
-                                    ->label('Tipo de reembolso')
+                                    ->label('Tipo de desembolso')
                                     ->native(false),
                                 Forms\Components\TextInput::make('vlr_solicitud')
                                     ->label('Valor Solicitud')
                                     ->numeric()
-                                    ->required(),
+                                    ->required(function (Set $set, Get $get) {
+                                        if ($get('linea')) {
+                                            $set('vlr_solicitud', CreditoLinea::find($get('linea'))->monto_max ?? 0);
+                                        }
+                                        return true;
+                                    }),
                                 Forms\Components\TextInput::make('nro_cuotas_max')
                                     ->label('Plazo')
                                     ->numeric()
-                                    ->required(),
+                                    ->required(function (Set $set, Get $get) {
+                                        if ($get('linea')) {
+                                            $set('nro_cuotas_max', CreditoLinea::find($get('linea'))->nro_cuotas_max ?? 0);
+                                        }
+                                        return true;
+                                    }),
                                 Forms\Components\TextInput::make('nro_cuotas_gracia')
                                     ->label('Cuota Gracia')
                                     ->numeric()
-                                    ->required(),
+                                    ->required(function (Set $set, Get $get) {
+                                        if ($get('linea')) {
+                                            $set('nro_cuotas_gracia', CreditoLinea::find($get('linea'))->nro_cuotas_gracia ?? 0);
+                                        }
+                                        return true;
+                                    }),
                                 Forms\Components\DatePicker::make('fecha_primer_vto')
                                     ->label('Fecha cuota 1')
                                     ->required()
@@ -130,7 +144,9 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 Forms\Components\Select::make('tercero_asesor')
                                     ->label('Codigo Asesor')
                                     ->searchable()
-                                    ->options(fn() => Tercero::query()->pluck('nombres', 'id'))
+                                    ->options(fn() => Tercero::query()
+                                    ->select(DB::raw("id, CONCAT(nombres, ' ', primer_apellido) AS nombre_completo"))
+                                    ->pluck('nombre_completo', 'id'))
                                     ->required(),
                                 Forms\Components\Textarea::make('observaciones')
                                     ->label('Observaciones')
@@ -350,15 +366,14 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'vlr_planes' => $suma
                                 ]);
 
-                                $this->dispatch('download', [[$this->getOwnerRecord()]]);
+                                $this->dispatch('download', [[$this->getOwnerRecord(), $credito]]);
 
                                 Notification::make()
-                                ->title('Se crearon los datos correctamente')
-                                ->icon('heroicon-m-check-circle')
-                                ->body('Los datos fueron creados correctamente')
-                                ->success()
-                                ->send();
-
+                                    ->title('Se crearon los datos correctamente')
+                                    ->icon('heroicon-m-check-circle')
+                                    ->body('Los datos fueron creados correctamente')
+                                    ->success()
+                                    ->send();
                             }, 5);
                         } catch (Exception $e) {
                             Notification::make()
@@ -372,7 +387,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
             ])
             ->actions([
                 //Tables\Actions\EditAction::make()->slideOver(),
-                Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

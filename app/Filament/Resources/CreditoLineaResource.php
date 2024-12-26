@@ -8,9 +8,12 @@ use App\Filament\Resources\CreditoLineaResource\RelationManagers;
 use App\Models\ClasificacionCredito;
 use App\Models\CreditoLinea;
 use App\Models\Moneda;
+use App\Models\Puc;
+use App\Models\Subcentro;
 use App\Models\TipoGarantia;
 use App\Models\TipoInversion;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,28 +32,78 @@ class CreditoLineaResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $pucs = Puc::all()->pluck('puc', 'id');
         return $form
             ->schema([
                 Forms\Components\TextInput::make('descripcion')->label('Descripcion')
                     ->required(),
-                Forms\Components\Select::make('clasificacion')->label('Clasificacion')
+                Forms\Components\Select::make('clasificacion_id')->label('Clasificacion')
                     ->options(ClasificacionCredito::all()->pluck('descripcion', 'id'))
                     ->searchable()
                     ->required()
                     ->createOptionForm([
-                        Forms\Components\TextInput::make('nombre')
-                            ->required(),
                         Forms\Components\TextInput::make('clasificacion')
                             ->required(),
                         Forms\Components\Textarea::make('descripcion')
-                            ->required()
-                            ->columns(2)
+                            ->required(),
+                        Section::make('Detalles')
+                            ->description('Detalles de la clasificación')
+                            ->schema([
+                                Forms\Components\TextInput::make('nro_salarios_min')
+                                    ->numeric()
+                                    ->required(),
+                                Forms\Components\TextInput::make('nro_salarios_max')
+                                    ->numeric()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_causa_cxc')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_causa_ingresos')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_causa_gastos')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_causa_ctas_orden')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\TextInput::make('porc_causacion')
+                                    ->required(),
+                                Forms\Components\Select::make('puc_aprobacion')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_contra_partida')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_provision')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_prov_int')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_prov_int_rev')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                                Forms\Components\Select::make('puc_prov_rev')
+                                    ->options($pucs)
+                                    ->searchable()
+                                    ->required(),
+                            ])->columns(3)
                     ])
                     ->createOptionUsing(function (array $data) {
                         $ClasificacionCredito = ClasificacionCredito::create($data);
                         return $ClasificacionCredito->id;
-                    }),
-                Forms\Components\Select::make('tipo_garantia')->label('Tipo de garantia')
+                    })->createOptionModalHeading('Creación de clasificación de credito'),
+                Forms\Components\Select::make('tipo_garantia_id')->label('Tipo de garantia')
                     ->options(TipoGarantia::all()->pluck('nombre', 'id'))
                     ->searchable()
                     ->required()
@@ -65,8 +118,8 @@ class CreditoLineaResource extends Resource
                         $tipoGarantia = TipoGarantia::create($data);
                         return $tipoGarantia->id;
                     }),
-                Forms\Components\Select::make('tipo_inversion')->label('Tipo de inversion')
-                    ->options(TipoInversion::all()->pluck('tipo_inversion', 'id'))
+                Forms\Components\Select::make('tipo_inversion_id')->label('Tipo de inversion')
+                    ->options(TipoInversion::all()->pluck('descripcion', 'id'))
                     ->searchable()
                     ->required()
                     ->createOptionForm([
@@ -78,7 +131,7 @@ class CreditoLineaResource extends Resource
                         $TipoInversion = TipoInversion::create($data);
                         return $TipoInversion->id;
                     }),
-                Forms\Components\Select::make('moneda')->label('Moneda')
+                Forms\Components\Select::make('moneda_id')->label('Moneda')
                     ->options(Moneda::all()->pluck('nombre', 'id'))
                     ->searchable()
                     ->required(),
@@ -93,8 +146,8 @@ class CreditoLineaResource extends Resource
                     ])
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('interes_cte')->label('Interes cte'),
-                Forms\Components\TextInput::make('interes_mora')->label('Interes mora'),
+                Forms\Components\TextInput::make('interes_cte')->label('Interes cte')->numeric()->required(),
+                Forms\Components\TextInput::make('interes_mora')->label('Interes mora')->numeric()->required(),
                 Forms\Components\Select::make('tipo_cuota')->label('Tipo de cuota')
                     ->options([
                         'fija' => 'Fija',
@@ -121,9 +174,16 @@ class CreditoLineaResource extends Resource
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->prefix('$')
                     ->default(0.00),
-                Forms\Components\Select::make('abonos_extra')->label('Abonos extra')->options([]),
+                Forms\Components\Select::make('abonos_extra')->label('Abonos extra')
+                    ->options([
+                        'NO' => 'No',
+                        'SI' => 'Si',
+                    ]),
                 Forms\Components\TextInput::make('ciius')->label('Ciiu'),
-                Forms\Components\TextInput::make('subcentro')->label('Subcentro'),
+                Forms\Components\Select::make('subcentro_id')->label('Subcentro')
+                    ->options(Subcentro::all()->pluck('descripcion', 'id'))
+                    ->searchable()
+                    ->required(),
             ])->columns(4);
     }
 
@@ -133,7 +193,7 @@ class CreditoLineaResource extends Resource
             ->columns([
                 //
                 Tables\Columns\TextColumn::make('descripcion'),
-                Tables\Columns\TextColumn::make('clasificacion'),
+                Tables\Columns\TextColumn::make('clasificacion.descripcion'),
             ])
             ->filters([
                 //

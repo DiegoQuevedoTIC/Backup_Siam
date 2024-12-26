@@ -9,9 +9,12 @@
         <x-filament-panels::resources.relation-managers :active-manager="$this->activeRelationManager" :managers="$relationManagers" :owner-record="$record"
             :page-class="static::class" />
     @endif
-
-    <script src="{{ asset('js/datatable/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/lib/jquery.min.js') }}"></script>
     <script>
+        console.log('ready');
+        $(document).ready(function() {
+
+        });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -20,10 +23,19 @@
 
         window.addEventListener('download', event => {
             const asociado = event.detail[0][0][0];
+            const credito = event.detail[0][0][1];
+
+            console.log({
+                asociado: asociado,
+                credito: credito
+            });
+
+
             $.ajax({
                 url: "{{ route('exportar.solicitud') }}",
                 data: {
-                    asociado: asociado.id
+                    asociado: asociado.id,
+                    credito
                 },
                 method: 'POST',
                 dataType: 'json',
@@ -37,10 +49,11 @@
                         type: 'application/pdf'
                     });
                     const pdfUrl = URL.createObjectURL(pdfFile);
+                    const nameFile = 'solicitud_credito_' + new Date().toLocaleTimeString() + '.pdf';
 
                     const downloadLink = document.createElement('a');
                     downloadLink.href = pdfUrl;
-                    downloadLink.setAttribute('download', 'downloaded.pdf');
+                    downloadLink.setAttribute('download', nameFile);
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);

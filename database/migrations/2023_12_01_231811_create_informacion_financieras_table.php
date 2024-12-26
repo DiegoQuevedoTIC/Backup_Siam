@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('informacion_financieras', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tercero_id')->constrained('terceros');
-            $table->float('total_activos');
-            $table->float('total_pasivos');
-            $table->float('total_patrimonio');
-            $table->float('salario');
-            $table->float('honorarios');
-            $table->float('otros_ingresos');
-            $table->float('total_ingresos');
-            $table->float('gastos_sostenimiento');
-            $table->float('gastos_financieros');
-            $table->float('creditos_hipotecarios');
-            $table->float('otros_gastos');
+            $table->float('total_activos')->nullable();
+            $table->float('total_pasivos')->nullable();
+            $table->float('total_patrimonio')->nullable();
+            $table->float('salario')->nullable();
+            $table->float('honorarios')->nullable();
+            $table->float('otros_ingresos')->nullable();
+            $table->float('total_ingresos')->nullable();
+            $table->float('gastos_sostenimiento')->nullable();
+            $table->float('gastos_financieros')->nullable();
+            $table->float('creditos_hipotecarios')->nullable();
+            $table->float('otros_gastos')->nullable();
             $table->timestamps();
         });
     }

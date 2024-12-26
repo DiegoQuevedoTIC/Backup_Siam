@@ -10,6 +10,7 @@
         "ariaieboy/filament-currency": "^1.9",
         "awcodes/filament-table-repeater": "^3.0",
         "barryvdh/laravel-dompdf": "^3.0",
+        "eightynine/filament-advanced-widgets": "^3.0",
         "filament/filament": "^3.2",
         "guzzlehttp/guzzle": "^7.2",
         "icetalker/filament-table-repeater": "^1.3",

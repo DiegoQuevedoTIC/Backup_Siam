@@ -13,26 +13,32 @@ return new class extends Migration
     {
         Schema::create('credito_lineas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('linea');
+            $table->unsignedBigInteger('clasificacion_id');
+            $table->unsignedBigInteger('tipo_garantia_id');
+            $table->unsignedBigInteger('tipo_inversion_id');
+            $table->unsignedInteger('moneda_id');
+            $table->unsignedBigInteger('subcentro_id');
+            $table->string('linea');
             $table->string('descripcion', 120);
-            $table->string('clasificacion', 3);
-            $table->unsignedBigInteger('tipo_garantia');
-            $table->unsignedBigInteger('tipo_inversion');
-            $table->unsignedInteger('moneda')->nullable();
-            $table->unsignedInteger('periodo_pago')->nullable();
+            $table->string('periodo_pago');
             $table->float('interes_cte')->default(0);
             $table->float('interes_mora')->default(0);
-            $table->string('tipo_cuota', 1);
-            $table->string('tipo_tasa', 1);
+            $table->string('tipo_cuota', 10);
+            $table->string('tipo_tasa', 10);
             $table->unsignedBigInteger('nro_cuotas_max');
             $table->unsignedBigInteger('nro_cuotas_gracia')->default(0);
             $table->unsignedBigInteger('cant_gar_real');
             $table->unsignedBigInteger('cant_gar_pers');
             $table->float('monto_min')->nullable();
             $table->float('monto_max')->nullable();
-            $table->string('abonos_extra', 1);
-            $table->unsignedBigInteger('ciius');
-            $table->string('subcentro', 16);
+            $table->string('abonos_extra', 3);
+            $table->string('ciius');
+
+            $table->foreign('clasificacion_id')->references('id')->on('clasificacion_creditos');
+            $table->foreign('tipo_garantia_id')->references('id')->on('tipo_garantias');
+            $table->foreign('tipo_inversion_id')->references('id')->on('tipo_inversiones');
+            $table->foreign('moneda_id')->references('id')->on('monedas');
+            $table->foreign('subcentro_id')->references('id')->on('subcentros');
             $table->timestamps();
         });
     }

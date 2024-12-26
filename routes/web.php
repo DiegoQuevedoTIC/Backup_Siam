@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BalanceGeneralController;
 use App\Http\Controllers\ExportController;
+use App\Models\Tercero;
 use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -23,7 +24,7 @@ Route::post('/generar-balance-comparativo', [BalanceGeneralController::class, 'g
 
 Route::post('/export', [BalanceGeneralController::class, 'export'])->name('export');
 
-Route::get('/exportar-solicitud', [ExportController::class, 'exportSolicitudCredito'])->name('exportar.solicitud');
+Route::post('/exportar-solicitud', [ExportController::class, 'exportSolicitudCredito'])->name('exportar.solicitud');
 
 Route::get('/consulta/comprobantes', [App\Http\Controllers\ConsultaController::class, 'consultaComprobante'])->name('consulta.comprobantes');
 Route::get('/consulta/comprobante', [App\Http\Controllers\ConsultaController::class, 'showComprobante'])->name('consulta.comprobante');
@@ -31,7 +32,13 @@ Route::get('/consulta/comprobante', [App\Http\Controllers\ConsultaController::cl
 Route::get('/read', [BalanceGeneralController::class, 'readCsvFile']);
 
 Route::get('/x', function () {
-    $pdf = Pdf::loadView('pdf.solicitud_credito');
-    return $pdf->setPaper('a4')->setWarnings(false)->stream();
-    return view('pdf.solicitud_credito');
+    $tercero = Tercero::find(1);
+
+    $data = [
+        'tercero' => $tercero
+    ];
+
+    $pdf = Pdf::loadView('pdf.solicitud_credito', $data);
+    return $pdf->stream();
+    return view('pdf.solicitud_credito', compact('tercero'));
 });

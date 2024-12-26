@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="{{ asset('images/icons.png') }}" rel="shortcut icon" type="image/png">
 
         <title>Laravel</title>
 

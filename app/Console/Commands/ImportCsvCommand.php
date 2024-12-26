@@ -7,7 +7,9 @@ use League\Csv\Reader;
 use App\Models\Comprobante;
 use App\Models\Puc;
 use App\Models\ComprobanteLinea;
+use App\Models\InformacionFinanciera;
 use App\Models\Tercero;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -23,18 +25,20 @@ class ImportCsvCommand extends Command
      */
     public function handle()
     {
-        $filePath = public_path('comprobante_lineas.csv');
+        $filePath = public_path('tercero_natural.csv');
 
         // Cargar el archivo CSV
         $csv = Reader::createFromPath($filePath, 'r');
         $csv->setHeaderOffset(0); // Si el CSV tiene encabezados
 
-        $data = [];
+        //$data = [];
 
         // Leer los registros
         foreach ($csv as $record) {
             $data[] = $record; // Agregar cada registro al array
         }
+
+        //d($data[1]);
 
         // Inicializar la barra de progreso
         $this->output->progressStart(count($data));
@@ -42,7 +46,7 @@ class ImportCsvCommand extends Command
         // Procedemos a guardar las líneas para cada comprobante
         DB::transaction(function () use ($data) {
             foreach ($data as $linea) {
-                $comprobante = Comprobante::where('n_documento', $linea['ENC_MOV_CONTA'])->first();
+                /* $comprobante = Comprobante::where('n_documento', $linea['ENC_MOV_CONTA'])->first();
                 $puc = Puc::where('puc', $linea['PUC'])->first();
                 $tercero = Tercero::where('tercero_id', $linea['TERCERO'])->first();
 
@@ -63,7 +67,34 @@ class ImportCsvCommand extends Command
                         'n_documento' => $linea['ENC_MOV_CONTA'],
                         'puc' => $linea['PUC']
                     ]);
+                } */
+
+
+
+                $tercero = Tercero::where('tercero_id', $linea['TERCERO'])->first();
+                if ($tercero) {
+
+                    // Verifica que la fecha no esté vacía y que tenga el formato correcto
+                    if (isset($linea['FECHA_NACIMIENTO']) && $linea['FECHA_NACIMIENTO']) {
+
+                        $tercero->update([
+                            'fecha_nacimiento' => $linea['FECHA_NACIMIENTO']
+                        ]);
+                    }
+
+                    InformacionFinanciera::create([
+                        'tercero_id' => $tercero->id,
+                        'salario' => intval($linea['SUELDO']) ?? null,
+                        'honorarios' => intval($linea['HONORARIOS']) ?? null,
+                        'otros_ingresos' => intval($linea['OTROS_INGRESOS']) ?? null,
+                        'gastos_sostenimiento' => intval($linea['GASTOS_SOSTENIMIENTO']) ?? null,
+                        'otros_gastos' => intval($linea['OTROS_GASTOS']) ?? null,
+                    ]);
+                } else {
+
                 }
+
+
 
                 // Actualizar la barra de progreso
                 $this->output->progressAdvance();

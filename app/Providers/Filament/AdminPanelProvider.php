@@ -20,6 +20,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\MaxWidth;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\Widgets\AdvancedStatsOverviewWidget;
+use App\Filament\Widgets\TableroLogo;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -38,10 +40,11 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('web')
             ->collapsibleNavigationGroups()
             ->sidebarFullyCollapsibleOnDesktop()
-            ->brandName('Siam_ERP')
+            ->brandName('Siam ERP')
             ->brandLogo(asset('images/Icons.png'))
             ->darkModeBrandLogo(asset('images/Icons1.png'))
             ->brandLogoHeight('3rem')
+            ->favicon(asset('images/Icons.png'))
             ->navigationGroups([
                 NavigationGroup::make('Parametros Generales')
                     ->label('Parametros Generales')
@@ -77,7 +80,6 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Roles y Permisos')
                     ->collapsed(),
             ])
-
             ->colors([
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
@@ -94,7 +96,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                TableroLogo::class,
                 Widgets\AccountWidget::class,
+                AdvancedStatsOverviewWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

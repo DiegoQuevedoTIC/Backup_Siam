@@ -1,8 +1,13 @@
+@php
+    // Asegúrate de que 'fecha_nacimiento' sea un string en formato adecuado
+    $fechaNacimiento = \Carbon\Carbon::createFromFormat('Y-m-d', $asociado['fecha_nacimiento']);
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Solicitud de Crédito</title>
     <style>
         body {
@@ -64,6 +69,8 @@
             padding: 2px;
             border: none;
             background-color: transparent;
+            font-size: 10px !important;
+            font-weight: bold !important;
         }
 
         input[type="checkbox"] {
@@ -134,6 +141,11 @@
                 padding: 10px;
             }
         }
+
+        .text-bold {
+            font-size: 30px !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
 
@@ -157,13 +169,14 @@
                     <td colspan="4" class="header">CRÉDITO SOLICITADO</td>
                 </tr>
                 <tr>
-                    <td width="25%">MONTO $<input type="number" value=""></td>
-                    <td width="25%">EN LETRAS<input type="text"></td>
+                    <td width="25%">MONTO $<input type="number"
+                            value="{{ number_format($credito['vlr_solicitud'], 2) }}"></td>
+                    <td width="25%">EN LETRAS<input type="text" value=""></td>
                     <td colspan="2"></td>
                 </tr>
                 <tr>
-                    <td>PLAZO EN MESES<br>(CUOTAS)<input type="number"></td>
-                    <td>VALOR CUOTA MENSUAL<input type="number"></td>
+                    <td>PLAZO EN MESES<br>(CUOTAS)<input type="number" value="{{ $credito['nro_cuotas_max'] }}"></td>
+                    <td>VALOR CUOTA MENSUAL<input type="number" value="{{ number_format($credito['vlr_planes'], 2) }}"></td>
                     <td colspan="2">
                         LÍNEA DE CRÉDITO<br>
                         VIVIENDA <input type="checkbox">
@@ -197,15 +210,18 @@
                     <td>
                         FECHA<br>
                         <div style="display: flex; gap: 5px;">
-                            <input type="text" placeholder="DD" style="width: 30px;">
-                            <input type="text" placeholder="MM" style="width: 30px;">
-                            <input type="text" placeholder="AAAA" style="width: 50px;">
+                            <input type="number" placeholder="DD" style="width: 30px;" value="{{ now()->format('d') }}"
+                                min="1" max="31">
+                            <input type="number" placeholder="MM" style="width: 30px;" value="{{ now()->format('m') }}"
+                                min="1" max="12">
+                            <input type="number" placeholder="AAAA" style="width: 50px;"
+                                value="{{ now()->format('Y') }}">
                         </div>
                     </td>
                 </tr>
             </table>
 
-            <br><br><br>
+            <br>
 
             <!-- Información Personal Section -->
             <table class="main-table">
@@ -213,25 +229,25 @@
                     <td colspan="4" class="header">INFORMACIÓN PERSONAL - DEUDOR SOLIDARIO 1</td>
                 </tr>
                 <tr>
-                    <td width="33%">PRIMER APELLIDO<br><input type="text"></td>
-                    <td width="33%">SEGUNDO APELLIDO<br><input type="text"></td>
-                    <td colspan="2">NOMBRES<br><input type="text"></td>
+                    <td width="33%">PRIMER APELLIDO<br><input type="text"
+                            value="{{ $tercero['primer_apellido'] ?? '' }}"></td>
+                    <td width="33%">SEGUNDO APELLIDO<br><input type="text"
+                            value="{{ $tercero['segundo_apellido'] ?? '' }}"></td>
+                    <td colspan="2">NOMBRES<br><input type="text" value="{{ $tercero['nombres'] ?? '' }}"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">EMPRESA<br><input type="text"></td>
+                    <td colspan="2">EMPRESA<br><input type="text" value="{{ $asociado['empresa'] ?? '' }}"></td>
                     <td>CARGO<br><input type="text"></td>
                     <td>ANTIGÜEDAD<br><input type="text"></td>
                 </tr>
                 <tr>
                     <td>
                         FECHA DE NACIMIENTO<br>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="text" placeholder="DIA" style="width: 30px;">
-                            <input type="text" placeholder="MES" style="width: 30px;">
-                            <input type="text" placeholder="AÑO" style="width: 50px;">
+                        <div style="display: flex;">
+                            <input type="text" value="{{ $tercero['fecha_nacimiento'] }}">
                         </div>
                     </td>
-                    <td>CÉDULA<br><input type="text"></td>
+                    <td>CÉDULA<br><input type="text" value="{{ $tercero['tercero_id'] ?? ''}}"></td>
                     <td>EXPEDIDA EN<br><input type="text"></td>
                     <td>
                         EMPLEADO ACTIVO <input type="checkbox">
@@ -239,9 +255,10 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">DIRECCIÓN RESIDENCIA<br><input type="text"></td>
-                    <td>TELÉFONO<br><input type="text"></td>
-                    <td>CELULAR<br><input type="text"></td>
+                    <td colspan="2">DIRECCIÓN RESIDENCIA<br><input type="text" {{ $tercero['direccion'] }}>
+                    </td>
+                    <td>TELÉFONO<br><input type="text" value="{{ $tercero['telefono'] ?? '' }}"></td>
+                    <td>CELULAR<br><input type="text" value="{{ $tercero['celular'] ?? '' }}"></td>
                 </tr>
                 <tr>
                     <td>CIUDAD<br><input type="text"></td>
@@ -249,8 +266,9 @@
                     <td colspan="2"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">DIRECCIÓN LABORAL<br><input type="text"></td>
-                    <td>TELÉFONO<br><input type="text"></td>
+                    <td colspan="2">DIRECCIÓN LABORAL<br><input type="text"
+                            value="{{ $asociado['direccion_empresa'] ?? '' }}"></td>
+                    <td>TELÉFONO<br><input type="text" value="{{ $asociado['telefono_empresa'] }}"></td>
                     <td></td>
                 </tr>
                 <tr>
@@ -259,7 +277,8 @@
                     <td colspan="2"></td>
                 </tr>
                 <tr>
-                    <td colspan="3">CORREO ELECTRÓNICO (E-MAIL)<br><input type="email"></td>
+                    <td colspan="3">CORREO ELECTRÓNICO (E-MAIL)<br><input type="email"
+                            value="{{ $tercero['email'] ?? '' }}"></td>
                     <td>
                         ENVÍO CORRESPONDENCIA<br>
                         OFICINA <input type="checkbox">
@@ -268,7 +287,7 @@
                 </tr>
             </table>
 
-            <br><br>
+            <br>
 
             <!-- Información Financiera Section -->
             <table class="main-table">
@@ -281,21 +300,21 @@
                 </tr>
                 <tr>
                     <td>SALARIO y/o PENSIÓN</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="{{ number_format($finanzas['salario'], 2) }}"></td>
                     <td>ARRIENDO/CUOTA VIVIENDA</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="{{ number_format($finanzas['otros_gastos'], 2) }}"></td>
                 </tr>
                 <tr>
                     <td>OTROS INGRESOS*</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="{{ number_format($finanzas['gastos_sostenimiento'], 2) }}"></td>
                     <td>GASTOS PERSONALES/FAMILIARES</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="0.00"></td>
                 </tr>
                 <tr>
                     <td>TOTAL INGRESOS</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="{{ number_format($finanzas['total_ingresos'] ?? 0, 2) }}"></td>
                     <td>TOTAL EGRESOS</td>
-                    <td>$ <input type="number"></td>
+                    <td>$ <input type="text" value="0.00"></td>
                 </tr>
                 <tr>
                     <td colspan="4" class="description">* DESCRIPCIÓN OTROS INGRESOS</td>
@@ -313,7 +332,7 @@
                             <tr>
                                 <td>TIPO <input type="text"></td>
                                 <td>CIUDAD <input type="text"></td>
-                                <td>VALOR COMERCIAL $ <input type="number"></td>
+                                <td>VALOR COMERCIAL $ <input type="text" value="0.00"></td>
                             </tr>
                             <tr>
                                 <td colspan="3">VEHÍCULO</td>
@@ -348,15 +367,15 @@
                             </tr>
                             <tr>
                                 <td>GASTOS DE SOSTENIMIENTO</td>
-                                <td colspan="2">$ <input type="number"></td>
+                                <td colspan="2">$ <input type="text" value="{{ number_format($finanzas['gastos_sostenimiento'], 2) }}"></td>
                             </tr>
                             <tr>
                                 <td>OTROS PASIVOS</td>
-                                <td colspan="2">$ <input type="number"></td>
+                                <td colspan="2">$ <input type="text" value="0.00"></td>
                             </tr>
                             <tr>
                                 <td>VALOR TOTAL PASIVOS</td>
-                                <td colspan="2">$ <input type="number"></td>
+                                <td colspan="2">$ <input type="text" value="0.00"></td>
                             </tr>
                         </table>
                     </td>
@@ -373,7 +392,7 @@
                 <div class="footer-contact">comunicaciones@fondep.com.co • www.fondep.com.co</div>
             </div>
 
-            <br><br><br>
+            <br>
 
             <!-- Información Personal Section -->
             <table class="main-table">
@@ -381,12 +400,14 @@
                     <td colspan="4" class="header">INFORMACIÓN PERSONAL - DEUDOR SOLIDARIO 2</td>
                 </tr>
                 <tr>
-                    <td width="33%">PRIMER APELLIDO<br><input type="text"></td>
-                    <td width="33%">SEGUNDO APELLIDO<br><input type="text"></td>
-                    <td colspan="2">NOMBRES<br><input type="text"></td>
+                    <td width="33%">PRIMER APELLIDO<br><input type="text"
+                            value="{{ $tercero['primer_apellido'] }}"></td>
+                    <td width="33%">SEGUNDO APELLIDO<br><input type="text"
+                            value="{{ $tercero['segundo_apellido'] }}"></td>
+                    <td colspan="2">NOMBRES<br><input type="text" value="{{ $tercero['nombres'] }}"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">EMPRESA<br><input type="text"></td>
+                    <td colspan="2">EMPRESA<br><input type="text" value="{{ $asociado['empresa'] }}"></td>
                     <td>CARGO<br><input type="text"></td>
                     <td>ANTIGÜEDAD<br><input type="text"></td>
                 </tr>
@@ -394,22 +415,26 @@
                     <td>
                         FECHA DE NACIMIENTO<br>
                         <div style="display: flex; gap: 5px;">
-                            <input type="text" placeholder="DIA" style="width: 30px;">
-                            <input type="text" placeholder="MES" style="width: 30px;">
-                            <input type="text" placeholder="AÑO" style="width: 50px;">
+                            <input type="number" placeholder="DIA" value="{{ $fechaNacimiento->format('d') }}"
+                                style="width: 30px;">
+                            <input type="number" placeholder="MES" value="{{ $fechaNacimiento->format('m') }}"
+                                style="width: 30px;">
+                            <input type="number" placeholder="AÑO" value="{{ $fechaNacimiento->format('Y') }}"
+                                style="width: 50px;">
                         </div>
                     </td>
-                    <td>CÉDULA<br><input type="text"></td>
+                    <td>CÉDULA<br><input type="text" value="{{ $tercero['tercero_id'] }}"></td>
                     <td>EXPEDIDA EN<br><input type="text"></td>
                     <td>
-                        EMPLEADO ACTIVO <input type="checkbox">
+                        EMPLEADO ACTIVO <input type="checkbox" {{ $asociado['habil'] ? 'SI' : 'NO' }}>
                         PENSIONADO <input type="checkbox">
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">DIRECCIÓN RESIDENCIA<br><input type="text"></td>
-                    <td>TELÉFONO<br><input type="text"></td>
-                    <td>CELULAR<br><input type="text"></td>
+                    <td colspan="2">DIRECCIÓN RESIDENCIA<br><input type="text"
+                            value="{{ $tercero['direccion'] }}"></td>
+                    <td>TELÉFONO<br><input type="text" value="{{ $tercero['telefono'] }}"></td>
+                    <td>CELULAR<br><input type="text" value="{{ $tercero['celular'] }}"></td>
                 </tr>
                 <tr>
                     <td>CIUDAD<br><input type="text"></td>
@@ -417,8 +442,9 @@
                     <td colspan="2"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">DIRECCIÓN LABORAL<br><input type="text"></td>
-                    <td>TELÉFONO<br><input type="text"></td>
+                    <td colspan="2">DIRECCIÓN LABORAL<br><input type="text"
+                            value="{{ $asociado['direccion_empresa'] }}"></td>
+                    <td>TELÉFONO<br><input type="text" value="{{ $asociado['telefono_empresa'] }}"></td>
                     <td></td>
                 </tr>
                 <tr>
@@ -427,7 +453,8 @@
                     <td colspan="2"></td>
                 </tr>
                 <tr>
-                    <td colspan="3">CORREO ELECTRÓNICO (E-MAIL)<br><input type="email"></td>
+                    <td colspan="3">CORREO ELECTRÓNICO (E-MAIL)<br><input type="email"
+                            value="{{ $tercero['email'] }}"></td>
                     <td>
                         ENVÍO CORRESPONDENCIA<br>
                         OFICINA <input type="checkbox">
