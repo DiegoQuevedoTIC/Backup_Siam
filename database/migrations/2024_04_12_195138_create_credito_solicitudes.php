@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('linea');
             $table->unsignedBigInteger('asociado_id');
             $table->string('asociado')->nullable();
-            $table->string('estado')->nullable();
+            $table->string('estado');
             $table->date('fecha_solicitud')->nullable();
             $table->float('vlr_solicitud')->default(0)->nullable();
             $table->integer('periodo_pago')->nullable();

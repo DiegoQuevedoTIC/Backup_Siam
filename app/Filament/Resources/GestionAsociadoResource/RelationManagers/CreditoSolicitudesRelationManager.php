@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\GestionAsociadoResource\RelationManagers;
 
-use App\Models\Asociado;
 use App\Models\Barrio;
 use App\Models\Ciudad;
 use App\Models\CreditoLinea;
@@ -23,19 +22,13 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Set;
 use Filament\Forms\Components\Section;
-use Filament\Infolists\Components\Grid;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Stmt\TryCatch;
-use Filament\Notifications\Actions\Action as NAction;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Get;
-use Illuminate\Support\Facades\Response;
+use Closure;
 
 class CreditoSolicitudesRelationManager extends RelationManager
 {
@@ -54,11 +47,28 @@ class CreditoSolicitudesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('observaciones')
             ->columns([
+                Tables\Columns\TextColumn::make('estado')->label('Estado solicitud')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'P' => 'gray',
+                        'N' => 'danger',
+                        'M' => 'gray',
+                        'A' => 'success',
+                        'C' => 'warning',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'P' => 'PENDIENTE',
+                        'N' => 'NEGADA',
+                        'M' => 'MONTO DESEMBOLSO',
+                        'A' => 'APROBADA',
+                        'C' => 'CANCELADA',
+                    }),
                 Tables\Columns\TextColumn::make('linea')->label('Linea de credito')->default('N/A'),
                 Tables\Columns\TextColumn::make('id')->label('Nro de Credito')->default('N/A'),
                 Tables\Columns\TextColumn::make('int_mora_mlv')->label('Altura mora')->default('N/A'),
                 Tables\Columns\TextColumn::make('vlr_aprobado')->label('Saldo Capital')->default('N/A'),
                 Tables\Columns\TextColumn::make('vlr_planes')->label('Valor a Pagar')->default('N/A'),
+                Tables\Columns\TextColumn::make('fecha_solicitud')->label('Fecha Solicitud')->default('N/A'),
             ])
             ->filters([
                 //
@@ -76,7 +86,15 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         return CreditoLinea::all()->pluck('descripcion', 'id');
                                     })
                                     ->live()
-                                    ->required(),
+                                    ->required(function (Get $get, Set $set) {
+                                        $creditoLinea = CreditoLinea::find($get('linea'));
+                                        if (!is_null($creditoLinea)) {
+                                            //dd($creditoLinea);
+                                            $set('vlr_solicitud', $creditoLinea->monto_max);
+                                            $set('nro_cuotas_max', $creditoLinea->nro_cuotas_max);
+                                            $set('nro_cuotas_gracia', $creditoLinea->nro_cuotas_gracia);
+                                        }
+                                    }),
                                 Forms\Components\Select::make('empresa')
                                     ->label('Pagaduria')
                                     ->required()
@@ -92,36 +110,42 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 Forms\Components\TextInput::make('vlr_solicitud')
                                     ->label('Valor Solicitud')
                                     ->numeric()
-                                    ->required(function (Set $set, Get $get) {
-                                        if ($get('linea')) {
-                                            $set('vlr_solicitud', CreditoLinea::find($get('linea'))->monto_max ?? 0);
-                                        }
-                                        return true;
-                                    }),
+                                    ->minValue(0)
+                                    ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->monto_max ?? 0)
+                                    ->required()
+                                    ->rules([
+                                        fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                            $lineaCredito = CreditoLinea::find($get('linea'));
+                                            $montoMax = floatval($lineaCredito->monto_max);
+                                            dd($montoMax, $attribute, $value);
+
+                                            if ($lineaCredito) {
+                                                if (floatval($value) > $montoMax) {
+                                                    $fail('El monto de la solicitud no puede superar el monto máximo permitido.');
+                                                }
+                                            }
+                                        },
+                                    ]),
                                 Forms\Components\TextInput::make('nro_cuotas_max')
                                     ->label('Plazo')
                                     ->numeric()
-                                    ->required(function (Set $set, Get $get) {
-                                        if ($get('linea')) {
-                                            $set('nro_cuotas_max', CreditoLinea::find($get('linea'))->nro_cuotas_max ?? 0);
-                                        }
-                                        return true;
-                                    }),
+                                    ->required()
+                                    ->minValue(0)
+                                    ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_max ?? 0)
+                                    ->helperText('Plazo maximo de pago'),
                                 Forms\Components\TextInput::make('nro_cuotas_gracia')
+                                    ->minValue(0)
+                                    ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_gracia ?? 0)
                                     ->label('Cuota Gracia')
                                     ->numeric()
-                                    ->required(function (Set $set, Get $get) {
-                                        if ($get('linea')) {
-                                            $set('nro_cuotas_gracia', CreditoLinea::find($get('linea'))->nro_cuotas_gracia ?? 0);
-                                        }
-                                        return true;
-                                    }),
+                                    ->required(),
                                 Forms\Components\DatePicker::make('fecha_primer_vto')
                                     ->label('Fecha cuota 1')
                                     ->required()
                                     ->native(false)
                                     ->displayFormat('d/m/Y')
-                                    ->minDate(now()),
+                                    ->minDate(now())
+                                    ->helperText('Fecha de la primera cuota'),
                                 Forms\Components\Select::make('tasa_id')
                                     ->label('Tasa interes')
                                     ->required()
@@ -140,13 +164,14 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ])
                                     ->createOptionUsing(function (array $data): int {
                                         return Tasa::create($data)->id;
-                                    }),
+                                    })
+                                    ->native(false),
                                 Forms\Components\Select::make('tercero_asesor')
                                     ->label('Codigo Asesor')
                                     ->searchable()
                                     ->options(fn() => Tercero::query()
-                                    ->select(DB::raw("id, CONCAT(nombres, ' ', primer_apellido) AS nombre_completo"))
-                                    ->pluck('nombre_completo', 'id'))
+                                        ->select(DB::raw("id, CONCAT(nombres, ' ', primer_apellido) AS nombre_completo"))
+                                        ->pluck('nombre_completo', 'id'))
                                     ->required(),
                                 Forms\Components\Textarea::make('observaciones')
                                     ->label('Observaciones')
@@ -312,7 +337,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             // validamos si debe tener garantia
                             $garantia = CreditoLinea::find($data['linea']);
 
-                            if ($garantia->cant_gar_real == 1) {
+                            if ($garantia->cant_gar_real >= 1) {
                                 if (count($this->getOwnerRecord()->garantias) < 1) {
                                     Notification::make()
                                         ->title('Atención')
@@ -328,6 +353,9 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             // inicialización de transacion para garantizar integridad de datos
                             DB::transaction(function () use ($data) {
 
+
+                                $tasa = Tasa::find($data['tasa_id']);
+                                $data['tasa_float'] = floatval($tasa->tasa);
                                 //dd($data);
 
                                 // Creamos la solicitud
@@ -335,6 +363,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'asociado_id' => $this->getOwnerRecord()->id,
                                     'linea' => $data['linea'],
                                     'empresa' => $data['empresa'],
+                                    'asociado_id' => $this->getOwnerRecord()->id,
+                                    'asociado' => $this->getOwnerRecord()->codigo_interno_pag,
                                     'tipo_desembolso' => $data['tipo_desembolso'],
                                     'vlr_solicitud' => $data['vlr_solicitud'],
                                     'nro_cuotas_max' => $data['nro_cuotas_max'],
@@ -343,11 +373,12 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'tasa_id' => $data['tasa_id'],
                                     'tercero_asesor' => $data['tercero_asesor'],
                                     'observaciones' => $data['observaciones'],
+                                    'estado' => 'P',
+                                    'fecha_solicitud' => now()->format('Y-m-d'),
                                 ]);
 
-
                                 // Creamos toda la informacion necesaria para calcular la cuotas de pago
-                                $cuotas = calcular_amortizacion($data['vlr_solicitud'], $data['tasa_id'], $data['nro_cuotas_max']);
+                                $cuotas = calcular_amortizacion($data['vlr_solicitud'], $data['tasa_float'], $data['nro_cuotas_max']);
 
                                 foreach ($cuotas as $cuota) {
                                     PrincipalCreditoCuota::create([
@@ -393,7 +424,9 @@ class CreditoSolicitudesRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->deferLoading()
+            ->defaultSort('id', 'desc');
     }
 }
 
