@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\ParametrosCartera;
 use App\Filament\Resources\CreditoSolicitudResource\Pages;
 use App\Filament\Resources\CreditoSolicitudResource\RelationManagers;
 use App\Models\CreditoSolicitud;
@@ -16,11 +17,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CreditoSolicitudResource extends Resource
 {
     protected static ?string $model = CreditoSolicitud::class;
-    protected static ?string $navigationGroup = 'Gestión de Asociados';
+    protected static ?string $cluster = ParametrosCartera::class;
+
 
     protected static ?string $navigationIcon = 'heroicon-s-currency-dollar';
-    protected static ?string $navigationLabel = 'Lineas de credito';
-    protected static ?string $modelLabel = 'Linea de credito';
+    protected static ?string $navigationLabel = 'Solicitudes de credito';
+    protected static ?string $modelLabel = 'Solicitud de credito';
 
     public static function form(Form $form): Form
     {
@@ -47,7 +49,8 @@ class CreditoSolicitudResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('solicitud')
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Solicitud')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('linea')
@@ -99,6 +102,7 @@ class CreditoSolicitudResource extends Resource
                     //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->modifyQueryUsing(fn(Builder $query): Builder => $query->where('estado', '=', 'P'))
             ->defaultSort('fecha_solicitud', 'desc');
     }
 

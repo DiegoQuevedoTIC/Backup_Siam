@@ -7,5 +7,6 @@ use Filament\Clusters\Cluster;
 class ParametrosCartera extends Cluster
 {
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
-    protected static ?string $navigationGroup = 'Parametros Cartera';
+    protected static ?string $navigationGroup = 'Gestión de Asociados';
+    protected static ?string $navigationLabel = 'Cartera';
 }

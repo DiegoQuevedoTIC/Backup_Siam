@@ -89,7 +89,6 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ->required(function (Get $get, Set $set) {
                                         $creditoLinea = CreditoLinea::find($get('linea'));
                                         if (!is_null($creditoLinea)) {
-                                            //dd($creditoLinea);
                                             $set('vlr_solicitud', $creditoLinea->monto_max);
                                             $set('nro_cuotas_max', $creditoLinea->nro_cuotas_max);
                                             $set('nro_cuotas_gracia', $creditoLinea->nro_cuotas_gracia);
@@ -117,7 +116,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                             $lineaCredito = CreditoLinea::find($get('linea'));
                                             $montoMax = floatval($lineaCredito->monto_max);
-                                            dd($montoMax, $attribute, $value);
+                                            //dd($montoMax, $attribute, $value);
 
                                             if ($lineaCredito) {
                                                 if (floatval($value) > $montoMax) {
@@ -332,12 +331,11 @@ class CreditoSolicitudesRelationManager extends RelationManager
                     ->action(function (array $data) {
                         try {
 
-                            //dd(count($this->getOwnerRecord()->garantias));
-
                             // validamos si debe tener garantia
                             $garantia = CreditoLinea::find($data['linea']);
 
                             if ($garantia->cant_gar_real >= 1) {
+                                //dd($this->getOwnerRecord()->garantias);
                                 if (count($this->getOwnerRecord()->garantias) < 1) {
                                     Notification::make()
                                         ->title('Atención')
