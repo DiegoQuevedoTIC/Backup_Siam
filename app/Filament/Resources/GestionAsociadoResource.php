@@ -79,9 +79,11 @@ class GestionAsociadoResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label('Gestionar'),
             ])
-            ->bulkActions([]);
+            ->bulkActions([])
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->defaultPaginationPageOption(10);
     }
 
     public static function getRelations(): array

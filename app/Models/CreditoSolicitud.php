@@ -37,12 +37,11 @@ class CreditoSolicitud extends Model
     protected static function boot()
     {
         parent::boot();
-
         static::creating(function ($model) {
-            $latest_record = CreditoSolicitud::orderBy('created_at', 'DESC')->first();
-            $record_number = $latest_record ? $latest_record->id : 1;
-
-            $model->solicitud = str_pad($record_number + 1, 8, '0', STR_PAD_LEFT);
+            $numerador = TipoDocumentoContable::where('sigla', 'SOL')->first();
+            $model->solicitud = $numerador->numerador;
+            $numerador->increment('numerador');
+            $numerador->save();
         });
     }
 

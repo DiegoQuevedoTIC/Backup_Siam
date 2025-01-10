@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\GestionAsociadoResource\RelationManagers;
 
 use App\Models\Barrio;
+use App\Models\CarteraEncabezado;
 use App\Models\Ciudad;
 use App\Models\CreditoLinea;
 use App\Models\CreditoSolicitud;
 use App\Models\Garantia;
 use App\Models\Pagaduria;
-use App\Models\PrincipalCreditoCuota;
+use App\Models\CuotaEncabezado;
 use App\Models\Profesion;
 use App\Models\Tasa;
 use App\Models\Tercero;
@@ -29,12 +30,13 @@ use Filament\Forms\Components\Section;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Get;
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class CreditoSolicitudesRelationManager extends RelationManager
 {
     protected static string $relationship = 'creditoSolicitudes';
 
-    public $disabled = true;
+    public $disabled = false;
 
     public function form(Form $form): Form
     {
@@ -259,6 +261,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                                 'profesion_id' => $data['ocupacion'],
                                             ]);
 
+                                            $this->disabled = true;
+
                                             Notification::make()
                                                 ->title('Se actualizaron los datos correctamente')
                                                 ->icon('heroicon-m-check-circle')
@@ -318,7 +322,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         ->color('info')
                                         ->action(function () {
                                             //
-                                        })->disabled(),
+                                        })->disabled(false),
                                     Action::make('capacidad_endeudamiento')
                                         ->label('Capacidad de endeudamiento')
                                         ->color('info')
@@ -331,12 +335,103 @@ class CreditoSolicitudesRelationManager extends RelationManager
                     ->action(function (array $data) {
                         try {
 
+                            Action::make('actualizar_datos')->label('Actualización Datos')
+                                ->color('info')
+                                ->fillForm(fn(): array => [
+                                    $tercero = Tercero::find($this->getOwnerRecord()->id),
+                                    'nro_identificacion' => $tercero->tercero_id,
+                                    'nombres' => $tercero->nombres,
+                                    'primer_apellido' => $tercero->primer_apellido,
+                                    'segundo_apellido' => $tercero->segundo_apellido,
+                                    'tipo_documento' => $tercero->TipoIdentificacion->nombre,
+                                    'ocupacion' => $tercero->profesion_id,
+                                    'direccion' => $tercero->direccion,
+                                    'barrio' => $tercero->barrio_id,
+                                    'ciudad' => $tercero->ciudad_id,
+                                    'nro_celular_1' => $tercero->celular,
+                                    'nro_celular_2' => $tercero->nro_celular_2,
+                                    'nro_telefono_fijo' => $tercero->telefono,
+                                    'correo' => $tercero->email,
+                                    'total_activos' => $tercero->InformacionFinanciera->total_activos ?? 0,
+                                    'total_pasivos' => $tercero->InformacionFinanciera->total_pasivos ?? 0,
+                                    'salario' => $tercero->InformacionFinanciera->salario ?? 0,
+                                    'honorarios' => $tercero->InformacionFinanciera->honorarios ?? 0,
+                                    'gastos_financieros' => $tercero->InformacionFinanciera->gastos_financieros ?? 0,
+                                    'creditos_hipotecarios' => $tercero->InformacionFinanciera->creditos_hipotecarios ?? 0,
+                                    'otros_gastos' => $tercero->InformacionFinanciera->otros_gastos ?? 0,
+                                ])
+                                ->form([
+                                    Section::make('Actualización de Datos')
+                                        ->description('Tercero Natural')
+                                        ->icon('heroicon-m-user')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('nro_identificacion')->label('Nro Identificación')->disabled(),
+                                            Forms\Components\TextInput::make('nombres')->label('Nombre')->required(),
+                                            Forms\Components\TextInput::make('primer_apellido')->label('Primer Apellido')->required(),
+                                            Forms\Components\TextInput::make('segundo_apellido')->label('Segundo Nombre')->required(),
+                                            Forms\Components\Select::make('tipo_documento')->label('Tipo de Documento')->required()
+                                                ->options(TipoIdentificacion::all()->pluck('nombre', 'id'))
+                                                ->searchable(),
+                                            Forms\Components\Select::make('ocupacion')->label('Ocupación')->required()
+                                                ->options(Profesion::all()->pluck('nombre', 'id'))
+                                                ->searchable(),
+                                            Forms\Components\TextInput::make('direccion')->label('Dirección')->required(),
+                                            Forms\Components\Select::make('barrio')->label('Barrio')->required()
+                                                ->options(Barrio::all()->pluck('nombre', 'id'))
+                                                ->searchable(),
+                                            Forms\Components\Select::make('ciudad')->label('Ciudad')->required()
+                                                ->options(Ciudad::all()->pluck('nombre', 'id'))
+                                                ->searchable(),
+                                            Forms\Components\TextInput::make('nro_celular_1')->label('Nro Celular 1')->required(),
+                                            Forms\Components\TextInput::make('nro_celular_2')->label('Nro Celular 2'),
+                                            Forms\Components\TextInput::make('nro_telefono_fijo')->label('Telefono Fijo')->required(),
+                                            Forms\Components\TextInput::make('correo')->label('Correo')->required(),
+                                        ])->columns(3),
+                                    Section::make('Datos Financieros')
+                                        ->description('Aqui debes actualizar los datos financieros, de lo contrario no se modifica nada')
+                                        ->icon('heroicon-m-wallet')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('total_activos')->label('Total Activos')->mask('9999999,99'),
+                                            Forms\Components\TextInput::make('total_pasivos')->label('Total Pasivos')->mask('9999999,99'),
+                                            Forms\Components\TextInput::make('salario')->label('Salario')->mask('9999999.99'),
+                                            Forms\Components\TextInput::make('honorarios')->label('Honorarios')->mask('9999999,99'),
+                                            Forms\Components\TextInput::make('gastos_financieros')->label('Gastos Financieros')->mask('9999999,99'),
+                                            Forms\Components\TextInput::make('creditos_hipotecarios')->label('Credito Hipotecario')->mask('9999999,99'),
+                                            Forms\Components\TextInput::make('otros_gastos')->label('Otros Gastos')->mask('9999999,99'),
+                                        ])->columns(3),
+                                ])->action(function (array $data): void {
+
+                                    $tercero = Tercero::find($this->getOwnerRecord()->id);
+
+                                    $tercero->update([
+                                        'nombres' => $data['nombres'],
+                                        'primer_apellido' => $data['primer_apellido'],
+                                        'segundo_apellido' => $data['segundo_apellido'],
+                                        'direccion' => $data['direccion'],
+                                        'telefono' => $data['nro_telefono_fijo'],
+                                        'celular' => $data['nro_celular_1'],
+                                        'email' => $data['correo'],
+                                        'ciudad_id' => $data['ciudad'],
+                                        'barrio_id' => $data['barrio'],
+                                        'profesion_id' => $data['ocupacion'],
+                                    ]);
+
+                                    $this->disabled = true;
+
+                                    Notification::make()
+                                        ->title('Se actualizaron los datos correctamente')
+                                        ->icon('heroicon-m-check-circle')
+                                        ->body('Los datos fueron actualizados correctamente')
+                                        ->success()
+                                        ->send();
+                                })->slideOver()
+                                ->modalSubmitActionLabel('Actualizar');
+
                             // validamos si debe tener garantia
                             $garantia = CreditoLinea::find($data['linea']);
 
-                            if ($garantia->cant_gar_real >= 1) {
-                                //dd($this->getOwnerRecord()->garantias);
-                                if (count($this->getOwnerRecord()->garantias) < 1) {
+                            if ($garantia->cant_gar_real >= 1 && $garantia->cant_gar_pers >= 1) {
+                                if (count($this->getOwnerRecord()->garantias) < $garantia->cant_gar_real && count($this->getOwnerRecord()->garantias) < $garantia->cant_gar_pers) {
                                     Notification::make()
                                         ->title('Atención')
                                         ->icon('heroicon-m-exclamation-circle')
@@ -344,7 +439,6 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         ->warning()
                                         ->duration(5000)
                                         ->send();
-                                    return false;
                                 }
                             }
 
@@ -354,7 +448,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
 
                                 $tasa = Tasa::find($data['tasa_id']);
                                 $data['tasa_float'] = floatval($tasa->tasa);
-                                //dd($data);
+                                $linea = CreditoLinea::find($data['linea'])->first();
 
                                 // Creamos la solicitud
                                 $credito = CreditoSolicitud::create([
@@ -364,6 +458,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'asociado_id' => $this->getOwnerRecord()->id,
                                     'asociado' => $this->getOwnerRecord()->codigo_interno_pag,
                                     'tipo_desembolso' => $data['tipo_desembolso'],
+                                    'periodo_pago' => 1, // Periodo de pago mensual
+                                    'moneda' => 1, // Moneda pesos
                                     'vlr_solicitud' => $data['vlr_solicitud'],
                                     'nro_cuotas_max' => $data['nro_cuotas_max'],
                                     'nro_cuotas_gracia' => $data['nro_cuotas_gracia'],
@@ -373,30 +469,92 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'observaciones' => $data['observaciones'],
                                     'estado' => 'P',
                                     'fecha_solicitud' => now()->format('Y-m-d'),
+                                    'usuario_crea' => Auth::use()->name
+                                ]);
+
+                                // Creamos el registro en la tabla cartera
+                                $cartera_encabezado = CarteraEncabezado::create([
+                                    'cliente' => $this->getOwnerRecord()->codigo_interno_pag,
+                                    'linea' => $data['linea'],
+                                    'estado' => 'A',
+                                    'periodo_pago' => 1,
+                                    'moneda' => 1,
+                                    'interes_cte' => $data['tasa_float'],
+                                    'tipo_cuota' => $linea->tipo_cuota,
+                                    'forma_pago_int' => 'V',
+                                    'forma_descuento' => $this->getOwnerRecord()->tipo_vinculo_id,
+                                    'tipo_tasa' => $linea->tipo_tasa,
+                                    'nro_cuotas_gracia' => $data['nro_cuotas_gracia'],
+                                    'abonos_extra' => $linea->abonos_extra,
+                                    'vlr_abono' => 0.00,
+                                    'fecha_docto' => now()->format('Y-m-d'),
+                                    'fecha_primer_vto' => $data['fecha_primer_vto'],
+                                    'vlr_docto_vto' => $data['vlr_solicitud'],
+                                    'vlr_ini_cuota' => 0.00,
+                                    'fecha_desembolso' => null,
+                                    'vlr_desembolsado' => 0.00,
+                                    'nro_cuotas' => null,
+                                    'fecha_pago_total' => null,
+                                    'usuario_crea' => Auth::user()->name,
+                                    'empresa' => $data['empresa'],
+                                    'tercero_asesor' =>  $data['tercero_asesor']
                                 ]);
 
                                 // Creamos toda la informacion necesaria para calcular la cuotas de pago
                                 $cuotas = calcular_amortizacion($data['vlr_solicitud'], $data['tasa_float'], $data['nro_cuotas_max']);
 
+                                // Inicializamos la variable para la primer cuota (valor)
+                                $vlr_ini_cuota = 0.00;
+                                $nro_cuotas = 0;
+
+
+                                // Creamos todas las cuotas de la solicitud detallada
                                 foreach ($cuotas as $cuota) {
-                                    PrincipalCreditoCuota::create([
-                                        'credito_solicitud_id' => $credito->id,
-                                        'periodo' => $cuota['periodo'],
+
+                                    // queda por fuera $cuota['amortizacion_capital']
+                                    CuotaEncabezado::create([
+                                        'tdocto' => 'PLI',
+                                        'nro_docto' => $cartera_encabezado->nro_docto,
+                                        'nro_cuota' => $cuota['periodo'],
+                                        'consecutivo' => 1,
+                                        'estado' => 'A',
+                                        'iden_cuota' => 'N',
+                                        'interes_cte' =>  $cuota['interes'],
+                                        'interes_mora' => 0.00,
+                                        'fecha_vencimiento' => null, // por definir calcular
+                                        'fecha_pago_total' => null,
+                                        'dias_mora' => 0,
                                         'vlr_cuota' => $cuota['pago'],
-                                        'vlr_interes' => $cuota['interes'],
-                                        'amortizacion_capital' => $cuota['amortizacion_capital'],
-                                        'saldo' => $cuota['saldo']
+                                        'saldo_capital' => $cuota['saldo'],
+                                        'vlr_abono_rec' => 0.00,
+                                        'vlr_abono_ncr' => 0.00,
+                                        'vlr_abono_dpa' => 0.00,
+                                        'vlr_descuento' => 0.00,
+                                        'forma_descuento' => $cartera_encabezado->forma_descuento,
+                                        'vlr_cuentas_orden' => 0.00,
+                                        'vlr_causado' => 0.00,
                                     ]);
 
+                                    $vlr_ini_cuota = $cuota['pago'];
+                                    $nro_cuotas = $cuota['periodo'] += $cuota['periodo'];
                                     $suma = $cuota['pago'] += $cuota['pago'];
                                 }
 
+                                // Actualizamos el registro con el valor de la primera cuota
+                                $cartera_encabezado->update([
+                                    'vlr_ini_cuota' => $vlr_ini_cuota,
+                                    'nro_cuotas' => $nro_cuotas
+                                ]);
+
+                                // Actualizamos la solicitud de credito con la suma total de cuotas
                                 $credito->update([
                                     'vlr_planes' => $suma
                                 ]);
 
+                                // Disparamos evento para descargar sollicitud por PDF
                                 $this->dispatch('download', [[$this->getOwnerRecord(), $credito]]);
 
+                                // Notificación visual para el usuario
                                 Notification::make()
                                     ->title('Se crearon los datos correctamente')
                                     ->icon('heroicon-m-check-circle')
@@ -412,10 +570,9 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 ->send();
                         }
                     }),
-                //Tables\Actions\CreateAction::make()->slideOver()->label('Nueva solicitud de credito'),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make()->slideOver(),
+                Tables\Actions\EditAction::make()->slideOver()->label('ver'),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
