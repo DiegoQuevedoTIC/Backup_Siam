@@ -21,8 +21,8 @@ class CreditoSolicitudResource extends Resource
 
 
     protected static ?string $navigationIcon = 'heroicon-s-currency-dollar';
-    protected static ?string $navigationLabel = 'Solicitudes de credito';
-    protected static ?string $modelLabel = 'Solicitud de credito';
+    protected static ?string $navigationLabel = 'Aprobaciones de Solicitudes';
+    protected static ?string $modelLabel = 'Aprobaciones de Solicitudes';
 
     public static function form(Form $form): Form
     {
@@ -95,7 +95,7 @@ class CreditoSolicitudResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label('Gestionar'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
