@@ -62,7 +62,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'P' => 'PENDIENTE',
                         'N' => 'NEGADA',
-                        'M' => 'MONTO DESEMBOLSO',
+                        'M' => 'MONTO DESEMBOLSADO',
                         'A' => 'APROBADA',
                         'C' => 'CANCELADA',
                     }),
