@@ -15,7 +15,7 @@ class GarantiasRelationManager extends RelationManager
 {
     protected static string $relationship = 'garantias';
 
-    public function form(Form $form): Form
+/*     public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -33,7 +33,81 @@ class GarantiasRelationManager extends RelationManager
                 Forms\Components\TextInput::make('valor_avaluo_comercial')->label('Valor Avaluo Comercial')->required()->numeric(),
                 Forms\Components\Textarea::make('observaciones')->label('Observaciones')->required()->columnSpanFull(),
             ]);
-    }
+    } */
+
+
+    public function form(Form $form): Form
+{
+    return $form
+        ->schema([
+            Forms\Components\Select::make('tipo_garantia_id')
+                ->label('Tipo de garantía')
+                ->options(TipoGarantia::all()->pluck('nombre', 'id'))
+                ->searchable()
+                ->required()
+                ->reactive(), // Importante para activar la lógica reactiva
+
+
+            // Campos para garantía "real"
+            Forms\Components\TextInput::make('nro_escr_o_matri')
+                ->label('Nro escritura / Matrícula')
+                ->required()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\TextInput::make('direccion')
+                ->label('Dirección')
+                ->required()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\TextInput::make('ciudad_registro')
+                ->label('Ciudad Registro')
+                ->required()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\TextInput::make('valor_avaluo')
+                ->label('Valor Avaluo')
+                ->required()
+                ->numeric()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\DatePicker::make('fecha_avaluo')
+                ->label('Fecha Avaluo')
+                ->required()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\Checkbox::make('bien_con_prenda')
+                ->label('Bien con prenda')
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\Checkbox::make('bien_sin_prenda')
+                ->label('Bien sin prenda')
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            Forms\Components\TextInput::make('valor_avaluo_comercial')
+                ->label('Valor Avaluo Comercial')
+                ->required()
+                ->numeric()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '1'),
+
+            // Campos para garantía "personal"
+            Forms\Components\TextInput::make('numero_documento_garantia')
+                ->label('Id Tercero Garantia Personal')
+                ->required()
+                ->numeric()
+                ->visible(fn (callable $get) => $get('tipo_garantia_id') === '2'),
+
+
+
+            // Campos comunes
+            Forms\Components\TextInput::make('observaciones')
+            ->label('Observaciones')
+            ->required()
+            ->maxLength(65535)
+            ->columnSpanFull(),
+
+        ]);
+}
+
 
     public function table(Table $table): Table
     {
