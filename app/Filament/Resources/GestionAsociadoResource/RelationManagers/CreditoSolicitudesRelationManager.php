@@ -49,7 +49,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('observaciones')
             ->columns([
-                Tables\Columns\TextColumn::make('estado')->label('Estado solicitud')
+                Tables\Columns\TextColumn::make('solicitud')->label('Nro solicitud')->default('N/A'),
+                Tables\Columns\TextColumn::make('estado')->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'P' => 'gray',
@@ -66,10 +67,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
                         'C' => 'CANCELADA',
                     }),
                 Tables\Columns\TextColumn::make('linea')->label('Linea de credito')->default('N/A'),
-                Tables\Columns\TextColumn::make('id')->label('Nro de Credito')->default('N/A'),
-                Tables\Columns\TextColumn::make('int_mora_mlv')->label('Altura mora')->default('N/A'),
-                Tables\Columns\TextColumn::make('vlr_aprobado')->label('Saldo Capital')->default('N/A'),
-                Tables\Columns\TextColumn::make('vlr_planes')->label('Valor a Pagar')->default('N/A'),
+                Tables\Columns\TextColumn::make('tasa_id')->label('Interes Corriente')->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 2) . ' %' : 'N/A') ->default('N/A'),
+                Tables\Columns\TextColumn::make('nro_cuotas_max')->label('Nro Cuotas')->default('N/A'),
                 Tables\Columns\TextColumn::make('fecha_solicitud')->label('Fecha Solicitud')->default('N/A'),
             ])
             ->filters([
