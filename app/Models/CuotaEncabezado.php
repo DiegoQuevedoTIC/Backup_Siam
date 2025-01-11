@@ -10,6 +10,4 @@ class CuotaEncabezado extends Model
     protected $table = 'cuotas_encabezados';
 
     protected $guarded = [];
-
-
 }

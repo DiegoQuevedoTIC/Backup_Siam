@@ -7,28 +7,14 @@ use App\Filament\Resources\GestionAsociadoResource\RelationManagers\AportesRelat
 use App\Filament\Resources\GestionAsociadoResource\RelationManagers\CertificadoDepositosRelationManager;
 use App\Filament\Resources\GestionAsociadoResource\RelationManagers\CobranzasRelationManager;
 use App\Filament\Resources\GestionAsociadoResource\RelationManagers\CreditoSolicitudesRelationManager;
+use App\Filament\Resources\GestionAsociadoResource\RelationManagers\CuotasRelationManager;
 use App\Filament\Resources\GestionAsociadoResource\RelationManagers\GarantiasRelationManager;
 use App\Filament\Resources\GestionAsociadoResource\RelationManagers\ObligacionesRelationManager;
 use App\Models\Asociado;
-use App\Models\Tercero;
-use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Get;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Set;
-use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
-use Illuminate\Support\Facades\DB;
-
-use function Laravel\Prompts\table;
 
 class GestionAsociadoResource extends Resource
 {
@@ -91,6 +77,7 @@ class GestionAsociadoResource extends Resource
         return [
             //
             CreditoSolicitudesRelationManager::class,
+            CuotasRelationManager::class,
             ObligacionesRelationManager::class,
             AportesRelationManager::class,
             CertificadoDepositosRelationManager::class,

@@ -21,4 +21,10 @@ class CarteraEncabezado extends Model
             $numerador->save();
         });
     }
+
+
+    public function asociado()
+    {
+        return $this->belongsTo(Asociado::class, 'cliente', 'codigo_interno_pag');
+    }
 }

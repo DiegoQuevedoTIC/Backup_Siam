@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Pagaduria extends Model
 {
     use HasFactory;
+
+    protected $table = 'pagadurias';
+
+    public function creditoSolicitudes()
+    {
+        return $this->hasMany(CreditoSolicitud::class, 'empresa');
+    }
 }

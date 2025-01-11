@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\ParametrosCartera;
 use App\Filament\Resources\CreditoSolicitudResource\Pages;
 use App\Filament\Resources\CreditoSolicitudResource\RelationManagers;
+use App\Filament\Resources\CreditoSolicitudResource\RelationManagers\LineaRelationManager;
 use App\Models\CreditoSolicitud;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -28,21 +29,31 @@ class CreditoSolicitudResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('solicitud')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('linea')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('asociado')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('estado')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('fecha_solicitud'),
-                Forms\Components\Textarea::make('observacion_novedad')
+                Forms\Components\TextInput::make('lineaCredito.descripcion')
+                    ->label('Linea')
+                    ->disabled(),
+                Forms\Components\TextInput::make('empresaCredito.nombre')
+                    ->disabled(),
+                Forms\Components\TextInput::make('nro_cuotas_gracia')
+                    ->disabled(),
+                Forms\Components\TextInput::make('tipo_desembolso')
+                    ->disabled(),
+                Forms\Components\TextInput::make('tercero_asesor')
+                    ->disabled(),
+                Forms\Components\TextInput::make('observaciones')
+                    ->disabled(),
+                Forms\Components\DatePicker::make('fecha_primer_vto')
+                    ->disabled(),
+                Forms\Components\TextInput::make('tasa_id')
+                    ->disabled(),
+                Forms\Components\TextInput::make('vlr_solicitud')
+                    ->required(),
+                Forms\Components\DatePicker::make('fecha_solicitud')
+                    ->disabled(),
+                Forms\Components\Textarea::make('nro_cuotas_max')
+                    ->disabled()
                     ->columnSpanFull(),
-            ]);
+            ])->columns(4);
     }
 
     public static function table(Table $table): Table

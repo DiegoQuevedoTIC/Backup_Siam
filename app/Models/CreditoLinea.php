@@ -64,4 +64,9 @@ class CreditoLinea extends Model
     {
         return $this->belongsTo(periodoPago::class);
     }
+
+    public function creditoSolicitudes()
+    {
+        return $this->hasMany(CreditoSolicitud::class, 'linea', 'id');
+    }
 }

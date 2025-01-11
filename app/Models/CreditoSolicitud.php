@@ -54,4 +54,14 @@ class CreditoSolicitud extends Model
     {
         return $this->hasMany(PrincipalCreditoCuota::class, 'credito_solicitud_id');
     }
+
+    public function lineaCredito()
+    {
+        return $this->belongsTo(CreditoLinea::class, 'linea', 'id');
+    }
+
+    public function empresaCredito()
+    {
+        return $this->belongsTo(Pagaduria::class, 'empresa');
+    }
 }

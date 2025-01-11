@@ -105,5 +105,10 @@ class Asociado extends Model
         return $this->hasMany(Prorroga::class);
     }
 
+    public function cuotas()
+    {
+        return $this->hasMany(CarteraEncabezado::class, 'cliente', 'codigo_interno_pag');
+    }
+
     protected $fillable = [];
 }
