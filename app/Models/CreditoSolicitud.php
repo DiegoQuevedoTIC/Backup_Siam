@@ -64,4 +64,16 @@ class CreditoSolicitud extends Model
     {
         return $this->belongsTo(Pagaduria::class, 'empresa');
     }
+
+    public function cuotasEncabezados()
+    {
+        return $this->hasManyThrough(
+            CuotaEncabezado::class,
+            PlanDesembolso::class,
+            'solicitud_id',
+            'nro_docto',
+            'id',
+            'nro_documento_vto_enc'
+        );
+    }
 }

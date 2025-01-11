@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\ParametrosCartera;
 use App\Filament\Resources\CreditoSolicitudResource\Pages;
 use App\Filament\Resources\CreditoSolicitudResource\RelationManagers;
+use App\Filament\Resources\CreditoSolicitudResource\RelationManagers\CuotasEncabezadosRelationManager;
 use App\Filament\Resources\CreditoSolicitudResource\RelationManagers\LineaRelationManager;
 use App\Models\CreditoSolicitud;
 use Filament\Forms;
@@ -120,7 +121,7 @@ class CreditoSolicitudResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CuotasEncabezadosRelationManager::class
         ];
     }
 
