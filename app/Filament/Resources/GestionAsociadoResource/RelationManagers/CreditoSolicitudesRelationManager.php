@@ -418,7 +418,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             ]);
 
                             $plan_desembolso = PlanDesembolso::create([
-                                'solicitud_id' => $credito->id,
+                                'solicitud_id' => $credito->solicitud,
                                 'plan_numero' => 1,
                                 'fecha_plan' => now()->format('Y-m-d'),
                                 'fecha_inicio' => $credito->fecha_primer_vto,
@@ -453,8 +453,16 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             // Almacenamos todas las cuotas para luego usarlas en cutoas detalles
                             $cuotas_encabezados = array();
 
+                            $fechaVencimiento = now(); // Inicializa la fecha de vencimiento
+
                             // Creamos todas las cuotas de la solicitud detallada
-                            foreach ($cuotas as $cuota) {
+                            foreach ($cuotas as $index => $cuota) {
+
+                                // Incrementa un mes a partir de la segunda iteración
+                                if ($index > 0) {
+                                    $fechaVencimiento->addMonth();
+                                }
+
                                 // Crea un nuevo encabezado de cuota y agrega la amortización capital
                                 $nuevo_encabezado = CuotaEncabezado::create([
                                     'tdocto' => 'PLI',
@@ -465,7 +473,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     'iden_cuota' => 'N',
                                     'interes_cte' => $cuota['interes'],
                                     'interes_mora' => 0.00,
-                                    'fecha_vencimiento' => null, // por definir calcular
+                                    'fecha_vencimiento' => $fechaVencimiento->format('Y-m-d'),
                                     'fecha_pago_total' => null,
                                     'dias_mora' => 0,
                                     'vlr_cuota' => $cuota['pago'],
@@ -547,7 +555,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                 /* ->modalContent(view('custom.modal.solicitud_credito')) */,
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->slideOver()->label('ver'),
+                //Tables\Actions\EditAction::make()->slideOver()->label('ver'),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

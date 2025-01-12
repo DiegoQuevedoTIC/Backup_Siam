@@ -121,7 +121,6 @@ class CreditoSolicitudResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CuotasEncabezadosRelationManager::class
         ];
     }
 

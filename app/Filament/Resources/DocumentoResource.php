@@ -9,6 +9,7 @@ use App\Models\Documento;
 use App\Models\Documentoclase;
 use App\Models\Solicitud;
 use App\Models\Comprobante;
+use App\Models\CreditoSolicitud;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
@@ -53,7 +54,7 @@ class DocumentoResource extends Resource
                 ->unique(ignoreRecord: true)
                 ->options(function (Get $get): Collection {
                     if ($get('documentoclase_id') == 1) {
-                        return Collection::make(Solicitud::query()->pluck('solicitud', 'id')->toArray());
+                        return Collection::make(CreditoSolicitud::query()->pluck('solicitud', 'id')->toArray());
                     } elseif ($get('documentoclase_id') == 2) {
                         return Collection::make(Comprobante::query()->pluck('n_documento', 'id')->toArray());
                     } else {
