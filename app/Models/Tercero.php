@@ -11,16 +11,38 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tercero extends Model
 {
-    use HasFactory,
-    SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'tercero_id',
+        'digito_verificacion',
+        'nombres',
+        'primer_apellido',
+        'segundo_apellido',
+        'direccion',
+        'telefono',
+        'celular',
+        'email',
+        'tipo_tercero',
+        'pais_id',
+        'ciudad_id',
+        'barrio_id',
+        'tipo_contribuyente_id',
+        'ocupacion',
+        'nivelescolar_id',
+        'estadocivil_id',
+        'observaciones',
+    ];
+
+    protected $casts = [
+        'active' => 'boolean',
+    ];
 
 
     public function pais(): BelongsTo
     {
         return $this->belongsTo(Pais::class);
     }
-
-
 
     public function ciudad(): BelongsTo
     {
@@ -47,8 +69,6 @@ class Tercero extends Model
     {
         return $this->belongsTo(Barrio::class);
     }
-
-
 
     public function TipoContribuyente(): BelongsTo
     {
@@ -107,33 +127,4 @@ class Tercero extends Model
     {
         return $this->hasMany(ComprobanteLinea::class);
     }
-
-
-
-    protected $fillable = [
-        'tercero_id',
-        'digito_verificacion',
-        'nombres',
-        'primer_apellido',
-        'segundo_apellido',
-        'direccion',
-        'telefono',
-        'celular',
-        'email',
-        'tipo_tercero',
-        'pais_id',
-        'ciudad_id',
-        'barrio_id',
-        'tipo_contribuyente_id',
-        'ocupacion',
-        'nivelescolar_id',
-        'estadocivil_id',
-        'observaciones',
-    ];
-
-    protected $casts = [
-        'active' => 'boolean',
-    ];
-
-
 }

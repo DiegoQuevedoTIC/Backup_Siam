@@ -75,10 +75,10 @@ class CreditoSolicitudesRelationManager extends RelationManager
             ])
             ->headerActions([
                 ActionsTable::make('plan')->label('Plan de pago'),
-                ActionsTable::make('actualizar_datos')->label('Actualización Datos')
-                    ->color('info')
+                ActionsTable::make('actualizar_datos')
+                    ->label('Actualización Datos')
                     ->fillForm(fn(): array => [
-                        $tercero = Tercero::find($this->getOwnerRecord()->id),
+                        $tercero = Tercero::where('tercero_id', $this->getOwnerRecord()->codigo_interno_pag)->first(),
                         'nro_identificacion' => $tercero->tercero_id,
                         'nombres' => $tercero->nombres,
                         'primer_apellido' => $tercero->primer_apellido,
@@ -141,7 +141,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             ])->columns(3),
                     ])->action(function (array $data): void {
 
-                        $tercero = Tercero::find($this->getOwnerRecord()->id);
+                        $tercero = Tercero::where('tercero_id', $this->getOwnerRecord()->codigo_interno_pag)->first();
 
                         $tercero->update([
                             'nombres' => $data['nombres'],
@@ -543,9 +543,6 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             show = false;
                         });
                         window.addEventListener(`showCreateSolicitud`, function(){
-                            show = true;
-                        });
-                        window.addEventListener(`noCloseModal`, function(){
                             show = true;
                         });
                         ",

@@ -54,6 +54,7 @@ class EditCreditoSolicitud extends EditRecord
                                 TextInput::make('observaciones'),
                             ]),
                     ])->action(function (array $data) {
+
                         $this->getRecord()->estado = $data['estado'];
                         $this->getRecord()->ente_aprobador = $data['ente_aprobador'];
                         $this->getRecord()->nro_acta_aprob = $data['nro_acta'];

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\ModulosDigitalizacion;
 use App\Filament\Resources\DocumentoResource\Pages;
 use App\Filament\Resources\DocumentoResource\RelationManagers;
+use App\Models\CarteraEncabezado;
 use App\Models\Documento;
 use App\Models\Documentoclase;
 use App\Models\Solicitud;
@@ -43,6 +44,7 @@ class DocumentoResource extends Resource
             Select::make('documentoclase_id')
                 ->label('Clase Documental')
                 ->columnSpan(4)
+                ->searchable()
                 ->disabled(fn ($record) => optional($record)->exists ?? false) // Verificar si $record existe antes de acceder a ->exists
                 ->options(Documentoclase::all()->pluck('nombre', 'id'))
                 ->live(),
@@ -54,7 +56,7 @@ class DocumentoResource extends Resource
                 ->unique(ignoreRecord: true)
                 ->options(function (Get $get): Collection {
                     if ($get('documentoclase_id') == 1) {
-                        return Collection::make(CreditoSolicitud::query()->pluck('solicitud', 'id')->toArray());
+                        return Collection::make(CarteraEncabezado::query()->where('tdocto', 'PAG')->pluck('nro_docto', 'id')->toArray());
                     } elseif ($get('documentoclase_id') == 2) {
                         return Collection::make(Comprobante::query()->pluck('n_documento', 'id')->toArray());
                     } else {
