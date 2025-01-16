@@ -7,9 +7,10 @@ use App\Models\CarteraEncabezado;
 use App\Models\Ciudad;
 use App\Models\CreditoLinea;
 use App\Models\CreditoSolicitud;
-use App\Models\Garantia;
+use App\Models\GarantiaCartera;
 use App\Models\Pagaduria;
 use App\Models\CuotaEncabezado;
+use App\Models\Garantia;
 use App\Models\PlanDesembolso;
 use App\Models\Profesion;
 use App\Models\Tasa;
@@ -177,14 +178,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         return CreditoLinea::all()->pluck('descripcion', 'id');
                                     })
                                     ->live()
-                                    ->required(function (Get $get, Set $set) {
-                                        $creditoLinea = CreditoLinea::find($get('linea'));
-                                        if (!is_null($creditoLinea)) {
-                                            $set('vlr_solicitud', $creditoLinea->monto_max);
-                                            $set('nro_cuotas_max', $creditoLinea->nro_cuotas_max);
-                                            $set('nro_cuotas_gracia', $creditoLinea->nro_cuotas_gracia);
-                                        }
-                                    }),
+                                    ->required(),
                                 Forms\Components\Select::make('empresa')
                                     ->label('Pagaduria')
                                     ->required()
@@ -202,30 +196,29 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ->numeric()
                                     ->minValue(0)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->monto_max ?? 0)
-                                    ->required()
-                                    ->rules([
-                                        fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                            $lineaCredito = CreditoLinea::find($get('linea'));
-                                            $montoMax = floatval($lineaCredito->monto_max);
-                                            //dd($montoMax, $attribute, $value);
-
-                                            if ($lineaCredito) {
-                                                if (floatval($value) > $montoMax) {
-                                                    $fail('El monto de la solicitud no puede superar el monto máximo permitido.');
-                                                }
-                                            }
-                                        },
-                                    ]),
+                                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                                    ->inputMode('decimal')
+                                    ->prefix('$')
+                                    ->validationMessages([
+                                        'max' => 'El :attribute no puede ser mayor al permitido.',
+                                    ])
+                                    ->required(),
                                 Forms\Components\TextInput::make('nro_cuotas_max')
                                     ->label('Plazo')
                                     ->numeric()
                                     ->required()
                                     ->minValue(0)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_max ?? 0)
+                                    ->validationMessages([
+                                        'max' => 'El :attribute no puede ser mayor al permitido.',
+                                    ])
                                     ->helperText('Plazo maximo de pago'),
                                 Forms\Components\TextInput::make('nro_cuotas_gracia')
                                     ->minValue(0)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_gracia ?? 0)
+                                    ->validationMessages([
+                                        'max' => 'El :attribute no puede ser mayor al permitido.',
+                                    ])
                                     ->label('Cuota Gracia')
                                     ->numeric()
                                     ->required(),
@@ -277,28 +270,76 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                                 ->description('Formulario para crear garantia')
                                                 ->icon('heroicon-m-shield-check')
                                                 ->schema([
-                                                    Forms\Components\Select::make('tipo_garantia_id')->label('Tipo de garantia')
-                                                        ->options(['P' => 'Garantias personales', 'R' => 'Garantias reales'])
+                                                    Forms\Components\Select::make('tipo_garantia_id')
+                                                        ->label('Tipo de garantía')
+                                                        ->options([
+                                                            'R' => 'Garantia Real',
+                                                            'P' => 'Garantia Personal'
+                                                        ])
                                                         ->searchable()
-                                                        ->required(),
-                                                    Forms\Components\TextInput::make('nro_escr_o_matri')->label('Nro escritura / Matricula'),
-                                                    Forms\Components\Select::make('tercero_garantia')->label('Tercero Garantia')
+                                                        ->required()
+                                                        ->reactive(),
+                                                    Forms\Components\TextInput::make('nro_escr_o_matri')
+                                                        ->label('Nro escritura / Matrícula')
+                                                        ->required()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\TextInput::make('direccion')
+                                                        ->label('Dirección')
+                                                        ->required()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\TextInput::make('ciudad_registro')
+                                                        ->label('Ciudad Registro')
+                                                        ->required()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\TextInput::make('valor_avaluo')
+                                                        ->label('Valor Avaluo')
+                                                        ->required()
+                                                        ->numeric()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\DatePicker::make('fecha_avaluo')
+                                                        ->label('Fecha Avaluo')
+                                                        ->required()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\Checkbox::make('bien_con_prenda')
+                                                        ->label('Bien con prenda')
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\Checkbox::make('bien_sin_prenda')
+                                                        ->label('Bien sin prenda')
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    Forms\Components\TextInput::make('valor_avaluo_comercial')
+                                                        ->label('Valor Avaluo Comercial')
+                                                        ->required()
+                                                        ->numeric()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
+
+                                                    // Campos para garantía "personal"
+                                                    Forms\Components\Select::make('tercero_asesor')
+                                                        ->label('Codigo Asesor')
+                                                        ->searchable()
+                                                        ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'P')
                                                         ->options(fn() => Tercero::query()
-                                                            ->select(DB::raw("id, CONCAT(nombres, ' ', primer_apellido, ' ', tercero_id) AS nombre_completo"))
+                                                            ->select(DB::raw("id, CONCAT(nombres, ' ', primer_apellido) AS nombre_completo"))
                                                             ->pluck('nombre_completo', 'id'))
-                                                        ->searchable()
                                                         ->required(),
-                                                    Forms\Components\TextInput::make('ciudad_registro')->label('Ciudad Registro'),
-                                                    Forms\Components\TextInput::make('valor_avaluo')->label('Valor Avaluo')->numeric()->default(0),
-                                                    Forms\Components\DatePicker::make('fecha_avaluo')->label('Fecha avaluo'),
-                                                    Forms\Components\Checkbox::make('bien_con_prenda')->label('Bien con prenda'),
-                                                    Forms\Components\Checkbox::make('bien_sin_prenda')->label('Bien sin prenda'),
-                                                    Forms\Components\TextInput::make('valor_avaluo_comercial')->label('Valor Avaluo Comercial')->numeric()->default(0),
-                                                    Forms\Components\Textarea::make('observaciones')->label('Observaciones')->columnSpanFull(),
+
+
+                                                    // Campos comunes
+                                                    Forms\Components\TextInput::make('observaciones')
+                                                        ->label('Observaciones')
+                                                        ->required()
+                                                        ->maxLength(65535)
+                                                        ->columnSpanFull(),
                                                 ])->columns(3),
                                         ])->action(function (array $data): void {
 
-                                            Garantia::create([
+                                            GarantiaCartera::create([
                                                 'asociado_id' => $this->getOwnerRecord()->id,
                                                 'tipo_garantia_id' => $data['tipo_garantia_id'],
                                                 'nro_escr_o_matri' => $data['nro_escr_o_matri'],
@@ -340,9 +381,9 @@ class CreditoSolicitudesRelationManager extends RelationManager
                         // validamos si debe tener garantia
                         $garantia = CreditoLinea::find($data['linea']);
 
-                        if ($garantia->cant_gar_real >= 1 && $garantia->cant_gar_pers >= 1) {
-                            if (count($this->getOwnerRecord()->garantias) < $garantia->cant_gar_real && count($this->getOwnerRecord()->garantias) < $garantia->cant_gar_pers) {
+                        if ($garantia->cant_gar_real >= 1 || $garantia->cant_gar_pers >= 1) {
 
+                            if (count($this->getOwnerRecord()->garantiasCartera) < $garantia->cant_gar_real || count($this->getOwnerRecord()->garantiasCartera) < $garantia->cant_gar_pers) {
 
                                 $this->dispatch('noCloseModal');
 
@@ -387,6 +428,23 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 'estado' => 'P',
                                 'fecha_solicitud' => now()->format('Y-m-d'),
                                 'usuario_crea' => auth()->user()->name
+                            ]);
+
+                            // Actualizamos la garantia asociandolo a la solicitud de credito
+                            $garantia_cartera = $this->getOwnerRecord()->garantiasCartera->first();
+                            Garantia::create([
+                                'asociado_id' => $this->getOwnerRecord()->codigo_interno_pag,
+                                'numero_documento_garantia' => $credito->solicitud,
+                                'tipo_garantia_id' => $garantia_cartera['tipo_garantia_id'],
+                                'nro_escr_o_matri' => $garantia_cartera['nro_escr_o_matri'],
+                                'direccion' => $garantia_cartera['direccion'],
+                                'ciudad_registro' => $garantia_cartera['ciudad_registro'],
+                                'valor_avaluo' => $garantia_cartera['valor_avaluo'],
+                                'fecha_avaluo' => $garantia_cartera['fecha_avaluo'],
+                                'bien_con_prenda' => $garantia_cartera['bien_con_prenda'],
+                                'bien_sin_prenda' => $garantia_cartera['bien_sin_prenda'],
+                                'valor_avaluo_comercial' => $garantia_cartera['valor_avaluo_comercial'],
+                                'observaciones' => $garantia_cartera['observaciones'],
                             ]);
 
                             // Creamos el registro en la tabla cartera
@@ -509,8 +567,8 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                         'nro_cuota' => $cuota->nro_cuota,
                                         'consecutivo' => 1,
                                         'estado' => 'A',
-                                        'vlr_detalle' => $concepto->concepto_descuento = (1) ? $cuota->amortizacion_capital : ((2) ? $cuota->interes_cte : 0.00),
-                                        'con_descuento' => 1
+                                        'vlr_detalle' => ($concepto->concepto_descuento === 1) ? $cuota->amortizacion_capital : (($concepto->concepto_descuento === 2) ? $cuota->interes_cte : 0.00),
+                                        'con_descuento' => $concepto->concepto_descuento
                                     ]);
                                 }
                             }

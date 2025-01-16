@@ -31,7 +31,11 @@ class AportesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('concepto')
             ->columns([
-                Tables\Columns\TextColumn::make('concepto'),
+                Tables\Columns\TextColumn::make('con_descuento'),
+                Tables\Columns\TextColumn::make('descripcion'),
+                Tables\Columns\TextColumn::make('saldo_debito')->money('COP'),
+                Tables\Columns\TextColumn::make('saldo_credito')->money('COP'),
+                Tables\Columns\TextColumn::make('saldo_total')->money('COP'),
             ])
             ->filters([
                 //

@@ -9,7 +9,7 @@ class Aporte extends Model
 {
     use HasFactory;
 
-    protected $table = 'aportes';
+    protected $table = 'saldos_descuentos';
 
     protected $fillable = [
         'asociado_id',

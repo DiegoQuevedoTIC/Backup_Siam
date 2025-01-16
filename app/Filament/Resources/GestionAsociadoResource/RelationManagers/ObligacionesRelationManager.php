@@ -37,11 +37,12 @@ class ObligacionesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('concepto')
             ->columns([
-                Tables\Columns\TextColumn::make('concepto')->label('Concepto Obligación')->default('N/A'),
-                Tables\Columns\TextColumn::make('valor_descuento')->label('Valor Obligación')->default('N/A'),
-                Tables\Columns\TextColumn::make('fecha_ultima_couta')->label('Fecha limite Pago')->default('N/A'),
-                Tables\Columns\TextColumn::make('nro_cuota')->label('Nro de Cuota')->default('N/A'),
-                Tables\Columns\TextColumn::make('fecha_ultima_couta')->label('Limite de Cuotas')->default('N/A'),
+                Tables\Columns\TextColumn::make('fecha_vencimiento')->default('N/A'),
+                Tables\Columns\TextColumn::make('con_descuento')->default('N/A'),
+                Tables\Columns\TextColumn::make('descripcion_concepto')->default('N/A'),
+                Tables\Columns\TextColumn::make('consecutivo')->default('N/A'),
+                Tables\Columns\TextColumn::make('nro_cuota')->default('N/A'),
+                Tables\Columns\TextColumn::make('vlr_cuota')->money('COP')->default('N/A'),
             ])
             ->filters([
                 //
@@ -55,9 +56,17 @@ class ObligacionesRelationManager extends RelationManager
                             ->description('Definir texto de ejemplo')
                             ->schema([
                                 // ...
-                                Forms\Components\TextInput::make('aportes')->required(),
-                                Forms\Components\TextInput::make('valor_descuento')->required()->numeric(),
-                                Forms\Components\Checkbox::make('definido')->default(false)->live(),
+                                Forms\Components\Select::make('con_descuento')
+                                    ->options(fn() => DB::table('concepto_descuentos')->pluck('descripcion', 'codigo_descuento'))
+                                    ->searchable()
+                                    ->required()
+                                    ->label('Concepto Descuento'),
+                                Forms\Components\TextInput::make('valor_descuento')
+                                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                                    ->inputMode('decimal')
+                                    ->prefix('$')
+                                    ->required()
+                                    ->numeric(),
                                 Forms\Components\Checkbox::make('indefinido')->default(false)->live(),
                                 Forms\Components\TextInput::make('plazo')->label('Plazo')->numeric()
                                     ->visible(function (Get $get) {
@@ -70,72 +79,118 @@ class ObligacionesRelationManager extends RelationManager
                                         return true;
                                     })->live(),
                                 Forms\Components\DatePicker::make('fecha_inicio_descuento'),
-                                Forms\Components\TextInput::make('periodo_descuento'),
-                            ])->columns(4),
-                        Section::make('Historico Obligación')
-                            ->description('Definir texto de ejemplo')
-                            ->schema([
-                                // ...
-                                Forms\Components\TextInput::make('concepto')->required(),
-                                Forms\Components\TextInput::make('nro_cuota')->numeric(),
-                                Forms\Components\Checkbox::make('vigente'),
-                                Forms\Components\Checkbox::make('vencida'),
-                                Forms\Components\DatePicker::make('fecha_ultima_couta'),
-                            ])->columns(4),
+                                Forms\Components\Select::make('periodo_descuento')
+                                    ->options([
+                                        1 => 'Mensual',
+                                        2 => 'Quincenal'
+                                    ])
+                                    ->native(false),
+                                Forms\Components\Select::make('estado')
+                                    ->options([
+                                        'A' => 'ACTIVO',
+                                        'C' => 'CANCELADO',
+                                        'I' => 'INACTIVO'
+                                    ])
+                                    ->native(false)
+                            ])->columns(3)
                     ])->action(function (array $data) {
                         // inicialización de transacion para garantizar integridad de datos
                         DB::transaction(function () use ($data) {
 
-                            // Creamos la solicitud
-                            $obligacion = Obligacion::create([
-                                'asociado_id' => $this->getOwnerRecord()->id,
-                                'concepto' => $data['concepto'],
-                                'valor_descuento' => $data['valor_descuento'],
-                                'plazo' => $data['plazo'],
-                                'fecha_inicio_descuento' => $data['fecha_inicio_descuento'],
-                                'periodo_descuento' => $data['periodo_descuento'],
-                                'nro_cuota' => $data['nro_cuota'],
-                                'vigente' => $data['vigente'],
-                                'vencida' => $data['vencida'],
-                                'fecha_ultima_couta' => $data['fecha_ultima_couta'],
-                                'aportes' => $data['aportes'],
+                            //dd($data);
+
+                            $con_relacion = DB::table('distribucion_descuentos')
+                                ->where('con_descuento', $data['con_descuento'])
+                                ->get()
+                                ->toArray();
+
+                            // Obtener el último registro para el cliente
+                            $ultimoRegistro = DB::table('encabezado_descuentos')
+                                ->where('cliente', $this->getOwnerRecord()->codigo_interno_pag)
+                                ->latest()
+                                ->first();
+
+                            // Calcular el consecutivo
+                            $consecutivo = $ultimoRegistro ? $ultimoRegistro->consecutivo + 1 : 1;
+
+                            // Creamos los datos
+                            $recordId = DB::table('encabezado_descuentos')->insertGetId([
+                                'cliente' => $this->getOwnerRecord()->codigo_interno_pag,
+                                'con_descuento' => $data['con_descuento'],
+                                'consecutivo' => $consecutivo,
+                                'periodo_desc' => $data['periodo_descuento'],
+                                'fecha_generacion' => now()->format('Y-m-d'),
+                                'fecha_inicio' => $data['fecha_inicio_descuento'],
+                                'estado' => $data['estado'],
+                                'tipo_descuento' => 1,
+                                'vlr_descuento' => $data['valor_descuento'],
+                                'indefinido' => $data['indefinido'] ? 'S' : 'N',
+                                'porc_descuento' => 0,
+                                'nro_cuotas' => $data['plazo'] ?? 0,
+                                'distribuye' => $con_relacion ? 'S' : 'N',
+                                'nivel' => 0,
+                                'usuario_crea' => auth()->user()->name,
+                                'es_hijo' => 'N'
                             ]);
 
-                            // Creamos la primera cuota
-                            $cuota_descuento = CuotaDescuento::create([
-                                'cliente' => $this->getOwnerRecord()->codigo_interno_pag,
-                                'con_descuento' => $data['valor_descuento'] ? true : false,
-                                'consecutivo' => null,
-                                'nro_cuota' => $data['nro_cuota'],
-                                'fecha_vencimiento' => 'N/A',
-                                'fecha_pago_total' => $data['fecha_ultima_couta'],
-                                'estado' => 'C',
-                                'vlr_cuota' => $data['valor_descuento'],
-                                'abono_cuota' => '0',
-                                'vlr_interes' => 'o',
-                                'abono_interes' => '0',
-                                'vlr_mora' => '0',
-                                'abono_mora' => '0',
-                                'congelada' => null,
-                                'consecutivo_padre' => '0',
-                            ]);
+                            // Obtener el objeto creado
+                            $record = DB::table('encabezado_descuentos')->where('id', $recordId)->first();
 
-                            // creamos el historico de obligacion
-                            $historico = HistoricoDescuento::create([
-                                'cliente' => $this->getOwnerRecord()->codigo_interno_pag,
-                                'con_descuento' => $data['valor_descuento'] ? true : false,
-                                'linea' => null,
-                                'con_servicio' => $data['aportes'] ? true : false,
-                                'fecha' => $data['fecha_inicio_descuento'],
-                                'hora' => null,
-                                'grupo_docto' => $data['concepto'],
-                                'compania_docto' => $data['concepto'],
-                                'agencia_docto' => $data['concepto'],
-                                'tdocto' => $data['concepto'],
-                                'nro_docto' => $data['concepto'],
-                                'vlr_debito' => $data['valor_descuento'],
-                                'vlr_credito' => $data['valor_descuento'],
-                            ]);
+                            // se realiza la creacion de la relacion con la distribucion
+                            if ($con_relacion) {
+                                foreach($con_relacion as $relacion) {
+                                    $nuevovalor = $record->vlr_descuento * $relacion->porcentaje;
+                                    $insert = DB::table('encabezado_descuentos')->insertGetId([
+                                        'cliente' => $record->cliente,
+                                        'con_descuento' => $relacion->con_descuento,
+                                        'consecutivo' => $record->consecutivo + 1,
+                                        'periodo_desc' => $record->periodo_desc,
+                                        'fecha_generacion' => $record->fecha_generacion,
+                                        'fecha_inicio' => $record->fecha_inicio,
+                                        'estado' => $record->estado,
+                                        'tipo_descuento' => 1,
+                                        'vlr_descuento' => $nuevovalor,
+                                        'indefinido' => $record->indefinido,
+                                        'porc_descuento' => $record->porc_descuento,
+                                        'nro_cuotas' => $record->nro_cuotas,
+                                        'distribuye' => 'N',
+                                        'nivel' => $record->nivel,
+                                        'usuario_crea' => $record->usuario_crea,
+                                        'es_hijo' => 'S',
+                                        'con_descuento_padre' => $record->con_descuento,
+                                        'consecutivo_padre' => $record->consecutivo
+                                    ]);
+
+                                    $record_2 = DB::table('encabezado_descuentos')->where('id', $insert)->first();
+
+                                    // Obtener el último registro para el cliente
+                                    $ultimoRegistro2 = DB::table('detalle_vencimiento_descuento')
+                                        ->where('cliente', $this->getOwnerRecord()->codigo_interno_pag)
+                                        ->latest()
+                                        ->first();
+
+                                    // Calcular el consecutivo
+                                    $consecutivo2 = $ultimoRegistro2 ? $ultimoRegistro2->consecutivo + 1 : 1;
+
+                                    $nro_cuota = $ultimoRegistro2 && !is_null($ultimoRegistro2->nro_cuota)
+                                        ? $ultimoRegistro2->nro_cuota + 1
+                                        : 1;
+
+                                    // se inserta detalle de vencimiento
+                                    DB::table('detalle_vencimiento_descuento')->insert([
+                                        'cliente' => $record->cliente,
+                                        'con_descuento' => $relacion->con_relacion,
+                                        'consecutivo' => $consecutivo2,
+                                        'nro_cuota' => $nro_cuota,
+                                        'fecha_vencimiento' => $record->fecha_inicio,
+                                        'estado' => 'A',
+                                        'vlr_cuota' => $record_2->vlr_descuento,
+                                        'abono_cuota' => 0,
+                                        'consecutivo_padre' => $record_2->consecutivo_padre
+                                    ]);
+                                }
+                            }
+
 
                             Notification::make()
                                 ->title('Se crearon los datos correctamente')
@@ -150,9 +205,6 @@ class ObligacionesRelationManager extends RelationManager
                 //Tables\Actions\EditAction::make(),
                 //Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                /*  Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]), */]);
+            ->bulkActions([]);
     }
 }

@@ -1,33 +1,27 @@
 @php
     use Illuminate\Support\Facades\DB;
 
-    $data = DB::table('plan_desembolsos as pd')
-        ->join('cuotas_encabezados as ce', 'ce.nro_docto', 'pd.nro_documento_vto_enc')
-        ->join('cuotas_detalles as cd', 'cd.nro_docto', 'pd.nro_documento_vto_enc')
-        ->where('pd.solicitud_id', $solicitud)
-        ->where('pd.tipo_documento_enc', 'PLI')
+    $data = DB::table('garantias as g')
+        ->leftJoin('terceros as t', 'g.tercero_garantia', '=', DB::raw('t.tercero_id::bigint'))
+        ->where('g.numero_documento_garantia', $solicitud)
         ->select(
-            'ce.nro_cuota',
-            'ce.fecha_vencimiento',
-            'ce.vlr_cuota',
-            'ce.saldo_capital',
-            'cd.vlr_detalle',
-            'cd.con_descuento',
+            'g.*',
+            DB::raw("CONCAT(t.nombres, ' ', t.primer_apellido, ' ', t.segundo_apellido) AS nombre_completo"),
         )
-        ->orderBy('ce.nro_cuota')
         ->get()
         ->toArray();
 
-    //dd($data);
-
-    $cuotas = [];
-    foreach ($data as $row) {
-        $cuotas[$row->nro_cuota]['nro_cuota'] = $row->nro_cuota;
-        $cuotas[$row->nro_cuota]['fecha_vencimiento'] = $row->fecha_vencimiento;
-        $cuotas[$row->nro_cuota]['vlr_detalle'][$row->con_descuento] = $row->vlr_detalle;
-        $cuotas[$row->nro_cuota]['vlr_cuota'] = $row->vlr_cuota;
-        $cuotas[$row->nro_cuota]['saldo_capital'] = $row->saldo_capital;
+    $garantia_reales = [];
+    $garantia_personales = [];
+    foreach ($data as $garantia) {
+        if ($garantia->tipo_garantia_id == 'R') {
+            $garantia_reales[] = $garantia;
+        } elseif ($garantia->tipo_garantia_id == 'P') {
+            $garantia_personales[] = $garantia;
+        }
     }
+
+    //dd($garantia_reales, $garantia_personales);
 
     function format_number($number)
     {
@@ -41,6 +35,12 @@
             width: 80px;
             overflow: auto;
             word-wrap: break-word;
+        }
+
+        .text-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
         /* Estilo general para la tabla */
@@ -112,38 +112,54 @@
         </table>
     </div>
 
+    <br>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nro. Cuota</th>
-                <th>Fecha Vencimiento</th>
-                <th>Capital</th>
-                <th>Intereses</th>
-                <th>Int Mora</th>
-                <th>Seguro Cartera</th>
-                <th>Valor Cuota</th>
-                <th>Saldo Capital</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($cuotas as $cuota)
+    <div>
+        <h4 class="text-header">Garantias Reales</h4>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ $cuota['nro_cuota'] }}</td>
-                    <td>{{ $cuota['fecha_vencimiento'] }}</td>
-                    <td>{{ isset($cuota['vlr_detalle'][1]) ? format_number($cuota['vlr_detalle'][1]) : format_number(0) }}
-                    </td>
-                    <td>{{ isset($cuota['vlr_detalle'][2]) ? format_number($cuota['vlr_detalle'][2]) : format_number(0) }}
-                    </td>
-                    <td>{{ isset($cuota['vlr_detalle'][3]) ? format_number($cuota['vlr_detalle'][3]) : format_number(0) }}
-                    </td>
-                    <td>{{ isset($cuota['vlr_detalle'][85]) ? format_number($cuota['vlr_detalle'][85]) : format_number(0) }}
-                    </td>
-                    <td>{{ format_number($cuota['vlr_cuota']) }}</td>
-                    <td>{{ format_number($cuota['saldo_capital']) }}</td>
+                    <th>Nro. Matricula</th>
+                    <th>Ciudad de registro</th>
+                    <th>Valor Avaluo</th>
+                    <th>Avaluo Comercial</th>
+                    <th>Fecha Avaluo</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <tr>
+                    @foreach ($garantia_reales as $row)
+                        <td>{{ $row->nro_escr_o_matri }}</td>
+                        <td>{{ $row->ciudad_registro }}</td>
+                        <td>{{ format_number($row->valor_avaluo) }}</td>
+                        <td>{{ format_number($row->valor_avaluo_comercial) }}</td>
+                        <td>{{ $row->fecha_avaluo }}</td>
+                    @endforeach
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <div>
+        <h4 class="text-header">Garantias Personales</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID Garantia</th>
+                    <th>Tercero Garantia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @foreach ($garantia_personales as $row)
+                        <td>{{ $row->tercero_garantia }}</td>
+                        <td>{{ $row->nombre_completo }}</td>
+                    @endforeach
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
 </div>

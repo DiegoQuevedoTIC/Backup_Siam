@@ -48,7 +48,11 @@ class CreditoSolicitudResource extends Resource
                 Forms\Components\TextInput::make('tasa_id')
                     ->disabled(),
                 Forms\Components\TextInput::make('vlr_solicitud')
-                    ->required(),
+                    ->required()
+                    ->disabled()
+                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                    ->inputMode('decimal')
+                    ->prefix('$'),
                 Forms\Components\DatePicker::make('fecha_solicitud')
                     ->disabled(),
                 Forms\Components\Textarea::make('nro_cuotas_max')
@@ -115,7 +119,7 @@ class CreditoSolicitudResource extends Resource
                 ]),
             ])
             ->modifyQueryUsing(fn(Builder $query): Builder => $query->where('estado', '=', 'P'))
-            ->defaultSort('fecha_solicitud', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

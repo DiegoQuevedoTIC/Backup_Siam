@@ -9,7 +9,7 @@ class Obligacion extends Model
 {
     use HasFactory;
 
-    protected $table = 'obligaciones';
+    protected $table = 'detalle_vencimiento_descuento';
 
     protected $fillable = [
         'asociado_id',

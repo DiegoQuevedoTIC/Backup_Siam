@@ -27,4 +27,9 @@ class CarteraEncabezado extends Model
     {
         return $this->belongsTo(Asociado::class, 'cliente', 'codigo_interno_pag');
     }
+
+    public function lineaCredito()
+    {
+        return $this->belongsTo(CreditoLinea::class, 'linea', 'id');
+    }
 }
