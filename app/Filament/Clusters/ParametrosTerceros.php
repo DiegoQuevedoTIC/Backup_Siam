@@ -8,5 +8,5 @@ class ParametrosTerceros extends Cluster
 {
     protected static ?string $navigationIcon = 'heroicon-o-bars-arrow-up';
     protected static ?string    $navigationGroup = 'Parametros Generales';
-    protected static ?int       $navigationSort = 1;
+    protected static ?int       $navigationSort = 2;
 }

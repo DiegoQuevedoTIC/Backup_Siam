@@ -51,7 +51,6 @@ class AsociadoResource extends Resource
     protected static ?string    $navigationLabel = 'Vincular Asociado';
     protected static ?string    $navigationGroup = 'Administracion de Terceros';
     protected static ?string    $modelLabel = 'Asociado';
-    protected static ?int       $navigationSort = 2;
     protected static ?string    $pluralModelLabel = 'Asociados';
     protected static ?string    $slug = 'Par/Tab/Asoc';
 

@@ -22,8 +22,6 @@ class CorreosMasivoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
     protected static ?string $navigationLabel = 'Correo Electronico Masivo';
     protected static ?string $modelLabel = 'Correo Electronico Masivo';
-    protected static ?int    $navigationSort = 1;
-
 
     public static function form(Form $form): Form
     {

@@ -31,7 +31,6 @@ class PagoIndividualResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document';
     protected static ?string $navigationLabel = 'Pagos Individuales';
     protected static ?string $modelLabel = 'Pagos Individuales';
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

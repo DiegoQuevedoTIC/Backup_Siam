@@ -21,7 +21,6 @@ class ReversoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-m-arrow-path';
     protected static ?string $navigationLabel = 'Reverso de transacciones';
     protected static ?string $modelLabel = 'Reversos';
-    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {

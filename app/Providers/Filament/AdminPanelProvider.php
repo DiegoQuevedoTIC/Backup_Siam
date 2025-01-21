@@ -53,29 +53,26 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Administracion de Terceros')
                     ->label('Administracion de Terceros')
                     ->collapsed(),
-                NavigationGroup::make('Comunicación Externa')
-                    ->label('Comunicación Externa')
-                    ->collapsed(),
                 NavigationGroup::make('Contabilidad')
                     ->label('Contabilidad')
                     ->collapsed(),
-                NavigationGroup::make('Parametros Cartera')
-                    ->label('Parametros Cartera')
-                    ->collapsed(),
                 NavigationGroup::make('Gestión de Asociados')
                     ->label('Gestión de Asociados')
+                    ->collapsed(),
+                NavigationGroup::make('Tesoreria')
+                    ->label('Tesoreria')
+                    ->collapsed(),
+                NavigationGroup::make('Solidaridad y Bienestar')
+                    ->label('Solidaridad y Bienestar')
+                    ->collapsed(),
+                NavigationGroup::make('Comunicación Externa')
+                    ->label('Comunicación Externa')
                     ->collapsed(),
                 NavigationGroup::make('Gestion Documental')
                     ->label('Gestion Documental')
                     ->collapsed(),
                 NavigationGroup::make('Informes Cumplimiento')
                     ->label('Informes Cumplimiento')
-                    ->collapsed(),
-                NavigationGroup::make('Solidaridad y Bienestar')
-                    ->label('Solidaridad y Bienestar')
-                    ->collapsed(),
-                NavigationGroup::make('Tesorería')
-                    ->label('Tesorería')
                     ->collapsed(),
                 NavigationGroup::make('Roles y Permisos')
                     ->label('Roles y Permisos')

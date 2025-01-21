@@ -35,7 +35,6 @@ class DocumentosotroResource extends Resource
     protected static ?string    $modelLabel = 'Acta, Informe u Otros';
     protected static ?string    $pluralModelLabel = 'Actas, Informes y Otros';
     protected static ?string    $slug = 'Par/Tab/Varios';
-    protected static ?int       $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

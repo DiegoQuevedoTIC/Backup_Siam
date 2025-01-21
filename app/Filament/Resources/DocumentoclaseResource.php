@@ -26,7 +26,6 @@ class DocumentoclaseResource extends Resource
     protected static ?string    $modelLabel = 'Tabla Retencion';
     protected static ?string    $pluralModelLabel = 'Tablas de Retencion';
     protected static ?string    $slug = 'Par/Tab/Retencion';
-    protected static ?int       $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

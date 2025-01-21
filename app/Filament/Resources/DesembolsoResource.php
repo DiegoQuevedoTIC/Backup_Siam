@@ -21,7 +21,6 @@ class DesembolsoResource extends Resource
     protected static ?string $modelLabel = 'Desembolso';
     protected static ?string $navigationIcon = 'heroicon-o-folder-minus';
     protected static ?string $navigationLabel = 'Desembolsos';
-    protected static ?int $navigationSort = -1;
 
 
     public static function form(Form $form): Form

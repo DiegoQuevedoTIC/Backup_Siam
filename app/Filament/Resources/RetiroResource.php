@@ -21,7 +21,6 @@ class RetiroResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-bars-arrow-down';
     protected static?string $navigationLabel = 'Retiro saldo a favor';
     protected static?string $modelLabel = 'Retiro';
-    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

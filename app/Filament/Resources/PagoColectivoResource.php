@@ -21,7 +21,6 @@ class PagoColectivoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationLabel = 'Pago Colectivo';
     protected static ?string $modelLabel = 'Pago Colectivo';
-    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

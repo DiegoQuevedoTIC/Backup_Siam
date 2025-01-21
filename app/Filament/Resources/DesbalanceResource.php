@@ -22,7 +22,6 @@ class DesbalanceResource extends Resource
     protected static ?string    $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string    $navigationLabel = 'Descuadre Comprobantes';
     protected static ?string    $modelLabel = 'Descuadre Comprobantes';
-    protected static ?int       $navigationSort = -2;
 
     public static function form(Form $form): Form
     {

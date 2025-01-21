@@ -49,7 +49,6 @@ class TerceroResource extends Resource
     protected static ?string    $modelLabel = 'Tercero';
     protected static ?string    $pluralModelLabel = 'Terceros';
     protected static ?string    $slug = 'Par/Tab/Terc';
-    protected static ?int       $navigationSort = 1;
 
 
     public static function form(Form $form): Form
@@ -63,6 +62,15 @@ class TerceroResource extends Resource
                 Wizard\Step::make('Identificacion ')
                 ->columns(4)
                 ->schema([
+                Radio::make('tipo_tercero')
+                    ->required()
+                    ->label('')
+                    ->columnSpan(1)
+                    ->live()
+                    ->options([
+                        'Natural' => 'Persona Natural',
+                        'Juridica' => 'Persona Juridica',
+                            ]),
                 TextInput::make('tercero_id')
                     ->markAsRequired(false)
                     ->required()
@@ -82,18 +90,23 @@ class TerceroResource extends Resource
                     ->autocomplete(false)
                     ->label('Digito de Verificacion'),
                 Select::make('tipo_identificacion_id')
-                    ->relationship('tipoidentificacion', 'nombre')
+                    ->options(function (Get $get) {
+                        // Filtrar las opciones según el valor de tipo_tercero
+                        $tipoTercero = $get('tipo_tercero');
+                        if ($tipoTercero === 'Natural') {
+                            return \App\Models\TipoIdentificacion::where('codigo', 'N') // Filtra por código 'N'
+                                ->pluck('nombre', 'id'); // Obtiene nombre como texto y id como valor
+                        } elseif ($tipoTercero === 'Juridica') {
+                            return \App\Models\TipoIdentificacion::where('codigo', 'J') // Filtra por código 'J'
+                                ->pluck('nombre', 'id');
+                        }
+                        return collect([]); // Retorna un conjunto vacío si no hay selección
+                    })
                     ->columnSpan(1)
+                    ->live()
                     ->required()
                     ->label('Tipo de Identificacion'),
-                Radio::make('tipo_tercero')
-                    ->required()
-                    ->label('')
-                    ->columnSpan(1)
-                    ->options([
-                        'Natural' => 'Persona Natural',
-                        'Juridica' => 'Persona Juridica',
-                            ]),
+
                 ])
                 ->columnSpanFull(),
                 Wizard\Step::make('Datos Basicos')

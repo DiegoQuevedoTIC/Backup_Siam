@@ -38,8 +38,6 @@ class DocumentoscontableResource extends Resource
     protected static ?string    $modelLabel = 'Documento Contable';
     protected static ?string    $pluralModelLabel = 'Digitalizacion Doc. Contables';
     protected static ?string    $slug = 'Par/Tab/Contables';
-    protected static ?int       $navigationSort = 3;
-
     public static function form(Form $form): Form
     {
         return $form

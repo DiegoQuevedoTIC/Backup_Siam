@@ -21,7 +21,6 @@ class SuperSolidariaResource extends Resource
     protected static?string $navigationIcon = 'heroicon-o-heart';
     protected static?string $navigationLabel = 'Super Solidarias';
     protected static?string $modelLabel = 'Super Solidarias';
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

@@ -21,7 +21,6 @@ class CentralRiesgoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
     protected static ?string $navigationLabel = 'Central de Riesgos';
     protected static ?string $modelLabel = 'Central de Riesgos';
-    protected static ?int $navigationSort = -1;
 
     public static function form(Form $form): Form
     {

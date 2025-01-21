@@ -21,7 +21,6 @@ class InformacionExogenaResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static?string $navigationLabel = 'Información Exógena';
     protected static?string $modelLabel = 'Información Exógena';
-    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

@@ -34,8 +34,6 @@ class DocumentoResource extends Resource
     protected static ?string    $modelLabel = 'Documento Pagare';
     protected static ?string    $pluralModelLabel = 'Digitalizacion de Pagares';
     protected static ?string    $slug = 'Par/Tab/Digitalizar';
-    protected static ?int       $navigationSort = 2;
-
     public static function form(Form $form): Form
     {
         return $form
