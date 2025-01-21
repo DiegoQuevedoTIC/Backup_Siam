@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 
 class Tercero extends Model
 {
@@ -126,5 +127,34 @@ class Tercero extends Model
     public function comprobantesLineas(): HasMany
     {
         return $this->hasMany(ComprobanteLinea::class);
+    }
+
+    public function getNombreCompletoAttribute()
+    {
+        return $this->nombres . ' ' . $this->primer_apellido . ' ' . $this->segundo_apellido;
+    }
+
+    public function carteraEncabezados()
+    {
+        return $this->hasMany(CarteraEncabezado::class, 'cliente', 'tercero_id');
+    }
+
+    public function obligaciones()
+    {
+        return $this->hasMany(Obligacion::class, 'cliente', 'tercero_id')
+            ->join('asociados as a', 'detalle_vencimiento_descuento.cliente', '=', DB::raw('CAST(a.codigo_interno_pag AS INTEGER)'))
+            ->join('concepto_descuentos as c', 'detalle_vencimiento_descuento.con_descuento', '=', 'c.codigo_descuento')
+            ->where('detalle_vencimiento_descuento.estado', 'A')
+            ->orderBy('detalle_vencimiento_descuento.fecha_vencimiento', 'ASC')
+            ->orderBy('detalle_vencimiento_descuento.con_descuento', 'ASC')
+            ->select(
+                'detalle_vencimiento_descuento.id',
+                'detalle_vencimiento_descuento.fecha_vencimiento',
+                'detalle_vencimiento_descuento.con_descuento',
+                'c.descripcion as descripcion_concepto',
+                'detalle_vencimiento_descuento.consecutivo',
+                'detalle_vencimiento_descuento.nro_cuota',
+                'detalle_vencimiento_descuento.vlr_cuota'
+            );
     }
 }

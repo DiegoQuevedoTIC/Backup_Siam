@@ -143,9 +143,9 @@
         <tbody>
             <tr>
                 <td>{{ format_number($result[1]->total) }}</td>
-                <td>{{ format_number($result[0]->total) }}</td>
-                <td>{{ format_number($result[3]->total) }}</td>
                 <td>{{ format_number($result[2]->total) }}</td>
+                <td>{{ format_number($result[3]->total) }}</td>
+                <td>{{ format_number($result[0]->total) }}</td>
             </tr>
         </tbody>
     </table>

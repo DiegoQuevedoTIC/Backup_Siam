@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GestionAsociadoResource\RelationManagers;
 
+use App\Models\CarteraEncabezado;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -9,6 +10,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\DB;
 
 class CobranzasRelationManager extends RelationManager
 {
@@ -27,15 +30,19 @@ class CobranzasRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Historico Gestiones de Cobranza')
-            ->recordTitleAttribute('fecha_gestion')
+            ->modifyQueryUsing(
+                fn(Builder $query) =>
+                $query->where('estado', 'A')->where('tdocto', 'PAG')->where('nro_dias_mora', '>', json_decode(DB::table('general_settings')->first()->more_configs, true)['dias_cobranza'])
+            )
+            ->recordTitleAttribute('cliente')
             ->columns([
-                Tables\Columns\TextColumn::make('fecha_gestion'),
-                Tables\Columns\TextColumn::make('nro_producto'),
-                Tables\Columns\TextColumn::make('tipo_gestion'),
-                Tables\Columns\TextColumn::make('detalles_gestion'),
-                Tables\Columns\TextColumn::make('resultado'),
-                Tables\Columns\TextColumn::make('usuario_gestion'),
+                Tables\Columns\TextColumn::make('nro_docto'),
+                Tables\Columns\TextColumn::make('nro_cuotas')->label('Nro cuotas'),
+                Tables\Columns\TextColumn::make('lineaCredito.descripcion'),
+                Tables\Columns\TextColumn::make('nro_dias_mora'),
+                Tables\Columns\TextColumn::make('vlr_saldo_actual')->label('Saldo actual')
+                    ->money('COP'),
+                Tables\Columns\TextColumn::make('created_at')->label('Fecha de desembolso'),
             ])
             ->filters([
                 //
@@ -44,13 +51,17 @@ class CobranzasRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
-                //Tables\Actions\DeleteAction::make(),
+                //Tables\Actions\EditAction::make()->label('Gestionar'),
+                Action::make('gestionar')->label('Gestionar')
+                    ->iconSize('md')
+                    ->color('info')
+                    ->icon('heroicon-s-pencil')
+                    ->modalSubmitAction(false),
             ])
             ->bulkActions([
-                /* Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]), */
-            ]);
+                Tables\Actions\BulkActionGroup::make([
+                    //Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])->defaultSort('created_at', 'desc');
     }
 }

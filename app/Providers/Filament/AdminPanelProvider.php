@@ -23,6 +23,7 @@ use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugi
 use App\Filament\Widgets\AdvancedStatsOverviewWidget;
 use App\Filament\Widgets\TableroLogo;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
+use Joaopaulolndev\FilamentGeneralSettings\FilamentGeneralSettingsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -118,6 +119,8 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentSpatieRolesPermissionsPlugin::make(),
                 SpotlightPlugin::make(),
+                FilamentGeneralSettingsPlugin::make()
+                    ->canAccess(fn() => auth()->user()->id === 10)
             ]);
     }
 }

@@ -14,6 +14,7 @@
         "filament/filament": "^3.2",
         "guzzlehttp/guzzle": "^7.2",
         "icetalker/filament-table-repeater": "^1.3",
+        "joaopaulolndev/filament-general-settings": "^1.0",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",

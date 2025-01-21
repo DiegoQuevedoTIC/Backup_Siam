@@ -37,4 +37,9 @@ class Garantia extends Model
     {
         return $this->belongsTo(tipoGarantia::class);
     }
+
+    public function tercero()
+    {
+        return $this->belongsTo(Tercero::class, 'tercero_garantia', 'tercero_id');
+    }
 }

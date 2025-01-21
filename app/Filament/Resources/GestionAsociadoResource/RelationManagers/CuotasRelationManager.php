@@ -78,6 +78,7 @@ class CuotasRelationManager extends RelationManager
                     ->color('warning')
                     ->hiddenLabel()
                     ->modalContent(function (CarteraEncabezado $record) {
+                        //dd($record->nro_docto);
                         return view('custom.credito_solicitudes.obligaciones_table', ['nro_documento' => $record->nro_docto]);
                     })
                     ->modalCancelAction(false)

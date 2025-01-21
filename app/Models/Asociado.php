@@ -122,7 +122,7 @@ class Asociado extends Model
 
     public function cobranzas()
     {
-        return $this->hasMany(Cobranza::class);
+        return $this->hasMany(CarteraEncabezado::class, 'cliente', 'codigo_interno_pag');
     }
 
     public function beneficiarios()
