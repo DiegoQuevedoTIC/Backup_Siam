@@ -42,13 +42,15 @@ class TerceroResource extends Resource
 {
     protected static ?string $model = Tercero::class;
 
-    protected static ?string    $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string    $navigationLabel = 'Creacion de Terceros';
+    protected static ?string    $navigationIcon = 'heroicon-o-paper-airplane';
+    protected static ?string    $navigationLabel = 'Creacion de Tercero';
     protected static ?string    $navigationGroup = 'Administracion de Terceros';
     protected static ?string    $recordTitleAttribute = 'tercero_id';
     protected static ?string    $modelLabel = 'Tercero';
     protected static ?string    $pluralModelLabel = 'Terceros';
     protected static ?string    $slug = 'Par/Tab/Terc';
+    protected static ?int       $navigationSort = 1;
+
 
 
     public static function form(Form $form): Form
@@ -158,6 +160,7 @@ class TerceroResource extends Resource
                         ->markAsRequired(false)
                         ->required()
                         ->preload()
+                        ->autocomplete(false)
                         ->columnSpan(1)
                         ->live()
                         ->label('Pais de Residencia'),
@@ -167,6 +170,7 @@ class TerceroResource extends Resource
                     ->pluck('nombre', 'id'))
                     ->markAsRequired(false)
                     ->required()
+                    ->autocomplete(false)
                     ->columnSpan(1)
                     ->live()
                     ->preload()
@@ -177,6 +181,7 @@ class TerceroResource extends Resource
                     ->pluck('nombre', 'id'))
                     ->markAsRequired(false)
                     ->required()
+                    ->autocomplete(false)
                     ->preload()
                     ->columnSpan(2)
                     ->live()

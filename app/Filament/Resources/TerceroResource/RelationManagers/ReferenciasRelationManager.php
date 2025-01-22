@@ -46,6 +46,7 @@ class ReferenciasRelationManager extends RelationManager
                 ->columnSpan(2),
                 TextInput::make('nombre_referencia')
                 ->required()
+                ->autocomplete(false)
                 ->rule('regex:/^[a-zA-Z\s-]+$/')
                 ->autocomplete(false)
                 ->markAsRequired(false)
@@ -55,6 +56,7 @@ class ReferenciasRelationManager extends RelationManager
                 ->columnSpan(1),
                 TextInput::make('direccion_referencia')
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->columnSpan(3),
                 TextInput::make('telefono_referencia')

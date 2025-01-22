@@ -22,6 +22,7 @@ class AportesRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('concepto')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255),
             ]);
     }

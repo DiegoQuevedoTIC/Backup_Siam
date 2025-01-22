@@ -32,9 +32,11 @@ class TipoContribuyenteResource extends Resource
         ->schema([
             Forms\Components\TextInput::make('nombre')
             ->required()
+            ->autocomplete(false)
             ->maxLength(20),
         Forms\Components\TextInput::make('descripcion')
             ->required()
+            ->autocomplete(false)
             ->maxLength(255),
 
         ]);

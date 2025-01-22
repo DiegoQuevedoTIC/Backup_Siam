@@ -141,6 +141,7 @@ class ComprobanteResource extends Resource
                 TextInput::make('n_documento')
                     ->label('Nº de Documento')
                     ->columnSpan(2)
+                    ->autocomplete(false)
                     ->rule('regex:/^[0-9]+$/')
                     ->required(),
                 Select::make('tercero_id')
@@ -155,6 +156,7 @@ class ComprobanteResource extends Resource
                 Textarea::make('descripcion_comprobante')
                     ->label('Descripcion del Comprobante')
                     ->columnSpan(8)
+                    ->autocomplete(false)
                     ->autocomplete(false)
                     ->required(),
 

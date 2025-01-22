@@ -59,6 +59,7 @@ class DocumentoscontableResource extends Resource
                 ->live(),
             TextInput::make('llave_de_consulta_id')
                 ->columnSpan(2)
+                ->autocomplete(false)
                 ->label('No Comprobante')
                 ->disabled(fn ($record) => optional($record)->exists ?? false)
                 ->required()

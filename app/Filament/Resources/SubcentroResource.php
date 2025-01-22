@@ -44,10 +44,12 @@ class SubcentroResource extends Resource
                 TextInput::make('subcentro')
                 ->maxLength(10)
                 ->columnSpan(3)
+                ->autocomplete(false)
                 ->required()
                 ->label('Codigo Subcentro'),
                 TextInput::make('descripcion')
                 ->maxLength(255)
+                ->autocomplete(false)
                 ->columnSpan(6)
                 ->required()
                 ->label('Nombre del Subcentro'),

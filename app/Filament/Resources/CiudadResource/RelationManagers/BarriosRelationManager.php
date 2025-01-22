@@ -26,12 +26,15 @@ class BarriosRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('codigo_barrio')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255),
                 Forms\Components\TextInput::make('nombre')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255),
                 Forms\Components\TextInput::make('nivel_riesgo')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(10),
             ]);
     }

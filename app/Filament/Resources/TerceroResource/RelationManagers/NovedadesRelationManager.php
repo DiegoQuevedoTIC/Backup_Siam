@@ -22,9 +22,9 @@ class NovedadesRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            
+
             ->schema([
-                Select::make('novedad_id') 
+                Select::make('novedad_id')
                 ->relationship('novedad', 'nombre')
                 ->required()
                 ->placeholder('')
@@ -37,6 +37,7 @@ class NovedadesRelationManager extends RelationManager
                 ->label('Fecha Novedad'),
                 Textarea::make('observaciones')
                 ->maxLength(65535)
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->columnSpanFull(),
             ]);
@@ -49,7 +50,7 @@ class NovedadesRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('novedad_id')
                 ->label('No')
-                
+
                 ->sortable()
                 ,
                 Tables\Columns\TextColumn::make('fecha_novedad')

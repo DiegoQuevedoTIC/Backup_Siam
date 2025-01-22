@@ -34,91 +34,102 @@ class InformacionFinancieraRelationManager extends RelationManager
             ->columns(12)
             ->schema([
                 TextInput::make('total_activos')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('total_pasivos')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('total_patrimonio')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('salario')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('honorarios')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('otros_ingresos')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
+
                 TextInput::make('total_ingresos')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(9),
-    
+
                 TextInput::make('gastos_sostenimiento')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
-                
+
+
                 TextInput::make('gastos_financieros')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
-                
+
+
                 TextInput::make('creditos_hipotecarios')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
                 ->columnSpan(4),
-    
-                
+
+
                 TextInput::make('otros_gastos')
-                ->numeric() 
+                ->numeric()
                 ->required()
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->maxLength(10)
-                ->columnSpan(9),                    
+                ->columnSpan(9),
                 ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            
+
             ->columns([
                 Tables\Columns\TextColumn::make('tercero.tercero_id')
                 ->label('Identificacion'),

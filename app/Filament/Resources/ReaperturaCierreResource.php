@@ -31,6 +31,7 @@ class ReaperturaCierreResource extends Resource
                     ->label('Año a reabrir')
                     ->regex('/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\.\/0-9]*$/')
                     ->length(4)
+                    ->autocomplete(false)
                     ->required(),
                 Forms\Components\Select::make('mes')
                     ->label('Mes a reaperturar')

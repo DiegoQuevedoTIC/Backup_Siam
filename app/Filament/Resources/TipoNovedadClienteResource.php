@@ -34,19 +34,24 @@ class TipoNovedadClienteResource extends Resource
         ->schema([
             Forms\Components\TextInput::make('codigo')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(3),
             Forms\Components\TextInput::make('nombre')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
             Forms\Components\Textarea::make('descripcion')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(65535)
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('cambiaestado')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
             Forms\Components\TextInput::make('nuevoestado')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(3),
         ]);
 }

@@ -37,7 +37,7 @@ class BalanceResource extends Resource
                     ->label('Tipo Balance')
                     ->searchable()
                     ->options([
-                        '1' => 'Estado Situacion Financiera (Balance General)',
+                        '1' => 'Estado Situacion Financieras (Balance General)',
                         '2' => 'Balance Horizontal',
                         '3' => 'Balance Horizontal Comparativo',
                         '4' => 'Balance por Tercero'
@@ -53,7 +53,12 @@ class BalanceResource extends Resource
                     ->displayFormat('d/m/Y')
                     ->required(),
                 Toggle::make('is_13_month')->label('¿Incluye Mes Trece?')->inline(false),
-                TextInput::make('nivel')->label('Nivel')->numeric(),
+                TextInput::make('nivel')
+                ->label('Nivel')
+                ->default('7')
+                ->required()
+                ->autocomplete(false)
+                ->numeric(),
 
             ])
             ->columns(1);

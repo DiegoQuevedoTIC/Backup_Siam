@@ -35,8 +35,10 @@ class CreditoLineaResource extends Resource
         $pucs = Puc::all()->pluck('puc', 'id');
         return $form
             ->schema([
-                Forms\Components\TextInput::make('descripcion')->label('Descripcion')
-                    ->required(),
+                Forms\Components\TextInput::make('descripcion')
+                    ->label('Descripcion')
+                    ->required()
+                    ->autocomplete(false),
                 Forms\Components\Select::make('clasificacion_id')->label('Clasificacion')
                     ->options(ClasificacionCredito::all()->pluck('descripcion', 'id'))
                     ->searchable()
@@ -51,9 +53,11 @@ class CreditoLineaResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('nro_salarios_min')
                                     ->numeric()
+                                    ->autocomplete(false)
                                     ->required(),
                                 Forms\Components\TextInput::make('nro_salarios_max')
                                     ->numeric()
+                                    ->autocomplete(false)
                                     ->required(),
                                 Forms\Components\Select::make('puc_causa_cxc')
                                     ->options($pucs)
@@ -72,6 +76,7 @@ class CreditoLineaResource extends Resource
                                     ->searchable()
                                     ->required(),
                                 Forms\Components\TextInput::make('porc_causacion')
+                                    ->autocomplete(false)
                                     ->required(),
                                 Forms\Components\Select::make('puc_aprobacion')
                                     ->options($pucs)
@@ -109,10 +114,13 @@ class CreditoLineaResource extends Resource
                     ->required()
                     ->createOptionForm([
                         Forms\Components\TextInput::make('nombre')
+                            ->autocomplete(false)
                             ->required(),
                         Forms\Components\TextInput::make('clasificacion')
+                            ->autocomplete(false)
                             ->required(),
                         Forms\Components\Textarea::make('descripcion')
+                            ->autocomplete(false)
                             ->required()
                     ])->createOptionUsing(function (array $data) {
                         $tipoGarantia = TipoGarantia::create($data);
@@ -124,8 +132,10 @@ class CreditoLineaResource extends Resource
                     ->required()
                     ->createOptionForm([
                         Forms\Components\TextInput::make('tipo_inversion')
+                            ->autocomplete(false)
                             ->required(),
                         Forms\Components\Textarea::make('descripcion')
+                            ->autocomplete(false)
                             ->required()
                     ])->createOptionUsing(function (array $data) {
                         $TipoInversion = TipoInversion::create($data);
@@ -146,7 +156,11 @@ class CreditoLineaResource extends Resource
                     ])
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('interes_cte')->label('Interes cte')->numeric()->required(),
+                Forms\Components\TextInput::make('interes_cte')
+                    ->label('Interes cte')
+                    ->numeric()
+                    ->autocomplete(false)
+                    ->required(),
                 Forms\Components\TextInput::make('interes_mora')->label('Interes mora')->numeric()->required(),
                 Forms\Components\Select::make('tipo_cuota')->label('Tipo de cuota')
                     ->options([
@@ -162,15 +176,15 @@ class CreditoLineaResource extends Resource
                     ])
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('nro_cuotas_max')->label('Nro cuotas max')->numeric(),
-                Forms\Components\TextInput::make('nro_cuotas_gracia')->label('Nro cuotas gracia')->numeric(),
-                Forms\Components\TextInput::make('cant_gar_real')->label('Cantidad garantia real')->numeric(),
-                Forms\Components\TextInput::make('cant_gar_pers')->label('Cantidad garantia pers')->numeric(),
+                Forms\Components\TextInput::make('nro_cuotas_max')->label('Nro cuotas max')->numeric()->autocomplete(false),
+                Forms\Components\TextInput::make('nro_cuotas_gracia')->label('Nro cuotas gracia')->numeric()->autocomplete(false),
+                Forms\Components\TextInput::make('cant_gar_real')->label('Cantidad garantia real')->numeric()->autocomplete(false),
+                Forms\Components\TextInput::make('cant_gar_pers')->label('Cantidad garantia pers')->numeric()->autocomplete(false),
                 Forms\Components\TextInput::make('monto_min')->label('Monto min')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->prefix('$')
                     ->default(0.00),
-                Forms\Components\TextInput::make('monto_max')->label('Monto max')
+                Forms\Components\TextInput::make('monto_max')->label('Monto max')->autocomplete(false)
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->prefix('$')
                     ->default(0.00),
@@ -179,7 +193,7 @@ class CreditoLineaResource extends Resource
                         'NO' => 'No',
                         'SI' => 'Si',
                     ]),
-                Forms\Components\TextInput::make('ciius')->label('Ciiu'),
+                Forms\Components\TextInput::make('ciius')->label('Ciiu')->autocomplete(false),
                 Forms\Components\Select::make('subcentro_id')->label('Subcentro')
                     ->options(Subcentro::all()->pluck('descripcion', 'id'))
                     ->searchable()

@@ -37,14 +37,17 @@ class NovedadTerceroResource extends Resource
             ->schema([
             TextInput::make('codigo')
                 ->required()
+                ->autocomplete(false)
                 ->unique(ignoreRecord: true)
                 ->disabled(fn ($record) => optional($record)->exists ?? false) // Verificar si $record existe antes de acceder a ->exists
                 ->maxLength(3),
             TextInput::make('nombre')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
             Textarea::make('descripcion')
                 ->maxLength(65535)
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->columnSpanFull(),
             Toggle::make('cambiaestado')

@@ -35,15 +35,18 @@ class DocumentoclaseResource extends Resource
             TextInput::make('sigla')
                 ->label('Sigla')
                 ->required()
+                ->autocomplete(false)
                 ->columnSpan(1)
                 ->maxLength(3),
             TextInput::make('nombre')
                 ->label('Nombre de la Clase de Documento')
                 ->required()
+                ->autocomplete(false)
                 ->columnSpan(5)
                 ->maxLength(255),
             Textarea::make('descripcion')
                 ->label('Descripción')
+                ->autocomplete(false)
                 ->rows(3)
                 ->columnSpan(6)
                 ->maxLength(500)

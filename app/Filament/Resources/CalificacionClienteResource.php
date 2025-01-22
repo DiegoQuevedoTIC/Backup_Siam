@@ -37,9 +37,11 @@ class CalificacionClienteResource extends Resource
         ->schema([
             Forms\Components\TextInput::make('codigo')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(3),
             Forms\Components\TextInput::make('nombre')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
         ]);
 }

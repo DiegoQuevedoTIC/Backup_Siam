@@ -30,9 +30,11 @@ class MonedaResource extends Resource
         ->schema([
             TextInput::make('codigo')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(3),
             TextInput::make('nombre')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255),
         ]);
     }

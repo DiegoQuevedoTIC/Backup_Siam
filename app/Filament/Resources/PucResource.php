@@ -80,6 +80,7 @@ class PucResource extends Resource
                     ->maxLength(1)
                     ->columnSpan(1)
                     ->required()
+                    ->autocomplete(false)
                     ->label('Grupo Cuenta')
                     ->readOnly()
                     ->live(),
@@ -92,6 +93,7 @@ class PucResource extends Resource
                 TextInput::make('nivel')
                     ->maxLength(6)
                     ->live()
+                    ->autocomplete(false)
                     ->columnSpan(1)
                     ->required()
                     ->readOnly()
@@ -99,6 +101,7 @@ class PucResource extends Resource
                 TextInput::make('puc_padre')
                     ->label('Puc Padre')
                     ->required()
+                    ->autocomplete(false)
                     ->columnSpan(3)
                     ->exists(table: Puc::class, column: 'puc')
                     ->validationMessages([

@@ -35,9 +35,11 @@ class CiudadResource extends Resource
                 ->schema([
                     Forms\Components\TextInput::make('nombre')
                         ->required()
+                        ->autocomplete(false)
                         ->maxLength(255),
                     Forms\Components\TextInput::make('codigo_dane')
                         ->required()
+                        ->autocomplete(false)
                         ->maxLength(10),
                     Forms\Components\Select::make('pais_id')
                         ->relationship('pais', 'nombre')
@@ -46,9 +48,11 @@ class CiudadResource extends Resource
                         ->createOptionForm([
                             Forms\Components\TextInput::make('codigo')
                                 ->required()
+                                ->autocomplete(false)
                                 ->maxLength(3),
                             Forms\Components\TextInput::make('nombre')
                                 ->required()
+                                ->autocomplete(false)
                                 ->maxLength(255),
                             Forms\Components\Select::make('lenguaje')
                                 ->options([

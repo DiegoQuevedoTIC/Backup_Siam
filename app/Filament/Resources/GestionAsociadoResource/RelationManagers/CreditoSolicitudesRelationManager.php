@@ -107,38 +107,38 @@ class CreditoSolicitudesRelationManager extends RelationManager
                             ->icon('heroicon-m-user')
                             ->schema([
                                 Forms\Components\TextInput::make('nro_identificacion')->label('Nro Identificación')->disabled(),
-                                Forms\Components\TextInput::make('nombres')->label('Nombre')->required(),
-                                Forms\Components\TextInput::make('primer_apellido')->label('Primer Apellido')->required(),
-                                Forms\Components\TextInput::make('segundo_apellido')->label('Segundo Nombre')->required(),
+                                Forms\Components\TextInput::make('nombres')->label('Nombre')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('primer_apellido')->label('Primer Apellido')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('segundo_apellido')->label('Segundo Nombre')->required()->autocomplete(false),
                                 Forms\Components\Select::make('tipo_documento')->label('Tipo de Documento')->required()
                                     ->options(TipoIdentificacion::all()->pluck('nombre', 'id'))
                                     ->searchable(),
                                 Forms\Components\Select::make('ocupacion')->label('Ocupación')->required()
                                     ->options(Profesion::all()->pluck('nombre', 'id'))
                                     ->searchable(),
-                                Forms\Components\TextInput::make('direccion')->label('Dirección')->required(),
+                                Forms\Components\TextInput::make('direccion')->label('Dirección')->required()->autocomplete(false),
                                 Forms\Components\Select::make('barrio')->label('Barrio')->required()
                                     ->options(Barrio::all()->pluck('nombre', 'id'))
                                     ->searchable(),
                                 Forms\Components\Select::make('ciudad')->label('Ciudad')->required()
                                     ->options(Ciudad::all()->pluck('nombre', 'id'))
                                     ->searchable(),
-                                Forms\Components\TextInput::make('nro_celular_1')->label('Nro Celular 1')->required(),
-                                Forms\Components\TextInput::make('nro_celular_2')->label('Nro Celular 2'),
-                                Forms\Components\TextInput::make('nro_telefono_fijo')->label('Telefono Fijo')->required(),
-                                Forms\Components\TextInput::make('correo')->label('Correo')->required(),
+                                Forms\Components\TextInput::make('nro_celular_1')->label('Nro Celular 1')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('nro_celular_2')->label('Nro Celular 2')->autocomplete(false),
+                                Forms\Components\TextInput::make('nro_telefono_fijo')->label('Telefono Fijo')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('correo')->label('Correo')->required()->autocomplete(false),
                             ])->columns(3),
                         Section::make('Datos Financieros')
                             ->description('Aqui debes actualizar los datos financieros, de lo contrario no se modifica nada')
                             ->icon('heroicon-m-wallet')
                             ->schema([
-                                Forms\Components\TextInput::make('total_activos')->label('Total Activos')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('total_pasivos')->label('Total Pasivos')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('salario')->label('Salario')->mask('9999999.99'),
-                                Forms\Components\TextInput::make('honorarios')->label('Honorarios')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('gastos_financieros')->label('Gastos Financieros')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('creditos_hipotecarios')->label('Credito Hipotecario')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('otros_gastos')->label('Otros Gastos')->mask('9999999,99'),
+                                Forms\Components\TextInput::make('total_activos')->label('Total Activos')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('total_pasivos')->label('Total Pasivos')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('salario')->label('Salario')->mask('9999999.99')->autocomplete(false),
+                                Forms\Components\TextInput::make('honorarios')->label('Honorarios')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('gastos_financieros')->label('Gastos Financieros')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('creditos_hipotecarios')->label('Credito Hipotecario')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('otros_gastos')->label('Otros Gastos')->mask('9999999,99')->autocomplete(false),
                             ])->columns(3),
                     ])->action(function (array $data): void {
 
@@ -194,6 +194,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 Forms\Components\TextInput::make('vlr_solicitud')
                                     ->label('Valor Solicitud')
                                     ->numeric()
+                                    ->autocomplete(false)
                                     ->minValue(0)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->monto_max ?? 0)
                                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
@@ -207,6 +208,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ->label('Plazo')
                                     ->numeric()
                                     ->required()
+                                    ->autocomplete(false)
                                     ->minValue(0)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_max ?? 0)
                                     ->validationMessages([
@@ -215,6 +217,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ->helperText('Plazo maximo de pago'),
                                 Forms\Components\TextInput::make('nro_cuotas_gracia')
                                     ->minValue(0)
+                                    ->autocomplete(false)
                                     ->maxValue(fn(Get $get): int => CreditoLinea::find($get('linea'))->nro_cuotas_gracia ?? 0)
                                     ->validationMessages([
                                         'max' => 'El :attribute no puede ser mayor al permitido.',
@@ -237,11 +240,13 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('nombre')
                                             ->label('Nombre de la tasa')
+                                            ->autocomplete(false)
                                             ->required()
                                             ->columns(2),
                                         Forms\Components\TextInput::make('tasa')
                                             ->label('Valor de la tasa')
                                             ->numeric()
+                                            ->autocomplete(false)
                                             ->required()
                                             ->columns(2),
                                     ])
@@ -259,6 +264,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                 Forms\Components\Textarea::make('observaciones')
                                     ->label('Observaciones')
                                     ->required()
+                                    ->autocomplete(false)
                                     ->maxLength(255)
                                     ->columnSpanFull(),
                                 Actions::make([
@@ -282,22 +288,26 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                                     Forms\Components\TextInput::make('nro_escr_o_matri')
                                                         ->label('Nro escritura / Matrícula')
                                                         ->required()
+                                                        ->autocomplete(false)
                                                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                                                     Forms\Components\TextInput::make('direccion')
                                                         ->label('Dirección')
                                                         ->required()
+                                                        ->autocomplete(false)
                                                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                                                     Forms\Components\TextInput::make('ciudad_registro')
                                                         ->label('Ciudad Registro')
                                                         ->required()
+                                                        ->autocomplete(false)
                                                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                                                     Forms\Components\TextInput::make('valor_avaluo')
                                                         ->label('Valor Avaluo')
                                                         ->required()
                                                         ->numeric()
+                                                        ->autocomplete(false)
                                                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                                                     Forms\Components\DatePicker::make('fecha_avaluo')
@@ -317,6 +327,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                                         ->label('Valor Avaluo Comercial')
                                                         ->required()
                                                         ->numeric()
+                                                        ->autocomplete(false)
                                                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                                                     // Campos para garantía "personal"
@@ -334,6 +345,7 @@ class CreditoSolicitudesRelationManager extends RelationManager
                                                     Forms\Components\TextInput::make('observaciones')
                                                         ->label('Observaciones')
                                                         ->required()
+                                                        ->autocomplete(false)
                                                         ->maxLength(65535)
                                                         ->columnSpanFull(),
                                                 ])->columns(3),

@@ -68,6 +68,7 @@ class TerceroSarlaftRelationManager extends RelationManager
                         ->relationship('parentesco', 'nombre'),
                 TextInput::make('peps_id')
                         ->markAsRequired(false)
+                        ->autocomplete(false)
                         ->columnSpan(1),
                 Toggle::make('socio_peps')
                         ->required()
@@ -96,13 +97,16 @@ class TerceroSarlaftRelationManager extends RelationManager
                         ->markAsRequired(false),
                 TextInput::make('tipo_producto_moneda_extranjera')
                         ->markAsRequired(false)
+                        ->autocomplete(false)
                         ->columnSpan(2),
                 TextInput::make('monto_inicial')
                         ->markAsRequired(false)
+                        ->autocomplete(false)
                         ->maxLength(16)
                         ->columnSpan(2),
                 TextInput::make('monto_final')
                         ->markAsRequired(false)
+                        ->autocomplete(false)
                         ->maxLength(16)
                         ->columnSpan(2),
                 Toggle::make('declara_renta')
@@ -112,6 +116,7 @@ class TerceroSarlaftRelationManager extends RelationManager
                         ->columnSpan(1),
                 Textarea::make('origen_fondos')
                         ->maxLength(65535)
+                        ->autocomplete(false)
                         ->markAsRequired(false)
                         ->required()
                         ->columnSpanFull(),

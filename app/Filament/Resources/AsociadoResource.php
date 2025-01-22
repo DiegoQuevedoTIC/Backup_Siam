@@ -53,7 +53,7 @@ class AsociadoResource extends Resource
     protected static ?string    $modelLabel = 'Asociado';
     protected static ?string    $pluralModelLabel = 'Asociados';
     protected static ?string    $slug = 'Par/Tab/Asoc';
-
+    protected static ?int       $navigationSort = 2;
 
 public static function form(Form $form): Form
 {
@@ -89,6 +89,7 @@ public static function form(Form $form): Form
                         TextInput::make('codigo_interno_pag')
                                 ->markAsRequired(false)
                                 ->maxLength(50)
+                                ->autocomplete(false)
                                 ->label('Codigo Interno Asociado'),
                         Select::make('estado_cliente_id')
                                 ->relationship('estadocliente', 'nombre')
@@ -107,10 +108,12 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(7)
+                                ->autocomplete(false)
                                 ->maxLength(20)
                                 ->label('Cuenta de Deposito del Cliente'),
                         Textarea::make('observaciones_cliente')
                                 ->maxLength(65535)
+                                ->autocomplete(false)
                                 ->markAsRequired(false)
                                 ->columnSpanFull(),
                             ]),
@@ -140,6 +143,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->columnSpan(1)
+                                ->autocomplete(false)
                                 ->minLength(1)
                                 ->maxLength(2)
                                 ->label('Tiempo residencia'),
@@ -154,6 +158,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(7)
+                                ->autocomplete(false)
                                 ->maxLength(255)
                                 ->columnSpan(3)
                                 ->label('Nombre del Familiar Principal'),
@@ -168,11 +173,13 @@ public static function form(Form $form): Form
                                 ->required()
                                 ->markAsRequired(false)
                                 ->maxLength(255)
+                                ->autocomplete(false)
                                 ->columnSpan(4)
                                 ->label('Direccion Familiar Principal'),
                         TextInput::make('telefono_conyugue')
                                 ->markAsRequired(false)
                                 ->required()
+                                ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->minLength(7)
                                 ->maxLength(12)
@@ -185,6 +192,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->maxLength(2)
                                 ->label('No de Hijos'),
@@ -192,6 +200,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->maxLength(2)
                                 ->label('No de personas a cargo?'),
@@ -221,6 +230,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->maxLength(255)
                                 ->label('Ultimo Grado Optenido'),
                         Select::make('profesion_id')
@@ -244,6 +254,7 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->maxLength(255)
                                 ->label('Empresa Laboral'),
@@ -251,12 +262,14 @@ public static function form(Form $form): Form
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->maxLength(12)
                                 ->label('Telefono Empresa'),
                         TextInput::make('direccion_empresa')
                                 ->markAsRequired(false)
                                 ->required()
                                 ->minLength(1)
+                                ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->maxLength(255)
                                 ->label('Direccion Empresa'),

@@ -32,10 +32,12 @@ class CierreAnualResource extends Resource
                 DatePicker::make('fecha_cierre')
                 ->label('Fecha Cierre')
                 ->required()
+                ->autocomplete(false)
                 ->displayFormat('d/m/Y')
                 ->native(false),
                 TextInput::make('ano_cierre')
                 ->label('Año Cierre')
+                ->autocomplete(false)
                 ->rule('regex:/^[0-9]+$/')
                 ->prefix('Año ')
                 ->required()

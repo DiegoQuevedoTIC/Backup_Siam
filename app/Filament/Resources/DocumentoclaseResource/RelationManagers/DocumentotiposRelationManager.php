@@ -32,10 +32,12 @@ class DocumentotiposRelationManager extends RelationManager
             TextInput::make('nombre')
                 ->label('Nombre del Tipo de Documento')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
             Textarea::make('descripcion')
                 ->label('Descripción')
                 ->rows(2)
+                ->autocomplete(false)
                 ->maxLength(500)
                 ->hint('Opcional: Breve descripción del tipo de documento.'),
             ]);

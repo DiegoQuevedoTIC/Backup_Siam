@@ -45,22 +45,26 @@ class TipoDocumentoContableResource extends Resource
             ->schema([
                 TextInput::make('sigla')
                 ->maxLength(3)
+                ->autocomplete(false)
                 ->columnSpan(1)
                 ->unique(ignoreRecord: true)
                 ->required()
                 ->label('Sigla Documento'),
                 TextInput::make('tipo_documento')
                 ->maxLength(255)
+                ->autocomplete(false)
                 ->columnSpan(4)
                 ->required()
                 ->label('Documento'),
                 TextInput::make('clase_origen')
                 ->maxLength(255)
+                ->autocomplete(false)
                 ->columnSpan(2)
                 ->required()
                 ->label('Clase Documento-Origen'),
                 TextInput::make('numerador')
                 ->numeric()
+                ->autocomplete(false)
                 ->required()
                 ->maxLength(6)
                 ->columnSpan(1),

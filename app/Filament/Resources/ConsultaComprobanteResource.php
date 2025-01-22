@@ -36,6 +36,7 @@ class ConsultaComprobanteResource extends Resource
                     ->searchable()
                     ->placeholder('Seleccione el tipo de documento'),
                 TextInput::make('n_documento')
+                    ->autocomplete(false)
                     ->label('Nro de comprobante'),
             ]);
     }

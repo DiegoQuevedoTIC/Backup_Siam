@@ -34,10 +34,12 @@ class BancoResource extends Resource
             Forms\Components\TextInput::make('codigo')
                 ->required()
                 ->maxLength(5)
+                ->autocomplete(false)
                 ->columnSpan(2),
             Forms\Components\TextInput::make('nombre')
                 ->required()
                 ->maxLength(255)
+                ->autocomplete(false)
                 ->columnSpan(7),
         ]);
 }

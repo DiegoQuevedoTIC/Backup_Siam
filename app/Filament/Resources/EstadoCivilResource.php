@@ -33,6 +33,7 @@ class EstadoCivilResource extends Resource
         ->schema([
             Forms\Components\TextInput::make('nombre')
                 ->required()
+                ->autocomplete(false)
                 ->maxLength(255),
         ]);
 }

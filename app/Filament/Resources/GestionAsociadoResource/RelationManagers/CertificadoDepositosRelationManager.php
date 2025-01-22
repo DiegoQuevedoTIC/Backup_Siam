@@ -43,24 +43,24 @@ class CertificadoDepositosRelationManager extends RelationManager
                     ->description('Creación de registro')
                     ->icon('heroicon-m-user')
                     ->schema([
-                        Forms\Components\TextInput::make('plazo_inversion')->label('Plazo de inversión')->required(),
-                        Forms\Components\TextInput::make('valor_inicial_cdat')->label('Valor Inical')->required()->numeric(),
+                        Forms\Components\TextInput::make('plazo_inversion')->label('Plazo de inversión')->required()->autocomplete(false),
+                        Forms\Components\TextInput::make('valor_inicial_cdat')->label('Valor Inical')->required()->numeric()->autocomplete(false),
                         Forms\Components\DatePicker::make('fecha_apertura')->label('Fecha Apertura')->required(),
                         Forms\Components\DatePicker::make('fecha_cancelacion')->label('Fecha Cancelación')->required(),
-                        Forms\Components\TextInput::make('valor_proyectado')->label('Valor Proyectado')->required()->numeric(),
-                        Forms\Components\TextInput::make('tasa_interes_remuneracion')->label('Tasa remuneración')->required(),
-                        Forms\Components\TextInput::make('porcentaje_retencion')->label('Porcentaje Retención')->required(),
-                        Forms\Components\TextInput::make('nro_prorroga')->label('Nro Prorrogas')->required(),
+                        Forms\Components\TextInput::make('valor_proyectado')->label('Valor Proyectado')->required()->numeric()->autocomplete(false),
+                        Forms\Components\TextInput::make('tasa_interes_remuneracion')->label('Tasa remuneración')->required()->autocomplete(false),
+                        Forms\Components\TextInput::make('porcentaje_retencion')->label('Porcentaje Retención')->required()->autocomplete(false),
+                        Forms\Components\TextInput::make('nro_prorroga')->label('Nro Prorrogas')->required()->autocomplete(false),
                         Forms\Components\Select::make('codigo_asesor')->label('Codigo Asesor')->required()
                             ->options(Asesor::all()->pluck('nombre', 'id'))
                             ->searchable('id')->live(),
-                        Forms\Components\TextInput::make('nombre_asesor')->label('Nombre Asesor')->required()
+                        Forms\Components\TextInput::make('nombre_asesor')->label('Nombre Asesor')->required()->autocomplete(false)
                         ->disabled(fn (Get $get, Set $set) => [
                             $asesor = Asesor::where('id', $get('codigo_asesor'))->first(),
                             $nombre = $asesor->nombre ?? '',
                             $set('nombre_asesor', $nombre)
                         ])->live(),
-                        Forms\Components\TextInput::make('observaciones')->label('Observaciones')->required(),
+                        Forms\Components\TextInput::make('observaciones')->label('Observaciones')->required()->autocomplete(false),
 
                     ])->columns(3),
 
@@ -73,10 +73,10 @@ class CertificadoDepositosRelationManager extends RelationManager
                             ->description('Creación de Beneficiario')
                             ->icon('heroicon-m-users')
                             ->schema([
-                                TextInput::make('nro_identi_beneficiario')->label('Nro Identificación Beneficiario')->required(),
-                                TextInput::make('nombre_beneficiario')->label('Nombre beneficiario')->required(),
-                                TextInput::make('porcentaje_titulo')->label('Porcentaje Titulo')->required(),
-                                Textarea::make('observaciones')->label('Observaciones')->required()->columnSpanFull()
+                                TextInput::make('nro_identi_beneficiario')->label('Nro Identificación Beneficiario')->required()->autocomplete(false),
+                                TextInput::make('nombre_beneficiario')->label('Nombre beneficiario')->required()->autocomplete(false),
+                                TextInput::make('porcentaje_titulo')->label('Porcentaje Titulo')->required()->autocomplete(false),
+                                Textarea::make('observaciones')->label('Observaciones')->required()->columnSpanFull()->autocomplete(false)
                             ])->columns(2)
                         ])
                         ->action(fn (array $data) => [
@@ -103,11 +103,11 @@ class CertificadoDepositosRelationManager extends RelationManager
                             ->description('Creación de prorroga')
                             ->icon('heroicon-m-clipboard-document-list')
                             ->schema([
-                                TextInput::make('plazo_inversion')->label('Plazo de inversión')->required(),
-                                TextInput::make('valor_inicial_cdat')->label('Valor Inicial')->numeric()->required(),
-                                TextInput::make('valor_prorroga')->label('Valor prorroga')->numeric()->required(),
-                                TextInput::make('tasa_interes_remuneracion')->label('Tasa interes')->required(),
-                                TextInput::make('porcentaje_retencion')->label('Procentaje de retención')->required()
+                                TextInput::make('plazo_inversion')->label('Plazo de inversión')->required()->autocomplete(false),
+                                TextInput::make('valor_inicial_cdat')->label('Valor Inicial')->numeric()->required()->autocomplete(false),
+                                TextInput::make('valor_prorroga')->label('Valor prorroga')->numeric()->required()->autocomplete(false),
+                                TextInput::make('tasa_interes_remuneracion')->label('Tasa interes')->required()->autocomplete(false),
+                                TextInput::make('porcentaje_retencion')->label('Procentaje de retención')->required()->autocomplete(false)
                             ])->columns(2)
                         ])
                         ->action(fn (array $data) => [
@@ -177,39 +177,39 @@ class CertificadoDepositosRelationManager extends RelationManager
                             ->description('Tercero Natural')
                             ->icon('heroicon-m-user')
                             ->schema([
-                                Forms\Components\TextInput::make('nro_identificacion')->label('Nro Identificación')->disabled(),
-                                Forms\Components\TextInput::make('nombres')->label('Nombre')->required(),
-                                Forms\Components\TextInput::make('primer_apellido')->label('Primer Apellido')->required(),
-                                Forms\Components\TextInput::make('segundo_apellido')->label('Segundo Nombre')->required(),
+                                Forms\Components\TextInput::make('nro_identificacion')->label('Nro Identificación')->disabled()->autocomplete(false),
+                                Forms\Components\TextInput::make('nombres')->label('Nombre')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('primer_apellido')->label('Primer Apellido')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('segundo_apellido')->label('Segundo Nombre')->required()->autocomplete(false),
                                 Forms\Components\Select::make('tipo_documento')->label('Tipo de Documento')->required()
                                     ->options(TipoIdentificacion::all()->pluck('nombre', 'id'))
                                     ->searchable(),
                                 Forms\Components\Select::make('ocupacion')->label('Ocupación')->required()
                                     ->options(Profesion::all()->pluck('nombre', 'id'))
                                     ->searchable(),
-                                Forms\Components\TextInput::make('direccion')->label('Dirección')->required(),
+                                Forms\Components\TextInput::make('direccion')->label('Dirección')->required()->autocomplete(false),
                                 Forms\Components\Select::make('barrio')->label('Barrio')->required()
                                     ->options(Barrio::all()->pluck('nombre', 'id'))
                                     ->searchable(),
                                 Forms\Components\Select::make('ciudad')->label('Ciudad')->required()
                                     ->options(Ciudad::all()->pluck('nombre', 'id'))
                                     ->searchable(),
-                                Forms\Components\TextInput::make('nro_celular_1')->label('Nro Celular 1')->required(),
-                                Forms\Components\TextInput::make('nro_celular_2')->label('Nro Celular 2'),
-                                Forms\Components\TextInput::make('nro_telefono_fijo')->label('Telefono Fijo')->required(),
-                                Forms\Components\TextInput::make('correo')->label('Correo')->required(),
+                                Forms\Components\TextInput::make('nro_celular_1')->label('Nro Celular 1')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('nro_celular_2')->label('Nro Celular 2')->autocomplete(false),
+                                Forms\Components\TextInput::make('nro_telefono_fijo')->label('Telefono Fijo')->required()->autocomplete(false),
+                                Forms\Components\TextInput::make('correo')->label('Correo')->required()->autocomplete(false),
                             ])->columns(3),
                         Section::make('Datos Financieros')
                             ->description('Aqui debes actualizar los datos financieros, de lo contrario no se modifica nada')
                             ->icon('heroicon-m-wallet')
                             ->schema([
-                                Forms\Components\TextInput::make('total_activos')->label('Total Activos')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('total_pasivos')->label('Total Pasivos')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('salario')->label('Salario')->mask('9999999.99'),
-                                Forms\Components\TextInput::make('honorarios')->label('Honorarios')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('gastos_financieros')->label('Gastos Financieros')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('creditos_hipotecarios')->label('Credito Hipotecario')->mask('9999999,99'),
-                                Forms\Components\TextInput::make('otros_gastos')->label('Otros Gastos')->mask('9999999,99'),
+                                Forms\Components\TextInput::make('total_activos')->label('Total Activos')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('total_pasivos')->label('Total Pasivos')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('salario')->label('Salario')->mask('9999999.99')->autocomplete(false),
+                                Forms\Components\TextInput::make('honorarios')->label('Honorarios')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('gastos_financieros')->label('Gastos Financieros')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('creditos_hipotecarios')->label('Credito Hipotecario')->mask('9999999,99')->autocomplete(false),
+                                Forms\Components\TextInput::make('otros_gastos')->label('Otros Gastos')->mask('9999999,99')->autocomplete(false),
                             ])->columns(3),
                     ])->action(function (array $data): void {
 

@@ -32,22 +32,30 @@ class CreditoSolicitudResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('lineaCredito.descripcion')
                     ->label('Linea')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('empresaCredito.nombre')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('nro_cuotas_gracia')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('tipo_desembolso')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('tercero_asesor')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('observaciones')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\DatePicker::make('fecha_primer_vto')
                     ->disabled(),
                 Forms\Components\TextInput::make('tasa_id')
+                    ->autocomplete(false)
                     ->disabled(),
                 Forms\Components\TextInput::make('vlr_solicitud')
+                    ->autocomplete(false)
                     ->required()
                     ->disabled()
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
@@ -57,6 +65,7 @@ class CreditoSolicitudResource extends Resource
                     ->disabled(),
                 Forms\Components\Textarea::make('nro_cuotas_max')
                     ->disabled()
+                    ->autocomplete(false)
                     ->columnSpanFull(),
             ])->columns(4);
     }

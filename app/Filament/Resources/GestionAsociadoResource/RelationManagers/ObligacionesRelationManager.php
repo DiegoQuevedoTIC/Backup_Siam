@@ -65,10 +65,11 @@ class ObligacionesRelationManager extends RelationManager
                                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                                     ->inputMode('decimal')
                                     ->prefix('$')
+                                    ->autocomplete(false)
                                     ->required()
                                     ->numeric(),
                                 Forms\Components\Checkbox::make('indefinido')->default(false)->live(),
-                                Forms\Components\TextInput::make('plazo')->label('Plazo')->numeric()
+                                Forms\Components\TextInput::make('plazo')->label('Plazo')->numeric()->autocomplete(false)
                                     ->visible(function (Get $get) {
                                         $indefinido = $get('indefinido');
 

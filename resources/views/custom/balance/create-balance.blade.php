@@ -49,7 +49,7 @@
                         <label for="nivel"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nivel</label>
                         <x-filament::input.wrapper>
-                            <x-filament::input id="nivel" name="nivel" type="number" required />
+                            <x-filament::input id="nivel" name="nivel" type="number" required  value="7"/>
                         </x-filament::input.wrapper>
                     </div>
 

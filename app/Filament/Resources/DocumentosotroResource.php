@@ -76,6 +76,7 @@ class DocumentosotroResource extends Resource
                 ->visibility('public'),
             Textarea::make('descripcion')
                 ->maxLength(65535)
+                ->autocomplete(false)
                 ->markAsRequired(false)
                 ->columnSpanFull(),
             ]);

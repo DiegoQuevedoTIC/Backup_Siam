@@ -30,6 +30,7 @@ class CuotasRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('cliente')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255),
             ]);
     }

@@ -29,11 +29,13 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        
+
             ->schema([
                 TextInput::make('name')
+                ->autocomplete(false)
                 ->required(),
                 TextInput::make('email')
+                ->autocomplete(false)
                 ->required()
                 ->email(),
                 TextInput::make('email_verified_at')
@@ -45,7 +47,7 @@ class UserResource extends Resource
                 Select::make('roles')->multiple(true)->relationship('roles','name') ,
             ]);
 
-            
+
     }
 
     public static function table(Table $table): Table
@@ -56,7 +58,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email'),
                 Tables\Columns\TextColumn::make('roles.name'),
                 Tables\Columns\TextColumn::make('email_verified_at'),
-              
+
             ])
             ->filters([
                 Tables\Filters\Filter::make('Verificado')
@@ -87,14 +89,14 @@ class UserResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -102,5 +104,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
 }

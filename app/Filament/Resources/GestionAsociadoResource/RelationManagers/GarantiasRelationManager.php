@@ -82,21 +82,25 @@ class GarantiasRelationManager extends RelationManager
                     Forms\Components\TextInput::make('nro_escr_o_matri')
                         ->label('Nro escritura / Matrícula')
                         ->required()
+                        ->autocomplete(false)
                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                     Forms\Components\TextInput::make('direccion')
                         ->label('Dirección')
                         ->required()
+                        ->autocomplete(false)
                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                     Forms\Components\TextInput::make('ciudad_registro')
                         ->label('Ciudad Registro')
                         ->required()
+                        ->autocomplete(false)
                         ->visible(fn(callable $get) => $get('tipo_garantia_id') === 'R'),
 
                     Forms\Components\TextInput::make('valor_avaluo')
                         ->label('Valor Avaluo')
                         ->required()
+                        ->autocomplete(false)
                         ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                         ->inputMode('decimal')
                         ->prefix('$')
@@ -120,6 +124,7 @@ class GarantiasRelationManager extends RelationManager
                         ->label('Valor Avaluo Comercial')
                         ->required()
                         ->numeric()
+                        ->autocomplete(false)
                         ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                         ->inputMode('decimal')
                         ->prefix('$')
@@ -140,6 +145,7 @@ class GarantiasRelationManager extends RelationManager
                     Forms\Components\TextInput::make('observaciones')
                         ->label('Observaciones')
                         ->required()
+                        ->autocomplete(false)
                         ->maxLength(65535)
                         ->columnSpanFull(),
                 ])
