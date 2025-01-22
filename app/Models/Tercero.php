@@ -136,7 +136,7 @@ class Tercero extends Model
 
     public function carteraEncabezados()
     {
-        return $this->hasMany(CarteraEncabezado::class, 'cliente', 'tercero_id');
+        return $this->hasMany(CarteraEncabezado::class, 'cliente', 'tercero_id')->orderBy('nro_docto', 'asc');
     }
 
     public function obligaciones()
