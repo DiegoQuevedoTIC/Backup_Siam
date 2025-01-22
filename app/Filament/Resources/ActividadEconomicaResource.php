@@ -19,7 +19,7 @@ class ActividadEconomicaResource extends Resource
     protected static ?string    $model = ActividadEconomica::class;
     protected static ?string    $cluster = ParametrosAsociados::class;
     protected static ?string    $navigationIcon = 'heroicon-o-archive-box-arrow-down';
-    protected static ?string    $navigationLabel = 'Actividades Economicas';
+    protected static ?string    $navigationLabel = 'Actividad Economica';
     protected static ?string    $navigationGroup = 'Parametros';
     protected static ?string    $modelLabel = 'Actividad Economica';
     protected static ?string    $navigationParentItem = 'Parametros Asociados';
