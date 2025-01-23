@@ -105,10 +105,7 @@ class Asociado extends Model
                 'saldos_descuentos.saldo_total'
             );
     }
-/*     public function certificadoDepositos()
-    {
-        return $this->hasMany(CertificadoDeposito::class);
-    } */
+
 
     public function certificadoDepositos()
 {

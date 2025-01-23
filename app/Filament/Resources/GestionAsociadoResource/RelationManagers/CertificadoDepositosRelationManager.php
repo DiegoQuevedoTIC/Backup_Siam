@@ -69,13 +69,6 @@ class CertificadoDepositosRelationManager extends RelationManager
                             Section::make('Constituir CDAT | Creación de beneficiarios')
                             ->description('Creación de Beneficiario')
                             ->icon('heroicon-m-users')
-    /*                         ->schema([
-                                TextInput::make('nro_identi_beneficiario')->label('Nro Identificación Beneficiario')->required()->autocomplete(false),
-                                TextInput::make('nombre_beneficiario')->label('Nombre beneficiario')->required()->autocomplete(false),
-                                TextInput::make('porcentaje_titulo')->label('Porcentaje Titulo')->required()->autocomplete(false),
-                                Textarea::make('observaciones')->label('Observaciones')->required()->columnSpanFull()->autocomplete(false)
-                            ])->columns(2) */
-
                             ->schema([
                                 Forms\Components\TextInput::make('tipo_documento')
                                 ->label('Tipo de Documento')
