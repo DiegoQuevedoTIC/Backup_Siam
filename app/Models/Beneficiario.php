@@ -9,12 +9,13 @@ class Beneficiario extends Model
 {
     use HasFactory;
 
-    protected $table = 'beneficiarios';
+    protected $table = 'cdt_titulares';
 
     protected $fillable = [
-        'asociado_id',
-        'nro_identi_beneficiario',
-        'nombre_beneficiario',
+        'tipo_documento',
+        'numero_documento',
+        'es_cotitular',
+        'cdt_numero',
         'porcentaje_titulo',
         'observaciones'
     ];

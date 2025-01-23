@@ -69,18 +69,36 @@ class CertificadoDepositosRelationManager extends RelationManager
                             Section::make('Constituir CDAT | Creación de beneficiarios')
                             ->description('Creación de Beneficiario')
                             ->icon('heroicon-m-users')
-                            ->schema([
+    /*                         ->schema([
                                 TextInput::make('nro_identi_beneficiario')->label('Nro Identificación Beneficiario')->required()->autocomplete(false),
                                 TextInput::make('nombre_beneficiario')->label('Nombre beneficiario')->required()->autocomplete(false),
                                 TextInput::make('porcentaje_titulo')->label('Porcentaje Titulo')->required()->autocomplete(false),
                                 Textarea::make('observaciones')->label('Observaciones')->required()->columnSpanFull()->autocomplete(false)
+                            ])->columns(2) */
+
+                            ->schema([
+                                Forms\Components\TextInput::make('tipo_documento')
+                                ->label('Tipo de Documento')
+                                ->required()
+                                ->autocomplete(false),
+                            Forms\Components\TextInput::make('numero_documento')
+                                ->label('Número de Documento')
+                                ->required()
+                                ->autocomplete(false),
+                            Forms\Components\Checkbox::make('es_cotitular')
+                                ->label('Es Cotitular')
+                                ->default(false),
+                                TextInput::make('cdt_numero')->label('Número CDT')->required()->autocomplete(false),
+                                TextInput::make('porcentaje_titulo')->label('Porcentaje Título')->required()->numeric()->autocomplete(false),
+                                Textarea::make('observaciones')->label('Observaciones')->nullable()->columnSpanFull()->autocomplete(false)
                             ])->columns(2)
                         ])
                         ->action(fn (array $data) => [
                             Beneficiario::create([
-                                'asociado_id' => $this->getOwnerRecord()->id,
-                                'nro_identi_beneficiario' => $data['nro_identi_beneficiario'],
-                                'nombre_beneficiario' => $data['nombre_beneficiario'],
+                                'tipo_documento' => $data['tipo_documento'],
+                                'numero_documento' => $data['numero_documento'],
+                                'es_cotitular' => $data['es_cotitular'],
+                                'cdt_numero' => $data['cdt_numero'],
                                 'porcentaje_titulo' => $data['porcentaje_titulo'],
                                 'observaciones' => $data['observaciones']
                             ]),
