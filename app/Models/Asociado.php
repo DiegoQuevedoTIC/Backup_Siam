@@ -105,10 +105,25 @@ class Asociado extends Model
                 'saldos_descuentos.saldo_total'
             );
     }
-    public function certificadoDepositos()
+/*     public function certificadoDepositos()
     {
         return $this->hasMany(CertificadoDeposito::class);
-    }
+    } */
+
+    public function certificadoDepositos()
+{
+    return $this->hasMany(CertificadoDeposito::class, 'titular_id', 'codigo_interno_pag') // Relación hasMany
+        ->join('asociados as a', DB::raw('CAST(cdts.titular_id AS INTEGER)'), '=', DB::raw('CAST(a.codigo_interno_pag AS INTEGER)'))
+        ->select(
+            'cdts.id',
+            'cdts.numero_cdt',
+            'cdts.valor',
+            'cdts.fecha_creacion',
+            'cdts.fecha_vencimiento',
+            'cdts.plazo',
+            'cdts.tasa_ea',
+        );
+}
 
     public function garantias()
     {

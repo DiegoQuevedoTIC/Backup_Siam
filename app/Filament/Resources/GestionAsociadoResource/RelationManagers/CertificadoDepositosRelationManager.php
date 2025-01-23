@@ -43,24 +43,21 @@ class CertificadoDepositosRelationManager extends RelationManager
                     ->description('Creación de registro')
                     ->icon('heroicon-m-user')
                     ->schema([
-                        Forms\Components\TextInput::make('plazo_inversion')->label('Plazo de inversión')->required()->autocomplete(false),
-                        Forms\Components\TextInput::make('valor_inicial_cdat')->label('Valor Inical')->required()->numeric()->autocomplete(false),
-                        Forms\Components\DatePicker::make('fecha_apertura')->label('Fecha Apertura')->required(),
-                        Forms\Components\DatePicker::make('fecha_cancelacion')->label('Fecha Cancelación')->required(),
-                        Forms\Components\TextInput::make('valor_proyectado')->label('Valor Proyectado')->required()->numeric()->autocomplete(false),
-                        Forms\Components\TextInput::make('tasa_interes_remuneracion')->label('Tasa remuneración')->required()->autocomplete(false),
-                        Forms\Components\TextInput::make('porcentaje_retencion')->label('Porcentaje Retención')->required()->autocomplete(false),
-                        Forms\Components\TextInput::make('nro_prorroga')->label('Nro Prorrogas')->required()->autocomplete(false),
-                        Forms\Components\Select::make('codigo_asesor')->label('Codigo Asesor')->required()
-                            ->options(Asesor::all()->pluck('nombre', 'id'))
-                            ->searchable('id')->live(),
-                        Forms\Components\TextInput::make('nombre_asesor')->label('Nombre Asesor')->required()->autocomplete(false)
-                        ->disabled(fn (Get $get, Set $set) => [
-                            $asesor = Asesor::where('id', $get('codigo_asesor'))->first(),
-                            $nombre = $asesor->nombre ?? '',
-                            $set('nombre_asesor', $nombre)
-                        ])->live(),
+                        Forms\Components\Hidden::make('user_id')->default('admin'),
+
+                        Forms\Components\TextInput::make('numero_cdt')->label('Número CDT')->required()->autocomplete(false)->rule('regex:/^[0-9]+$/'),
+                        Forms\Components\TextInput::make('plazo')->label('Plazo de inversión')->required()->autocomplete(false)->live(),
+                        Forms\Components\TextInput::make('valor')->label('Valor Inical')->required()->numeric()->autocomplete(false),
+                        Forms\Components\DatePicker::make('fecha_creacion')->label('Fecha Creacion')->required()->live(),
+                        Forms\Components\DatePicker::make('fecha_vencimiento')->label('Fecha Vencimiento')->live(),
+                        Forms\Components\TextInput::make('tasa_ea')->label('Tasa remuneración')->required()->autocomplete(false),
+                        Forms\Components\TextInput::make('tasa_interes')->label('Tasa remuneración')->required()->autocomplete(false),
                         Forms\Components\TextInput::make('observaciones')->label('Observaciones')->required()->autocomplete(false),
+                        Forms\Components\Hidden::make('estado')->default('A'),
+                        Forms\Components\Hidden::make('contabilizado')->default(true)
+
+
+
 
                     ])->columns(3),
 
@@ -136,12 +133,12 @@ class CertificadoDepositosRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('tasa')
             ->columns([
-                Tables\Columns\TextColumn::make('id')->label('Nro CDAT'),
-                Tables\Columns\TextColumn::make('tasa_interes_remuneracion')->label('tasa CDAT'),
-                Tables\Columns\TextColumn::make('valor_apertura')->label('Valor Apertura CDAT'),
-                Tables\Columns\TextColumn::make('fecha_apertura')->label('Fecha Apertura'),
-                Tables\Columns\TextColumn::make('valor_a_pagar')->label('Valor a pagar'),
-                Tables\Columns\TextColumn::make('fecha_cancelacion')->label('Fecha Cancelación'),
+                Tables\Columns\TextColumn::make('numero_cdt')->label('Número CDT'),
+                Tables\Columns\TextColumn::make('valor')->label('Valor'),
+                Tables\Columns\TextColumn::make('plazo')->label('Plazo'),
+                Tables\Columns\TextColumn::make('tasa_ea')->label('Tasa EA'),
+                Tables\Columns\TextColumn::make('fecha_creacion')->label('Fecha Creación'),
+                Tables\Columns\TextColumn::make('fecha_vencimiento')->label('Fecha Vencimiento'),
             ])
             ->filters([
                 //
