@@ -49,34 +49,33 @@ class NovedadesRelationManager extends RelationManager
             ->recordTitleAttribute('Noas')
             ->columns([
                 Tables\Columns\TextColumn::make('novedad_id')
-                ->label('No')
-
-                ->sortable()
-                ,
+                ->label('Id Novedad'),
                 Tables\Columns\TextColumn::make('fecha_novedad')
                 ->label('Fecha'),
-                Tables\Columns\TextColumn::make('novedad_tercero.nombre')
+                Tables\Columns\TextColumn::make('novedad.nombre')
                 ->label('Novedad Aplicada'),
                 Tables\Columns\TextColumn::make('observaciones')
                 ->label('Observaciones'),
             ])
-            ->filters([
-                //
-            ])
+
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                ->label('+ Agregar Nueva Novedad'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()
+                ->color('warning')
+                ->icon('heroicon-o-eye')
+                ->label('Ver'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
+                Tables\Actions\CreateAction::make('create')
+                ->label('Gestionar Información'),
+            ])
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Agregar Novedad')
+            ->emptyStateDescription('En este módulo podrás gestionar de forma sencilla las novedades.');
+
     }
 }

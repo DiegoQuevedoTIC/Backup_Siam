@@ -11,6 +11,15 @@ class NovedadTercero extends Model
 {
     use HasFactory;
 
+    protected $table = 'novedad_terceros';
+
+    protected $fillable = [
+        'codigo',
+        'nombre',
+        'descripcion',
+        'cambiaestado',
+        'estado_cliente_id'
+    ];
 
     public function EstadoCliente(): BelongsTo
     {

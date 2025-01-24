@@ -56,8 +56,6 @@ class TerceroResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-
-
             ->schema([
                 Wizard::make()
                 ->steps([
@@ -69,6 +67,10 @@ class TerceroResource extends Resource
                     ->label('')
                     ->columnSpan(1)
                     ->live()
+                    ->disabled(fn ($record) => optional($record)->exists ?? false) // Verificar si $record existe antes de acceder a ->exists
+                    ->validationMessages([
+                        'required'=> 'Este campo es requerido'
+                    ])
                     ->options([
                         'Natural' => 'Persona Natural',
                         'Juridica' => 'Persona Juridica',
@@ -79,6 +81,13 @@ class TerceroResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->maxLength(16)
                     ->columnSpan(2)
+                    ->validationMessages([
+                        'regex' => 'Valide el numero ID,  Solo se permiten numeros',
+                        'max' => 'Valide el numero ID,  El numero es demasiado largo',
+                        'unique' => 'Valide el numero ID,  Ya existe el registro',
+                        'required'=> 'Valide el numero ID,  Este campo es requerido'
+                    ])
+
                     ->autocomplete(false)
                     ->prefix('Id')
                     ->rule('regex:/^[0-9]+$/')
@@ -92,6 +101,9 @@ class TerceroResource extends Resource
                     ->autocomplete(false)
                     ->label('Digito de Verificacion'),
                 Select::make('tipo_identificacion_id')
+                    ->validationMessages([
+                        'required'=> 'Este campo es requerido'
+                    ])
                     ->options(function (Get $get) {
                         // Filtrar las opciones según el valor de tipo_tercero
                         $tipoTercero = $get('tipo_tercero');
@@ -114,8 +126,12 @@ class TerceroResource extends Resource
                 Wizard\Step::make('Datos Basicos')
                 ->columns(4)
                 ->schema([
-                    TextInput::make('nombres')
+                TextInput::make('nombres')
                     ->required()
+                    ->validationMessages([
+                        'max' => 'El numero es demasiado largo',
+                        'required'=> 'Este campo es requerido'
+                    ])
                     ->markAsRequired(false)
                     ->autocomplete(false)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
@@ -145,11 +161,21 @@ class TerceroResource extends Resource
                     ->autocomplete(false)
                     ->columnSpan(1)
                     ->minLength(7)
+                    ->validationMessages([
+                        'min' => 'El numero es demasiado corto',
+                        'regex' => 'Solo se permiten numeros',
+                        'max' => 'El numero es demasiado largo',
+                        'required'=> 'Este campo es requerido'
+                    ])
                     ->rule('regex:/^[0-9]+$/')
                     ->maxLength(10)
                     ->label('No de Telefono'),
                 TextInput::make('direccion')
                     ->required()
+                    ->validationMessages([
+                        'max' => 'El numero es demasiado largo',
+                        'required'=> 'Este campo es requerido'
+                    ])
                     ->autocomplete(false)
                     ->markAsRequired(false)
                     ->maxLength(255)
@@ -160,7 +186,6 @@ class TerceroResource extends Resource
                         ->markAsRequired(false)
                         ->required()
                         ->preload()
-                        ->autocomplete(false)
                         ->columnSpan(1)
                         ->live()
                         ->label('Pais de Residencia'),
@@ -170,7 +195,6 @@ class TerceroResource extends Resource
                     ->pluck('nombre', 'id'))
                     ->markAsRequired(false)
                     ->required()
-                    ->autocomplete(false)
                     ->columnSpan(1)
                     ->live()
                     ->preload()
@@ -181,13 +205,18 @@ class TerceroResource extends Resource
                     ->pluck('nombre', 'id'))
                     ->markAsRequired(false)
                     ->required()
-                    ->autocomplete(false)
                     ->preload()
                     ->columnSpan(2)
                     ->live()
                     ->label('Barrio'),
                 TextInput::make('celular')
                     ->required()
+                    ->validationMessages([
+                        'min' => 'El numero es demasiado corto',
+                        'max' => 'El numero es demasiado largo',
+                        'required'=> 'Este campo es requerido',
+                        'regex' => 'Solo se permiten numeros',
+                    ])
                     ->markAsRequired(false)
                     ->minLength(10)
                     ->columnSpan(1)
@@ -200,6 +229,10 @@ class TerceroResource extends Resource
                     ->email()
                     ->markAsRequired(false)
                     ->required()
+                    ->validationMessages([
+                        'max' => 'El numero es demasiado largo',
+                        'required'=> 'Este campo es requerido',
+                    ])
                     ->autocomplete(false)
                     ->maxLength(255)
                     ->suffixIcon('heroicon-m-envelope-open')
@@ -247,21 +280,34 @@ class TerceroResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Terceros')
+            ->description('Administracion de Terceros Naturales y Juridicos.')
+            ->striped()
+            ->defaultPaginationPageOption(5)
+            ->defaultSort('updated_at', 'desc')
             ->columns([
                 TextColumn::make('tercero_id')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('No. de Identificacion'),
                 TextColumn::make('nombres')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Nombres'),
                 TextColumn::make('primer_apellido')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Primer Apellido'),
                 TextColumn::make('segundo_apellido')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Segundo Apellido'),
+                TextColumn::make('celular')
+                    ->searchable()
+                    ->label('No Celular'),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->Hidden(),
+                    ->dateTime('d/m/Y H:i')
+                    ->label('Fecha de Creacion')
+                    ->hidden(),
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->Hidden(),
+                    ->dateTime('d/m/Y H:i')
+                    ->label('Última Actualización'),
 
             ])
             ->filters([

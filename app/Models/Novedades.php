@@ -11,7 +11,7 @@ class Novedades extends Model
 {
     use HasFactory;
 
-    
+
     public function Tercero(): BelongsTo
     {
         return $this->belongsTo(Tercero::class);
@@ -20,6 +20,9 @@ class Novedades extends Model
 
     public function novedad(): BelongsTo
     {
-        return $this->belongsTo(NovedadTercero::class);
+        return $this->belongsTo(NovedadTercero::class, 'novedad_id');
     }
+
+
+
 }

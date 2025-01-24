@@ -120,14 +120,19 @@ class ReferenciasRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
+                ->color('warning')
                 ->label('Actualizar Referencia'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 ]),
             ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
+                ->emptyStateActions([
+                    Tables\Actions\CreateAction::make('create')
+                    ->label('Gestionar Información'),
+                ])
+                ->emptyStateIcon('heroicon-o-bookmark')
+                ->emptyStateHeading('Agregar Referencias')
+                ->emptyStateDescription('En este módulo podrás gestionar de forma sencilla la Referencias.');
     }
 }

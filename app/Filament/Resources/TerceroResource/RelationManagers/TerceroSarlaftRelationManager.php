@@ -15,25 +15,18 @@ use App\Models\Tercero;
 use App\Models\Parentesco;
 use App\Models\Moneda;
 use App\Models\Pais;
-use Illuminate\Support\Collection;
-use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Get;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Set;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Tabs;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Columns\IconColumn;
 
 class TerceroSarlaftRelationManager extends RelationManager
 {
     protected static string $relationship = 'TerceroSarlaft';
-    protected static ?string    $modelLabel = 'Informacion Sarlaft';
-    protected static ?string    $pluralModelLabel = 'Informacion Sarlaft';
-    protected static ?string    $slug = 'Par/Tab/InfSarl';
+    protected static ?string $modelLabel = 'Información Sarlaft';
+    protected static ?string $pluralModelLabel = 'Información Sarlaft';
+    protected static ?string $slug = 'Par/Tab/InfSarl';
 
     public function form(Form $form): Form
     {
@@ -41,119 +34,180 @@ class TerceroSarlaftRelationManager extends RelationManager
             ->columns(5)
             ->schema([
                 Toggle::make('reconocimiento_publico')
-                        ->required()
-                        ->markAsRequired(false)
-                        ->columnSpan(2),
+                    ->label('¿Reconocimiento Público?')
+                    ->required()
+                    ->helperText('Indique si hay reconocimiento público')
+                    ->columnSpan(2),
+
                 TextInput::make('descripcion_reconocimiento')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->rule('regex:/^[a-zA-Z\s-]+$/')
-                        ->columnSpan(3),
+                    ->label('Descripción del Reconocimiento')
+                    ->placeholder('Ingrese la descripción')
+                    ->maxLength(255)
+                    ->rule('regex:/^[a-zA-Z\s-]+$/')
+                    ->columnSpan(3),
+
                 Toggle::make('ejerce_cargos_publicos')
-                        ->required()
-                        ->markAsRequired(false)
-                        ->columnSpan(2),
+                    ->label('¿Ejerce Cargos Públicos?')
+                    ->required()
+                    ->helperText('Indique si ejerce cargos públicos')
+                    ->columnSpan(2),
+
                 TextInput::make('descripcion_cargo_publico')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->rule('regex:/^[a-zA-Z\s-]+$/')
-                        ->columnSpan(3),
+                    ->label('Descripción del Cargo Público')
+                    ->placeholder('Ingrese la descripción del cargo')
+                    ->maxLength(255)
+                    ->rule('regex:/^[a-zA-Z\s-]+$/')
+                    ->columnSpan(3),
+
                 Toggle::make('familiar_peps')
-                        ->required()
-                        ->markAsRequired(false)
-                        ->columnSpan(2),
+                    ->label('¿Familiar de PEP?')
+                    ->required()
+                    ->helperText('Indique si es familiar de una Persona Expuesta Políticamente')
+                    ->columnSpan(2),
+
                 Select::make('parentesco_id')
-                        ->columnSpan(2)
-                        ->placeholder('')
-                        ->relationship('parentesco', 'nombre'),
+                    ->label('Parentesco con PEP')
+                    ->relationship('parentesco', 'nombre')
+                    ->placeholder('Seleccione un parentesco')
+                    ->columnSpan(2),
+
                 TextInput::make('peps_id')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->columnSpan(1),
+                    ->label('ID del PEP')
+                    ->numeric()
+                    ->helperText('Debe ser número entero')
+                    ->columnSpan(1),
+
                 Toggle::make('socio_peps')
-                        ->required()
-                        ->markAsRequired(false)
-                        ->columnSpan(2),
+                    ->label('¿Es socio de un PEP?')
+                    ->required()
+                    ->helperText('Indique si es socio de una Persona Expuesta Políticamente')
+                    ->columnSpan(2),
+
                 TextInput::make('nombre_peps')
-                        ->autocomplete(false)
-                        ->rule('regex:/^[a-zA-Z\s-]+$/')
-                        ->markAsRequired(false)
-                        ->columnSpan(3),
+                    ->label('Nombre del PEP')
+                    ->placeholder('Ingrese el nombre completo del PEP')
+                    ->maxLength(255)
+                    ->rule('regex:/^[a-zA-Z\s-]+$/')
+                    ->columnSpan(3),
+
                 Toggle::make('operacion_moneda_extranjera')
-                        ->required()
-                        ->markAsRequired(false)
-                        ->columnSpan(2),
+                    ->label('¿Opera en Moneda Extranjera?')
+                    ->required()
+                    ->helperText('Indique si realiza operaciones en moneda extranjera')
+                    ->columnSpan(2),
+
                 Select::make('pais_id')
-                        ->columnSpan(2)
-                        ->placeholder('')
-                        ->relationship('pais', 'nombre'),
+                    ->label('País de Operación')
+                    ->relationship('pais', 'nombre')
+                    ->placeholder('Seleccione un país')
+                    ->columnSpan(2),
+
                 Select::make('moneda_id')
-                        ->columnSpan(1)
-                        ->placeholder('')
-                        ->relationship('moneda', 'nombre'),
+                    ->label('Moneda de Operación')
+                    ->relationship('moneda', 'nombre')
+                    ->placeholder(null)
+                    ->columnSpan(1),
+
                 TextInput::make('producto_moneda_extranjera')
-                        ->columnSpan(2)
-                        ->autocomplete(false)
-                        ->markAsRequired(false),
+                    ->label('Producto en Moneda Extranjera')
+                    ->placeholder('Ingrese el nombre del producto')
+                    ->maxLength(255)
+                    ->columnSpan(2),
+
                 TextInput::make('tipo_producto_moneda_extranjera')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->columnSpan(2),
+                    ->label('Tipo de Producto')
+                    ->placeholder('Ingrese el tipo de producto')
+                    ->maxLength(255)
+                    ->columnSpan(2),
+
                 TextInput::make('monto_inicial')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->maxLength(16)
-                        ->columnSpan(2),
+                    ->label('Monto Inicial')
+                    ->numeric()
+                    ->placeholder('Ingrese el monto inicial')
+                    ->columnSpan(2),
+
                 TextInput::make('monto_final')
-                        ->markAsRequired(false)
-                        ->autocomplete(false)
-                        ->maxLength(16)
-                        ->columnSpan(2),
+                    ->label('Monto Final')
+                    ->numeric()
+                    ->placeholder('Ingrese el monto final')
+                    ->columnSpan(2),
+
                 Toggle::make('declara_renta')
-                        ->required()
-                        ->label('Declarante Renta')
-                        ->markAsRequired(false)
-                        ->columnSpan(1),
+                    ->label('¿Declara Renta?')
+                    ->required()
+                    ->columnSpan(1),
+
                 Textarea::make('origen_fondos')
-                        ->maxLength(65535)
-                        ->autocomplete(false)
-                        ->markAsRequired(false)
-                        ->required()
-                        ->columnSpanFull(),
+                    ->label(null)
+                    ->placeholder('Describa el origen de los fondos')
+                    ->maxLength(65535)
+                    ->helperText('Sea lo más detallado posible')
+                    ->columnSpanFull(),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('tercero.tercero_id')
-                    ->label('Identificacion'),
-                TextColumn::make('tercero.nombres')
-                    ->label('Nombres'),
-                TextColumn::make('tercero.primer_apellido')
-                    ->label('Primer Apellido'),
-                TextColumn::make('tercero.segundo_apellido')
-                    ->label('Segundo Apellido'),
-                TextColumn::make('reconocimiento_publico')
-                    ->label('Reconocimiento Publico'),
-            ])
-            ->filters([
-
-            ])
-            ->headerActions([
-            ])
+        ->paginated(false)
+        ->columns([
+            IconColumn::make('reconocimiento_publico')
+                ->label('¿Tiene reconocimiento Publico?')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Center)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger'),
+            IconColumn::make('ejerce_cargos_publicos')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Center)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger')
+                ->label('¿Ejerce Cargos Públicos?') ,
+            IconColumn::make('familiar_peps')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Center)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger')
+                ->label('¿Familiar de PEP?'),
+            IconColumn::make('operacion_moneda_extranjera')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Center)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger')
+                ->label('¿Opera en Moneda Extranjera?'),
+            IconColumn::make('declara_renta')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Center)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger')
+                ->label('¿Declara Renta?'),
+        ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                ->label('Actualizar Informacion'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                ]),
+                    ->color('warning')
+                    ->label('Actualizar Información'),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
-                ->label('+ Agregar Informacion Sarlaft'),
-            ]);
+                Tables\Actions\CreateAction::make('create')
+                    ->label('Gestionar Información'),
+            ])
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Agregar Información Sarlaft')
+            ->emptyStateDescription('En este módulo podrás gestionar de forma sencilla la información Sarlaft.');
     }
 }
