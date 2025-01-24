@@ -157,4 +157,9 @@ class Tercero extends Model
                 'detalle_vencimiento_descuento.vlr_cuota'
             );
     }
+
+    public function vencimientoDescuentos()
+    {
+        return $this->hasMany(VencimientoDescuento::class, 'cliente', 'tercero_id');
+    }
 }
