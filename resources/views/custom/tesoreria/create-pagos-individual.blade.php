@@ -7,6 +7,8 @@
 
     $obligaciones = $this->cliente->obligaciones ?? [];
 
+    $vencimientoDescuentos = $this->cliente->vencimientoDescuentos ?? [];
+
 @endphp
 
 <x-filament-panels::page>
@@ -16,10 +18,19 @@
         <hr>
 
         @if ($this->show)
-            <div x-data="data()">
+            <div x-data="data()" class="disabled" x-init="cedula = '{{ $this->cliente->tercero_id }}'">
+
+
+                <div>
+                    <div class="flex justify-end mt-2">
+                        <x-filament::button icon="heroicon-m-plus">
+                            Guardar comprobante
+                        </x-filament::button>
+                    </div>
+                </div>
 
                 {{-- Informacion del cliente --}}
-                <div class="tabs">
+                <div class="tabs mt-2">
                     <x-filament::tabs label="Content tabs">
                         <x-filament::tabs.item alpine-active="creditos"
                             @click="creditos = true, obligaciones = false, otros_conceptos = false">
@@ -56,7 +67,7 @@
                             </thead>
                             <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
                                 @forelse ($this->cliente->carteraEncabezados->where('estado', 'A')->where('tdocto', 'PAG') as $index => $credito)
-                                    <tr @click="$dispatch('open-modal', { id: 'type-pay' }), updatedSelectedCredito({{ $credito->nro_docto }})"
+                                    <tr @click="$dispatch('open-modal', { id: 'type-pay' })" x-init="updatedSelectedCredito({{ $credito->nro_docto }}, {{ $credito->vlr_saldo_actual }})"
                                         class="cursor-pointer">
                                         <td class="p-4">{{ $credito->nro_docto }}</td>
                                         <td class="p-4">{{ $credito->nro_cuotas }}</td>
@@ -102,26 +113,23 @@
                                         <td class="p-4">{{ $obligacion->nro_cuota }}</td>
                                         <td class="p-4">{{ number_format($obligacion->vlr_cuota, 2) }}</td>
                                         <td class="p-4" @dblclick="toggleEditingState({{ $obligacion->id }})">
-                                            <span x-show="!isEditing[{{ $obligacion->id }}]"
-                                                x-text="editingValues[{{ $obligacion->id }}]"></span>
 
-                                            <input type="text" x-show="isEditing[{{ $obligacion->id }}]"
-                                                x-mask:dynamic="$money($input, ',')"
+                                            <span x-show="!isEditing[{{ $obligacion->id }}]"
+                                                x-text="
+                                                editingValues[{{ $obligacion->id }}] !== undefined ?
+                                                parseFloat(editingValues[{{ $obligacion->id }}]).toFixed(2).toLocaleString('en-US') :
+                                                '0.00'
+                                            "></span>
+
+                                            <input type="number" x-show="isEditing[{{ $obligacion->id }}]"
                                                 x-trap="isEditing[{{ $obligacion->id }}]"
                                                 @click.away="disableEditing({{ $obligacion->id }})"
-                                                @keydown.enter="$wire.updateValorAplicado(editingValues[{{ $obligacion->id }}]),disableEditing({{ $obligacion->id }})"
+                                                @keydown.enter="aplicaValoraTotal(editingValues[{{ $obligacion->id }}], {{ $obligacion->vlr_cuota }}, {{ $obligacion->id }}),disableEditing({{ $obligacion->id }})"
                                                 @keydown.window.escape="disableEditing({{ $obligacion->id }})"
                                                 class="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 appearance-none leading-normal w-128"
                                                 :class="{ 'border-red-500': invalidValues[{{ $obligacion->id }}] }"
                                                 x-ref="{{ $obligacion->id }}-class"
                                                 x-model="editingValues[{{ $obligacion->id }}]">
-
-                                            <!-- Mensaje de error -->
-                                            <span x-show="invalidValues[{{ $obligacion->id }}]"
-                                                class="text-red-500 text-sm">
-                                                El valor aplicado no puede ser mayor a
-                                                {{ number_format($obligacion->vlr_cuota, 2) }}.
-                                            </span>
                                         </td>
                                     </tr>
                                 @empty
@@ -188,17 +196,21 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                <template x-for="(row, index) in rows" :key="index">
+                                @forelse ($this->cliente->vencimientoDescuentos as $row)
                                     <tr>
-                                        <td class="p-4" x-text="row.concepto_descuento"></td>
-                                        <td class="p-4" x-text="row.nombre_concepto"></td>
-                                        <td class="p-4" x-text="row.valor"></td>
+                                        <td class="p-4">{{ $row->codigo_concepto }}</td>
+                                        <td class="p-4">{{ $row->descripcion }}</td>
+                                        <td class="p-4">{{ $row->valor }}</td>
                                         <td class="p-4" style="justify-items: center;">
                                             <x-filament::icon-button icon="heroicon-m-trash" color="danger"
-                                                @click="() => { removeRow(index); }" />
+                                                @click="eliminaVencimientoDescuento({{ $row->id }})" />
                                         </td>
                                     </tr>
-                                </template>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center p-8">No hay descuentos</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -236,10 +248,9 @@
 
                             <div
                                 class="flex w-[20%] float-end max-w-xs flex-col gap-1 text-neutral-600 dark:text-neutral-300">
-                                <input id="textInputDefault" type="text" x-mask:dynamic="$money($input, ',')"
+                                <input id="textInputDefault" type="number"
                                     class="w-full rounded-md border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
-                                    name="name" placeholder="0.00" x-init="console.log(this.valorInteres)"
-                                    x-model="valorInteres" />
+                                    placeholder="0.00" x-model="valorInteres" />
                             </div>
 
                         </div>
@@ -249,18 +260,16 @@
 
                         <div class="flex w-full max-w-xs flex-col gap-1 text-neutral-600 dark:text-neutral-300">
                             <label for="textInputDefault" class="w-fit pl-0.5 text-sm">Valor anticipado</label>
-                            <input id="textInputDefault" type="text" x-mask:dynamic="$money($input, ',', '.')"
-                                :disabled="OnDisabled"
+                            <input id="textInputDefault" type="number" :disabled="OnDisabled"
                                 class="w-full rounded-md border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
-                                name="name" placeholder="0.00" x-model="valorAplicado" />
+                                placeholder="0.00" x-model="valorAplicado" />
                         </div>
                     </div>
 
 
 
                     <x-slot name="footer">
-                        <x-filament::button @click="$dispatch('close-modal', { id: 'type-pay' }), aplicarValor()"
-                            style="display: flex; margin: auto;">
+                        <x-filament::button @click="aplicarValor" style="display: flex; margin: auto;">
                             Aplicar
                         </x-filament::button>
                     </x-slot>
@@ -309,7 +318,7 @@
                             <label for="valorDescuento" class="pl-0.5 text-sm">Valor Descuento</label>
                             <input id="valorDescuento" type="text"
                                 class="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm"
-                                name="valorDescuento" placeholder="Ingrese el valor de descuento"
+                                name="valorDescuento" disabled placeholder="Ingrese el valor de descuento"
                                 autocomplete="off" />
                         </div>
 
@@ -317,7 +326,8 @@
                             <label for="valorAAplicar" class="pl-0.5 text-sm">Valor a Aplicar</label>
                             <input id="valorAAplicar" type="text"
                                 class="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm"
-                                name="valorAAplicar" placeholder="Ingrese el valor a aplicar" autocomplete="off" />
+                                name="valorAAplicar" placeholder="Ingrese el valor a aplicar" autocomplete="off"
+                                x-model="valorAAplicar" @keyup.enter="distribuirValor" />
                         </div>
                     </div>
 
@@ -344,9 +354,10 @@
                                         <td class="p-4" x-text="row.nro_cuota"></td>
                                         <td class="p-4" x-text="row.descripcion"></td>
                                         <td class="p-4" x-text="row.prioridad"></td>
-                                        <td class="p-4" x-text="row.vlr_detalle"></td>
-                                        <td class="p-4">0.00</td>
-                                        <td class="p-4">0.00</td>
+                                        <td class="p-4" x-text="parseCustomFloat(row.vlr_detalle)"></td>
+                                        <td class="p-4" x-text="parseCustomFloat(row.vlr_cuentas_orden) || 0.00">
+                                        </td>
+                                        <td class="p-4" x-text="row.vlr_descuento || 0.00"></td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -377,50 +388,138 @@
                 OnDisabled: true,
                 open: false,
                 valorAplicado: '',
+                message: '',
                 valorApagar: '',
+                showSave: false,
+                pendientePorAplicar: @js($this->pendiente),
                 loading: false,
                 conceptos: @js($conceptos),
+                vencimientoDescuentos: @js($vencimientoDescuentos),
                 selectedConcepto: '',
                 calculoIntereses: '',
                 valorInteres: 0.00,
+                valorAAplicar: 0,
+                nro_docto: '',
+                saldoSelected: '',
                 isEditing: {},
                 editingValues: {},
                 invalidValues: {},
-                rows: [],
                 liquidaciones: [],
+                cedula: '',
                 newRow: {
                     id_concepto: '',
-                    concepto_descuento: '',
-                    nombre_concepto: '',
+                    cliente: '',
+                    nro_docto: '',
+                    codigo_concepto: '',
+                    descripcion: '',
                     cuenta_contable: '',
                     valor: 0,
+                },
+                parseCustomFloat(text) {
+                    // Si el texto es nulo, undefined o vacío, retornar 0
+                    if (!text) return 0;
+
+                    // Eliminar espacios en blanco al inicio y al final
+                    text = text.trim();
+
+                    // Reemplazar comas por puntos para manejar decimales
+                    text = text.replace(',', '.');
+
+                    // Eliminar cualquier carácter que no sea un número, un punto o un signo negativo
+                    text = text.replace(/[^0-9.-]/g, '');
+
+                    // Convertir a número flotante
+                    const number = parseFloat(text);
+
+                    // Si el resultado no es un número válido, retornar 0
+                    if (isNaN(number)) return 0;
+
+                    // Redondear a dos decimales y devolver como número
+                    return parseFloat(number.toFixed(2));
                 },
                 updateForm(concepto, valor = null) {
                     if (concepto) {
                         this.conceptos.forEach((c) => {
                             if (c.id == concepto) {
                                 this.newRow.id_concepto = c.id;
-                                this.newRow.nombre_concepto = c.descripcion;
-                                this.newRow.concepto_descuento = c.codigo_descuento;
+                                this.newRow.cliente = this.cedula;
+                                this.newRow.nro_docto = this.nro_docto;
+                                this.newRow.descripcion = c.descripcion;
+                                this.newRow.codigo_concepto = c.codigo_descuento;
                                 this.newRow.cuenta_contable = c.cuenta_contable;
                                 this.newRow.valor = valor || 0;
                             }
                         });
                     }
                 },
+                distribuirValor() {
+
+                    if (this.valorApagar < this.valorAAplicar) {
+
+                        new FilamentNotification()
+                            .title('Atención')
+                            .icon('heroicon-m-check-circle')
+                            .body('Valor aplicado es mayor al valor a pagar')
+                            .warning()
+                            .duration(5000)
+                            .send();
+
+                        return;
+                    }
+
+                    let valorRestante = parseFloat(this.valorAAplicar);
+
+                    this.liquidaciones.forEach(row => {
+                        if (valorRestante <= 0) return;
+
+                        let maxAplicar = row.vlr_detalle - (row.vlr_aplicar || 0);
+                        let valorAplicar = Math.min(maxAplicar, valorRestante);
+
+                        row.vlr_aplicar = (row.vlr_aplicar || 0) + valorAplicar;
+                        valorRestante -= valorAplicar;
+                    });
+
+                    this.$wire.aplicaValorLiquidacion(this.nro_docto, this.liquidaciones);
+
+                    this.$nextTick(() => {
+                        this.loading = true;
+                        this.$wire.generarLiquidacion(this.nro_docto).then((res) => {
+                            this.liquidaciones = res;
+                            this.valorApagar = res.map((v) => parseFloat(v.vlr_detalle)).reduce((a, b) =>
+                                a + b, 0);
+                            this.loading = false;
+                        }).catch((error) => {
+                            this.loading = false;
+                            console.error("Error:", error);
+                        });
+                    });
+
+
+                    this.valorAAplicar = 0; // Resetear el input después de distribuir
+                },
                 addComposicion(row = null) {
                     if (row) {
-                        this.rows.push({
+                        this.vencimientoDescuentos.push({
                             ...row
                         });
                     } else {
-                        this.rows.push({
+                        this.vencimientoDescuentos.push({
                             ...this.newRow
                         });
+                        this.$wire.vencimientoDescuento(this.newRow);
+                        this.newRow = {
+                            id_concepto: '',
+                            cliente: '',
+                            nro_docto: '',
+                            codigo_concepto: '',
+                            descripcion: '',
+                            cuenta_contable: '',
+                            valor: 0,
+                        };
                     }
                 },
-                removeRow(index) {
-                    this.rows.splice(index, 1);
+                eliminaVencimientoDescuento(vencimientoDescuento) {
+                    this.$wire.eliminaVencimiento(vencimientoDescuento);
                 },
                 toggleEditingState(id) {
                     this.isEditing[id] = !this.isEditing[id];
@@ -456,17 +555,16 @@
                 },
                 disableEditing(id) {
                     this.isEditing[id] = false; // Desactiva la edición para la fila correspondiente
-
                     const valorEditado = this.editingValues[id];
                 },
-                updatedSelectedCredito(documento) {
+                updatedSelectedCredito(documento, saldoActual) {
                     this.nro_docto = documento;
+                    this.saldoSelected = saldoActual;
                 },
                 calcularIntereses() {
                     this.$wire.calcularIntereses(this.nro_docto).then((res) => {
                         this.calculoIntereses = res;
-                        this.valorInteres = res.interes_mora;
-                        console.log(this.valorInteres)
+                        this.valorInteres = parseFloat(res.interes_mora.replace(/,/g, ''));
                     });
                 },
                 aplicarValor() {
@@ -480,14 +578,33 @@
                             this.liquidaciones = res;
                             this.valorApagar = res.map((v) => parseFloat(v.vlr_detalle)).reduce((a, b) => a + b, 0);
                             this.loading = false;
+
+                            this.valorAplicado = '';
+                            this.valorInteres = '';
                         }).catch((error) => {
                             this.loading = false;
                             console.error("Error:", error);
                         });
 
+                        this.$dispatch('close-modal', {
+                            id: 'type-pay'
+                        })
+
                         this.$dispatch('open-modal', {
                             id: 'modal_liquidacion'
                         })
+                    }
+
+                    if (valorAplicadoFloat > this.saldoSelected) {
+                        new FilamentNotification()
+                            .title('Atención')
+                            .icon('heroicon-m-check-circle')
+                            .body('El valor aplicado es mayor al saldo actual')
+                            .warning()
+                            .duration(5000)
+                            .send();
+
+                        return;
                     }
 
                     if (!isNaN(valorAplicadoFloat)) {
@@ -496,23 +613,42 @@
                                 //console.log(res);
 
                                 this.conceptos.forEach((c) => {
-                                    if (c.codigo_descuento == 2) {
-                                        console.log(c);
+                                    if (c.codigo_descuento == 9) {
 
                                         const newRow = {
                                             id_concepto: c.id,
-                                            nombre_concepto: c.descripcion,
-                                            concepto_descuento: c.codigo_descuento,
+                                            cliente: this.cedula,
+                                            nro_docto: this.nro_docto,
+                                            descripcion: c.descripcion,
+                                            codigo_concepto: c.codigo_descuento,
                                             cuenta_contable: c.cuenta_contable,
                                             valor: this.valorInteres
+                                        };
+
+                                        // Buscar si ya existe un registro con el mismo codigo_descuento en el arreglo "rows"
+                                        const index = this.vencimientoDescuentos.findIndex(item => item
+                                            .codigo_concepto === c
+                                            .codigo_descuento);
+
+                                        if (index !== -1) {
+                                            // Si existe, reemplazarlo
+                                            this.vencimientoDescuentos[index] = newRow;
+                                        } else {
+                                            // Si no existe, agregarlo
+                                            this.vencimientoDescuentos.push(newRow);
                                         }
 
+                                        this.$wire.vencimientoDescuento(newRow);
 
-                                        console.log(newRow);
-
-                                        this.addComposicion(newRow);
                                     }
                                 });
+
+                                this.valorAplicado = '';
+                                this.valorInteres = '';
+
+                                this.$dispatch('close-modal', {
+                                    id: 'type-pay'
+                                })
                             })
                             .catch((error) => {
                                 console.error("Error al aplicar valor:", error);
@@ -520,6 +656,21 @@
                     } else {
                         console.error("El valor aplicado no es un número válido:", this.valorAplicado);
                     }
+                },
+                aplicaValoraTotal(aplica, vlr_cuota, id) {
+                    if (aplica > vlr_cuota) {
+                        new FilamentNotification()
+                            .title('Atención')
+                            .icon('heroicon-m-check-circle')
+                            .body('El valor aplicado no puede ser mayor al valor de la cuota')
+                            .warning()
+                            .duration(5000)
+                            .send();
+
+                        this.editingValues[id] = 0;
+                        aplica = 0
+                    }
+                    this.$wire.updateValorAplicado(aplica);
                 }
             }
         }
