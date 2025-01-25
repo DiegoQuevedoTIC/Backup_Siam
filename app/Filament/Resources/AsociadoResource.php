@@ -41,6 +41,8 @@ use App\Models\Parentesco;
 use App\Models\NivelEscolar;
 use App\Models\ActividadEconomica;
 use App\Models\TipoContrato;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Columns\IconColumn;
 
 class AsociadoResource extends Resource
 {
@@ -383,9 +385,6 @@ public static function form(Form $form): Form
                                 ->validationMessages([
                                     'required'=> 'Este campo es requerido'
                                 ])
-                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
-                                    $set('ultimo_grado', ucwords(strtolower($state)));
-                                })
                                 ->preload()
                                 ->columnSpan(1),
                         TextInput::make('empresa')
@@ -397,6 +396,9 @@ public static function form(Form $form): Form
                                     'max'=> 'La empresa no puede tener mas de 255 caracteres',
                                 ])
                                 ->minLength(1)
+                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                                    $set('empresa', ucwords(strtolower($state)));
+                                })
                                 ->autocomplete(false)
                                 ->columnSpan(2)
                                 ->maxLength(255)
@@ -469,15 +471,25 @@ public static function form(Form $form): Form
                 ->label('Identificacion')
                 ->searchable(),
                 Tables\Columns\TextColumn::make('tercero.nombres')
-                ->label('Nombres'),
+                ->label('Nombres')
+                ->searchable(),
                 Tables\Columns\TextColumn::make('tercero.primer_apellido')
-                ->label('Primer Apellido'),
+                ->label('Primer Apellido')
+                ->searchable(),
                 Tables\Columns\TextColumn::make('tercero.segundo_apellido')
-                ->label('Segundo Apellido'),
+                ->label('Segundo Apellido')
+                ->searchable(),
+                Tables\Columns\IconColumn::make('habil')
+                ->boolean()
+                ->trueIcon('heroicon-o-check-badge')
+                ->falseIcon('heroicon-o-x-mark')
+                ->trueColor('primary')
+                ->alignment(Alignment::Start)
+                ->size(IconColumn\IconColumnSize::Large)
+                ->falseColor('danger')
+                ->label('Habil?'),
                 Tables\Columns\TextColumn::make('created_at')
                 ->label('Fecha Vinculacion'),
-                Tables\Columns\TextColumn::make('updated_at')
-                ->label('Ultima Actualizacion'),
             ])
             ->filters([
                 //

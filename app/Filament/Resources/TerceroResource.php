@@ -133,23 +133,35 @@ class TerceroResource extends Resource
                         'required'=> 'Este campo es requerido'
                     ])
                     ->markAsRequired(false)
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->autocomplete(false)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
                     ->maxLength(255)
+                    ->live(onBlur: true)
                     ->columnSpan(2)
                     ->label('Nombres Completos'),
                 TextInput::make('primer_apellido')
                     ->required()
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->autocomplete(false)
                     ->markAsRequired(false)
                     ->maxLength(255)
+                    ->live(onBlur: true)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
                     ->autocapitalize('words')
                     ->columnSpan(1)
                     ->label('Primer Apellido'),
                 TextInput::make('segundo_apellido')
                     ->maxLength(255)
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->autocomplete(false)
+                    ->live(onBlur: true)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
                     ->autocapitalize('words')
                     ->markAsRequired(false)
@@ -241,6 +253,9 @@ class TerceroResource extends Resource
                 Textarea::make('observaciones')
                     ->maxLength(65535)
                     ->autocomplete(false)
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->markAsRequired(false)
                     ->columnSpanFull(),
                 Toggle::make('activo')

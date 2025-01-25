@@ -8,12 +8,50 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Asociado extends Model
 
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+
     protected $table = 'asociados';
+
+    protected $fillable = [
+        'tercero_id',
+        'tipo_vinculo_id',
+        'pagaduria_id',
+        'codigo_interno_pag',
+        'estado_cliente_id',
+        'banco_id',
+        'cuenta_cliente',
+        'observaciones_cliente',
+        'ciudad_nacimiento_id',
+        'fecha_nacimiento',
+        'tipo_residencia_id',
+        'tiempo_residencia',
+        'estado_civil_id',
+        'conyugue',
+        'parentesco_id',
+        'direccion_conyugue',
+        'telefono_conyugue',
+        'madre_cabeza',
+        'no_hijos',
+        'no_personas_cargo',
+        'nivel_escolar_id',
+        'ultimo_grado',
+        'profesion_id',
+        'actividad_economica_id',
+        'genero_id',
+        'empresa',
+        'telefono_empresa',
+        'fecha_ingreso_laboral',
+        'direccion_empresa',
+        'tipo_contrato_id',
+        'habil',
+    ];
+
 
     public function pagaduria(): BelongsTo
     {
@@ -152,5 +190,5 @@ class Asociado extends Model
         return $this->hasMany(CarteraEncabezado::class, 'cliente', 'codigo_interno_pag');
     }
 
-    protected $fillable = [];
+
 }

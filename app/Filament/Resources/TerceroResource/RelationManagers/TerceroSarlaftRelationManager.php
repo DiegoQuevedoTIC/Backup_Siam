@@ -41,6 +41,9 @@ class TerceroSarlaftRelationManager extends RelationManager
 
                 TextInput::make('descripcion_reconocimiento')
                     ->label('Descripción del Reconocimiento')
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->placeholder('Ingrese la descripción')
                     ->maxLength(255)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
@@ -54,6 +57,9 @@ class TerceroSarlaftRelationManager extends RelationManager
 
                 TextInput::make('descripcion_cargo_publico')
                     ->label('Descripción del Cargo Público')
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->placeholder('Ingrese la descripción del cargo')
                     ->maxLength(255)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
@@ -85,6 +91,9 @@ class TerceroSarlaftRelationManager extends RelationManager
 
                 TextInput::make('nombre_peps')
                     ->label('Nombre del PEP')
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->placeholder('Ingrese el nombre completo del PEP')
                     ->maxLength(255)
                     ->rule('regex:/^[a-zA-Z\s-]+$/')
@@ -139,6 +148,9 @@ class TerceroSarlaftRelationManager extends RelationManager
 
                 Textarea::make('origen_fondos')
                     ->label(null)
+                    ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                        $set('ultimo_grado', ucwords(strtolower($state)));
+                    })
                     ->placeholder('Describa el origen de los fondos')
                     ->maxLength(65535)
                     ->helperText('Sea lo más detallado posible')

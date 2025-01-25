@@ -38,6 +38,11 @@ class NovedadesRelationManager extends RelationManager
                 Textarea::make('observaciones')
                 ->maxLength(65535)
                 ->autocomplete(false)
+                ->label('Observaciones')
+                ->markAsRequired(false)
+                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                    $set('ultimo_grado', ucwords(strtolower($state)));
+                })
                 ->markAsRequired(false)
                 ->columnSpanFull(),
             ]);

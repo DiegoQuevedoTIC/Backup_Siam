@@ -92,6 +92,9 @@ class ReferenciasRelationManager extends RelationManager
                 ->columnSpan(4),
                 Textarea::make('observaciones')
                 ->maxLength(65535)
+                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                    $set('ultimo_grado', ucwords(strtolower($state)));
+                })
                 ->markAsRequired(false)
                 ->autocomplete(false)
                 ->columnSpanFull(),
