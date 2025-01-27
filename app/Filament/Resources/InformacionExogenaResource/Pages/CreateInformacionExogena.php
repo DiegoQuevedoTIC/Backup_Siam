@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateInformacionExogena extends CreateRecord
 {
     protected static string $resource = InformacionExogenaResource::class;
+
+    protected static ?string $pollingInterval = null;
+
+    protected static string $view = 'custom.exogena.create-exogena';
 }

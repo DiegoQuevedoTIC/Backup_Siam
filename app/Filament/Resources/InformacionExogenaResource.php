@@ -43,6 +43,16 @@ class InformacionExogenaResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
+
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make('create')
+                ->label('Generar Informe'),
+            ])
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Informacion Exogena')
+            ->emptyStateDescription('En este módulo podrás generar de forma sencilla los distintos archivos de informacion Exogena para reportar a la direccion de impuestos.')
+
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -62,7 +72,6 @@ class InformacionExogenaResource extends Resource
         return [
             'index' => Pages\ListInformacionExogenas::route('/'),
             'create' => Pages\CreateInformacionExogena::route('/create'),
-            'view' => Pages\ViewInformacionExogena::route('/{record}'),
             'edit' => Pages\EditInformacionExogena::route('/{record}/edit'),
         ];
     }

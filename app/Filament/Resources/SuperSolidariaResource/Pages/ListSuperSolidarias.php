@@ -10,10 +10,4 @@ class ListSuperSolidarias extends ListRecords
 {
     protected static string $resource = SuperSolidariaResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
 }

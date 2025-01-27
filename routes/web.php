@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BalanceGeneralController;
+use App\Http\Controllers\CentralesGeneralController;
 use App\Http\Controllers\ExportController;
 use App\Models\Tercero;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::post('/generar-pdf', [CentralesGeneralController::class, 'generateCetralesGeneral'])->name('generarpdf');
+Route::post('/generar-balance-horizontal', [CentralesGeneralController::class, 'generarCentralesHorizontal'])->name('generar.centrales.riesgo');
+Route::post('/generar-balance-por-tercero', [CentralesGeneralController::class, 'generateCentralesTercero'])->name('generar.informe.supersolidaria');
+Route::post('/generar-balance-comparativo', [CentralesGeneralController::class, 'generateCentralesComparativo'])->name('generar.informacion.exogena');
+
+Route::post('/export', [CentralesGeneralController::class, 'export'])->name('export');
 
 Route::post('/generar-pdf', [BalanceGeneralController::class, 'generateBalanceGeneral'])->name('generarpdf');
 Route::post('/generar-balance-horizontal', [BalanceGeneralController::class, 'generarBalanceHorizontal'])->name('generar.balance.horizontal');

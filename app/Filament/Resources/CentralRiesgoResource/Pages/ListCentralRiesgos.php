@@ -10,10 +10,5 @@ class ListCentralRiesgos extends ListRecords
 {
     protected static string $resource = CentralRiesgoResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+
 }

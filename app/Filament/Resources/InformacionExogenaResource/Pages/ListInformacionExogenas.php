@@ -10,10 +10,5 @@ class ListInformacionExogenas extends ListRecords
 {
     protected static string $resource = InformacionExogenaResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+
 }

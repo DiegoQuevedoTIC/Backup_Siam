@@ -19,8 +19,8 @@ class CentralRiesgoResource extends Resource
     protected static ?string $model = CentralRiesgo::class;
     protected static ?string $cluster = InformesCumplimiento::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
-    protected static ?string $navigationLabel = 'Central de Riesgos';
-    protected static ?string $modelLabel = 'Central de Riesgos';
+    protected static ?string $navigationLabel = 'Informes Centrales de Riesgo';
+    protected static ?string $modelLabel = 'Informes Centrales de Riesgo';
 
     public static function form(Form $form): Form
     {
@@ -43,6 +43,14 @@ class CentralRiesgoResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make('create')
+                ->label('Generar Informe'),
+            ])
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Informe Centrales de Riesgo')
+            ->emptyStateDescription('En este módulo podrás generar de forma sencilla los archivos de reporte para envio a las diferentes centrales de Riesgo.')
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -62,8 +70,9 @@ class CentralRiesgoResource extends Resource
         return [
             'index' => Pages\ListCentralRiesgos::route('/'),
             'create' => Pages\CreateCentralRiesgo::route('/create'),
-            'view' => Pages\ViewCentralRiesgo::route('/{record}'),
             'edit' => Pages\EditCentralRiesgo::route('/{record}/edit'),
         ];
     }
+
+
 }

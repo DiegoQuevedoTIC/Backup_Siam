@@ -3,17 +3,12 @@
 namespace App\Filament\Resources\InformacionExogenaResource\Pages;
 
 use App\Filament\Resources\InformacionExogenaResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Resources\Pages\Page;
 
-class ViewInformacionExogena extends ViewRecord
+class ViewInformacionExogena extends Page
 {
     protected static string $resource = InformacionExogenaResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\EditAction::make(),
-        ];
-    }
+    protected static string $view = 'filament.resources.exogena-resource.pages.view-exogena';
+
 }
