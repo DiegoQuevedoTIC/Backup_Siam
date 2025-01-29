@@ -154,7 +154,8 @@ class Tercero extends Model
                 'c.descripcion as descripcion_concepto',
                 'detalle_vencimiento_descuento.consecutivo',
                 'detalle_vencimiento_descuento.nro_cuota',
-                'detalle_vencimiento_descuento.vlr_cuota'
+                'detalle_vencimiento_descuento.vlr_cuota',
+                'detalle_vencimiento_descuento.vlr_congelada'
             );
     }
 

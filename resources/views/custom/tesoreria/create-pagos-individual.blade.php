@@ -23,7 +23,7 @@
 
                 <div>
                     <div class="flex justify-end mt-2">
-                        <x-filament::button icon="heroicon-m-plus">
+                        <x-filament::button @click="$wire.generarComprobante()" icon="heroicon-m-plus">
                             Guardar comprobante
                         </x-filament::button>
                     </div>
@@ -67,13 +67,14 @@
                             </thead>
                             <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
                                 @forelse ($this->cliente->carteraEncabezados->where('estado', 'A')->where('tdocto', 'PAG') as $index => $credito)
-                                    <tr @click="$dispatch('open-modal', { id: 'type-pay' })" x-init="updatedSelectedCredito({{ $credito->nro_docto }}, {{ $credito->vlr_saldo_actual }})"
+                                    <tr @click="$dispatch('open-modal', { id: 'type-pay' }), updatedSelectedCredito({{ $credito->nro_docto }}, {{ $credito->vlr_saldo_actual }})"
                                         class="cursor-pointer">
                                         <td class="p-4">{{ $credito->nro_docto }}</td>
                                         <td class="p-4">{{ $credito->nro_cuotas }}</td>
                                         <td class="p-4">{{ $credito->lineaCredito->descripcion ?? 'N/A' }}</td>
                                         <td class="p-4">{{ $credito->vlr_saldo_actual }}</td>
-                                        <td class="p-4">{{ $credito->vlr_congelada ?? 0 }}</td>
+                                        <td class="p-4">
+                                            {{ $credito->vlr_congelada == 0 ? $credito->vlr_cuentas_orden : $credito->vlr_congelada }}</td>
                                         <td class="p-4"></td>
                                     </tr>
                                 @empty
@@ -114,12 +115,7 @@
                                         <td class="p-4">{{ number_format($obligacion->vlr_cuota, 2) }}</td>
                                         <td class="p-4" @dblclick="toggleEditingState({{ $obligacion->id }})">
 
-                                            <span x-show="!isEditing[{{ $obligacion->id }}]"
-                                                x-text="
-                                                editingValues[{{ $obligacion->id }}] !== undefined ?
-                                                parseFloat(editingValues[{{ $obligacion->id }}]).toFixed(2).toLocaleString('en-US') :
-                                                '0.00'
-                                            "></span>
+                                            {{ number_format($obligacion->vlr_congelada, 2) }}
 
                                             <input type="number" x-show="isEditing[{{ $obligacion->id }}]"
                                                 x-trap="isEditing[{{ $obligacion->id }}]"
@@ -367,7 +363,9 @@
 
 
                     <x-slot name="footer">
-                        <x-filament::button style="display: flex; margin: auto;">
+                        <x-filament::button
+                            @click="$wire.aplicarValorLiquidacion(nro_docto, obtenerSumaLiquidaciones()), $dispatch('close-modal', { id: 'modal_liquidacion' }), valorAplicado = ''"
+                            style="display: flex; margin: auto;">
                             Guardar
                         </x-filament::button>
                     </x-slot>
@@ -493,9 +491,6 @@
                             console.error("Error:", error);
                         });
                     });
-
-
-                    this.valorAAplicar = 0; // Resetear el input después de distribuir
                 },
                 addComposicion(row = null) {
                     if (row) {
@@ -560,6 +555,7 @@
                 updatedSelectedCredito(documento, saldoActual) {
                     this.nro_docto = documento;
                     this.saldoSelected = saldoActual;
+                    this.$wire.nroDoctoActual(documento);
                 },
                 calcularIntereses() {
                     this.$wire.calcularIntereses(this.nro_docto).then((res) => {
@@ -670,7 +666,22 @@
                         this.editingValues[id] = 0;
                         aplica = 0
                     }
-                    this.$wire.updateValorAplicado(aplica);
+                    this.$wire.updateValorAplicado(aplica, id);
+                },
+                obtenerSumaLiquidaciones() {
+                    if (this.valorAAplicar > 0) {
+                        let suma = 0;
+                        this.liquidaciones.forEach(element => {
+                            // Asegúrate de que el valor sea convertido a número antes de sumarlo
+                            suma += parseFloat(element.vlr_cuentas_orden) || 0;
+                            console.log(element);
+                        });
+                        this.valorAplicado = suma;
+                        return suma;
+                    }
+
+                    this.valorAAplicar = 0; // Resetear el input después de distribuir
+                    return 0;
                 }
             }
         }

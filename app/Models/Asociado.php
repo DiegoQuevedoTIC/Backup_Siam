@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Asociado extends Model
 
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
 
     protected $table = 'asociados';
