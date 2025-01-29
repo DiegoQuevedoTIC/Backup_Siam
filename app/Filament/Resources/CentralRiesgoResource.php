@@ -62,15 +62,15 @@ class CentralRiesgoResource extends Resource
                             ])
                             ->required()
                     ])
-                    ->modifyQueryUsing ( 'a' , array $data)
+                    ->modifyQueryUsing(function (Builder $query, array $data) {
+                        $query->where('fecha_corte', $data['Fecha_Corte']);
+                        $query->where('tipo_informe', $data['Tipo_Informe']);
+                    })
                     ->columnMapping(false)
                     ->label('Generar Informe')
             ])
             ->actions([])
-            ->emptyStateActions([
-
-
-            ])
+            ->emptyStateActions([])
 
             ->emptyStateIcon('heroicon-o-bookmark')
             ->emptyStateHeading('Informe Centrales de Riesgo')

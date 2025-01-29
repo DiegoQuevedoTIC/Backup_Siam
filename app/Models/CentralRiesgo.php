@@ -24,13 +24,8 @@ class CentralRiesgo extends Model
         'fecha_corte',
     ];
 
-
-    public static function modifyQuery($variable_1, $variable_2)
+    public static function modifyQuery($query)
     {
-        dd($variable_1, $variable_2);
-        /* dd('modifyQuery'); */
+        return $query;
     }
-
-
-
 }
