@@ -19,6 +19,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ExportAction;
+use Illuminate\Support\Facades\DB;
 
 class CentralRiesgoResource extends Resource
 {
@@ -48,7 +49,7 @@ class CentralRiesgoResource extends Resource
 
             ->headerActions([
                 ExportAction::make()
-                    ->exporter(CentralRiesgo::class)
+                    ->exporter(CentralRiesgoExporter::class)
                     ->form([
                         DatePicker::make('Fecha_Corte')
                             ->label('Fecha de Corte')
@@ -63,8 +64,14 @@ class CentralRiesgoResource extends Resource
                             ->required()
                     ])
                     ->modifyQueryUsing(function (Builder $query, array $data) {
-                        $query->where('fecha_corte', $data['Fecha_Corte']);
-                        $query->where('tipo_informe', $data['Tipo_Informe']);
+                        //dd($query, $data);
+                        //dd(DB::table('asociados')->get());
+                        //dd($query->where('cliente', '19240474')->get());
+                        //$query->where('cliente', '19240474')->get();
+                        $query->join('asociados', DB::raw('cartera_encabezados_corte.cliente'), '=', DB::raw('asociados.codigo_interno_pag::bigint'))
+                            ->select('asociados.codigo_interno_pag', 'cartera_encabezados_corte.id');
+                        //DB::table('asociados')->get();
+                        //$query->from('asociados')->where('codigo_interno_pag', '"19307511"');
                     })
                     ->columnMapping(false)
                     ->label('Generar Informe')

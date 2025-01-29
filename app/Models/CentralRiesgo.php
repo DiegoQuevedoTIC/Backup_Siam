@@ -23,9 +23,4 @@ class CentralRiesgo extends Model
         'vlr_saldo_actual',
         'fecha_corte',
     ];
-
-    public static function modifyQuery($query)
-    {
-        return $query;
-    }
 }

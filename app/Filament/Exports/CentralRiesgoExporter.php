@@ -15,20 +15,10 @@ class CentralRiesgoExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('tdocto'),
-            ExportColumn::make('nro_docto'),
-            ExportColumn::make('cliente'),
-            ExportColumn::make('linea'),
-            ExportColumn::make('estado'),
-            ExportColumn::make('fecha_docto'),
-            ExportColumn::make('fecha_primer_vto'),
-            ExportColumn::make('vlr_docto_vto'),
-            ExportColumn::make('vlr_saldo_actual'),
-            ExportColumn::make('fecha_corte'),
+            ExportColumn::make('id'),
+            ExportColumn::make('tipo_corte'),
         ];
     }
-
-
 
 
     public static function getCompletedNotificationBody(Export $export): string

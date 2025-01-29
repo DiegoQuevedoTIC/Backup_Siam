@@ -112,6 +112,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotifications()
             ->spa()
             ->plugins([
                 FilamentSpatieRolesPermissionsPlugin::make(),
