@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class CentralRiesgo extends Model
@@ -24,8 +25,12 @@ class CentralRiesgo extends Model
     ];
 
 
-    public static function modifyQuery()
+    public static function modifyQuery($variable_1, $variable_2)
     {
-        dd('modifyQuery');
+        dd($variable_1, $variable_2);
+        /* dd('modifyQuery'); */
     }
+
+
+
 }

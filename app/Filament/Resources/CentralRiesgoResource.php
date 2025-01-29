@@ -62,15 +62,7 @@ class CentralRiesgoResource extends Resource
                             ])
                             ->required()
                     ])
-                    ->modifyQueryUsing(function (Builder $query, array $data) {
-                        if (!empty($data['Fecha_Corte'])) {
-                            $query->whereDate('fecha_corte', $data['Fecha_Corte']);
-                        }
-
-                        if (!empty($data['Tipo_Informe'])) {
-                            $query->where('tipo_informe', $data['Tipo_Informe']);
-                        }
-                    })
+                    ->modifyQueryUsing ( 'a' , array $data)
                     ->columnMapping(false)
                     ->label('Generar Informe')
             ])
