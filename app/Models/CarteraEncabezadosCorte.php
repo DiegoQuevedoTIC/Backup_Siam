@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class CentralRiesgo extends Model
+class CarteraEncabezadosCorte extends Model
 {
 
+    use HasFactory;
 
     protected $table = 'cartera_encabezados_corte';
 
@@ -22,5 +24,4 @@ class CentralRiesgo extends Model
         'vlr_saldo_actual',
         'fecha_corte',
     ];
-
 }

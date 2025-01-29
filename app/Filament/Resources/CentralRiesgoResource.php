@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\CentralesExport;
 use App\Filament\Clusters\InformesCumplimiento;
 use App\Filament\Resources\CentralRiesgoResource\Pages;
 use App\Filament\Resources\CentralRiesgoResource\RelationManagers;
@@ -13,6 +14,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\CentralRiesgoExporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ExportAction;
 
 class CentralRiesgoResource extends Resource
 {
@@ -39,14 +45,41 @@ class CentralRiesgoResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(CentralRiesgo::class)
+                    ->form([
+                        DatePicker::make('Fecha_Corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                        Select::make('Tipo_Informe')
+                            ->label('Tipo de Informe')
+                            ->options([
+                                '1' => 'Datacredito',
+                                '2' => 'Cifin',
+                                '3' => 'Procredito'
+                            ])
+                            ->required()
+                    ])
+                    ->modifyQueryUsing(function (Builder $query, array $data) {
+                        if (!empty($data['Fecha_Corte'])) {
+                            $query->whereDate('fecha_corte', $data['Fecha_Corte']);
+                        }
+
+                        if (!empty($data['Tipo_Informe'])) {
+                            $query->where('tipo_informe', $data['Tipo_Informe']);
+                        }
+                    })
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
+            ->actions([])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make('create')
-                ->label('Generar Informe'),
+
+
             ])
+
             ->emptyStateIcon('heroicon-o-bookmark')
             ->emptyStateHeading('Informe Centrales de Riesgo')
             ->emptyStateDescription('En este módulo podrás generar de forma sencilla los archivos de reporte para envio a las diferentes centrales de Riesgo.')
@@ -73,6 +106,4 @@ class CentralRiesgoResource extends Resource
             'edit' => Pages\EditCentralRiesgo::route('/{record}/edit'),
         ];
     }
-
-
 }
