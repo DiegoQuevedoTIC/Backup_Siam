@@ -14,12 +14,20 @@ class InformacionExogenaExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')->label('ID'),
-            ExportColumn::make('fecha_inicial')->label('Fecha Inicial'),
-            ExportColumn::make('fecha_final')->label('Fecha Final'),
-            ExportColumn::make('Tipo_Informe')->label('Tipo de Informe'),
-            ExportColumn::make('created_at')->label('Created At'),
-            ExportColumn::make('updated_at')->label('Updated At'),
+            ExportColumn::make('concepto'),
+            ExportColumn::make('tipo_documento'),
+            ExportColumn::make('numero_identificacion'),
+            ExportColumn::make('digitoverificacion'),
+            ExportColumn::make('primer_apellido'),
+            ExportColumn::make('segundo_apellido'),
+            ExportColumn::make('primer_nombre'),
+            ExportColumn::make('otros_nombres'),
+            ExportColumn::make('razon_social'),
+            ExportColumn::make('direccion'),
+            ExportColumn::make('codigo_departamento'),
+            ExportColumn::make('codigo_municipio'),
+            ExportColumn::make('pais_residencia'),
+            ExportColumn::make('valor'),
         ];
     }
 

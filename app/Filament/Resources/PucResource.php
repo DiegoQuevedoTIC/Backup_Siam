@@ -200,8 +200,33 @@ class PucResource extends Resource
                     ->required()
                     ->reactive()
                     ->columnSpan(4)
+                    ->live(onBlur: true)
                     ->disabled(fn (callable $get) => $get('codigo_dian_disabled'))
                     ->label('Es cuenta que reporta a la DIAN?'),
+                TextInput::make('informe_exog')
+                    ->label('Informe Exogena')
+                    ->hidden(fn (callable $get) => !$get('codigo_dian'))
+                    ->required(fn (callable $get) => $get('codigo_dian')) // Requerido solo si el toggle está activo
+                    ->reactive()
+                    ->columnSpan(2)
+                    ->live()
+                    ->rules(['required', 'string', 'max:4']),
+                TextInput::make('concepto_exog')
+                    ->label('Concepto Exogena')
+                    ->hidden(fn (callable $get) => !$get('codigo_dian'))
+                    ->required(fn (callable $get) => $get('codigo_dian')) // Requerido solo si el toggle está activo
+                    ->reactive()
+                    ->columnSpan(1)
+                    ->live()
+                    ->rules(['required', 'string', 'max:4']),
+                TextInput::make('descripcion_concepto_exog')
+                    ->label('Descripcion del Concepto Exogena')
+                    ->hidden(fn (callable $get) => !$get('codigo_dian'))
+                    ->required(fn (callable $get) => $get('codigo_dian')) // Requerido solo si el toggle está activo
+                    ->reactive()
+                    ->columnSpan(3)
+                    ->live()
+                    ->rules(['required', 'string', 'max:50'])
             ]);
     }
 

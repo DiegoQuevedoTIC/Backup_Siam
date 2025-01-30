@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class InformacionExogena extends Model
 {
 
-    protected $table = 'informe_datacredito_excel';
+    protected $table = 'informacion_exogenas';
+
+
 
     protected $guarded = [];
 

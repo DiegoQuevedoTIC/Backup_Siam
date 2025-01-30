@@ -14,6 +14,9 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 
 class InformacionExogenaResource extends Resource
 {
@@ -27,7 +30,9 @@ class InformacionExogenaResource extends Resource
     {
         return $form
             ->schema([
-                //
+
+
+
             ]);
     }
 
@@ -37,21 +42,26 @@ class InformacionExogenaResource extends Resource
             ->heading('Informacion Exogena')
             ->description('En este módulo podrás generar los diferentes informes de la información exógena requerida por la DIAN.')
             ->paginated(false)
-            ->striped()
-            ->defaultPaginationPageOption(5)
             ->columns([
-                //
+                TextColumn::make('id'),
+                TextColumn::make('descripcion')
+                    ->label('Informe Exógeno'),
+                IconColumn::make('vigente')
+                    ->label('Procesar?')
+                    ->trueIcon('heroicon-o-document-arrow-down')
+                    ->trueColor('primary')
+                    ->size(IconColumn\IconColumnSize::TwoExtraLarge)
+                    ->boolean()
+                    ->sortable(),
+
             ])
             ->headerActions([
                 ExportAction::make()
                     ->color('primary')
                     ->exporter(InformacionExogenaExporter::class)
                     ->form([
-                        DatePicker::make('fecha_inicial')
-                        ->label('Fecha Inicial')
-                        ->required(),
-                        DatePicker::make('fecha_final')
-                            ->label('Fecha Final')
+                        DatePicker::make('Año_Generacion')
+                            ->label('Año Generacion')
                             ->required(),
                         Select::make('Tipo_Informe')
                             ->label('Tipo de Informe')
