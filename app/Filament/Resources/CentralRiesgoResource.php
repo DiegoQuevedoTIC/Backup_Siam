@@ -2,24 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Exports\CentralesExport;
+
 use App\Filament\Clusters\InformesCumplimiento;
 use App\Filament\Resources\CentralRiesgoResource\Pages;
-use App\Filament\Resources\CentralRiesgoResource\RelationManagers;
 use App\Models\CentralRiesgo;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Exports\CentralRiesgoExporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ExportAction;
-use Illuminate\Support\Facades\DB;
 
 class CentralRiesgoResource extends Resource
 {

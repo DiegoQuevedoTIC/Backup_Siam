@@ -6,13 +6,14 @@ use App\Filament\Clusters\InformesCumplimiento;
 use App\Filament\Resources\InformacionExogenaResource\Pages;
 use App\Filament\Resources\InformacionExogenaResource\RelationManagers;
 use App\Models\InformacionExogena;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Exports\InformacionExogenaExporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\ExportAction;
 
 class InformacionExogenaResource extends Resource
 {
@@ -33,31 +34,50 @@ class InformacionExogenaResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Informacion Exogena')
+            ->description('En este módulo podrás generar los diferentes informes de la información exógena requerida por la DIAN.')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(InformacionExogenaExporter::class)
+                    ->form([
+                        DatePicker::make('fecha_inicial')
+                        ->label('Fecha Inicial')
+                        ->required(),
+                        DatePicker::make('fecha_final')
+                            ->label('Fecha Final')
+                            ->required(),
+                        Select::make('Tipo_Informe')
+                            ->label('Tipo de Informe')
+                            ->required()
+                            ->options([
+                                '1001' => '1001: Información de Terceros',
+                                '1007' => '1007: Ingresos Recibidos',
+                                '1008' => '1008: Saldos de Cuentas por Cobrar',
+                                '1009' => '1009: Saldos de Cuentas por Pagar',
+                                '1010' => '1010: Información de Socios, Accionistas, Comuneros y/o Cooperados',
+                                '1011' => '1011: Información de las Declaraciones Tributarias',
+                                '1012' => '1012: Información de las Declaraciones Tributarias, Acciones y Aportes e Inversiones',
+                                '1022' => '1022: Información de Retenciones en la Fuente por Rentas de Trabajo y Pensiones'
+                            ])
+                    ])
+/*                     ->modifyQueryUsing(function (Builder $query, array $data) {
+                        $query->where('fecha_corte', $data['fecha_corte']);
+                    }) */
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make('create')
-                ->label('Generar Informe'),
-            ])
+            ->actions([])
+            ->emptyStateActions([])
             ->emptyStateIcon('heroicon-o-bookmark')
             ->emptyStateHeading('Informacion Exogena')
-            ->emptyStateDescription('En este módulo podrás generar de forma sencilla los distintos archivos de informacion Exogena para reportar a la direccion de impuestos.')
-
-
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->emptyStateDescription('En este módulo podrás generar los diferentes informes de la información exógena requerida por la DIAN.');
     }
 
     public static function getRelations(): array
