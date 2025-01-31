@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\InformesCumplimiento;
+
 use App\Filament\Exports\SuperSolidariaExporter;
 use App\Filament\Resources\SuperSolidariaResource\Pages;
 use App\Filament\Resources\SuperSolidariaResource\RelationManagers;
@@ -19,10 +19,11 @@ use Filament\Tables\Actions\ExportAction;
 class SuperSolidariaResource extends Resource
 {
     protected static ?string $model = SuperSolidaria::class;
-    protected static ?string $cluster = InformesCumplimiento::class;
     protected static?string $navigationIcon = 'heroicon-o-cursor-arrow-rays';
     protected static?string $navigationLabel = 'Informes  SuperSolidaria';
     protected static?string $modelLabel = 'Informes SuperSolidaria';
+    protected static ?string $navigationGroup = 'Informes de Cumplimiento';
+    protected static ?int       $navigationSort = 9;
 
     public static function form(Form $form): Form
     {

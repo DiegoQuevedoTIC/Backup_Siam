@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 
-use App\Filament\Clusters\InformesCumplimiento;
+
 use App\Filament\Resources\CentralRiesgoResource\Pages;
 use App\Models\CentralRiesgo;
 use Filament\Forms\Form;
@@ -18,10 +18,10 @@ use Filament\Tables\Actions\ExportAction;
 class CentralRiesgoResource extends Resource
 {
     protected static ?string $model = CentralRiesgo::class;
-    protected static ?string $cluster = InformesCumplimiento::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
     protected static ?string $navigationLabel = 'Informes Centrales de Riesgo';
     protected static ?string $modelLabel = 'Informes Centrales de Riesgo';
+    protected static ?string $navigationGroup = 'Informes de Cumplimiento';
 
     public static function form(Form $form): Form
     {
@@ -43,38 +43,6 @@ class CentralRiesgoResource extends Resource
             ->columns([
                 //
             ])
-            ->headerActions([
-                ExportAction::make()
-                    ->color('primary')
-                    ->exporter(CentralRiesgoExporter::class)
-                    ->form([
-                        DatePicker::make('fecha_corte')
-                            ->label('Fecha de Corte')
-                            ->required(),
-                        Select::make('Tipo_Informe')
-                            ->label('Tipo de Informe')
-                            ->required()
-                            ->options([
-                                '1' => 'Informe Central Datacredito'
-                            ])
-                    ])
-                    ->modifyQueryUsing(function (Builder $query, array $data) {
-                        $query->where('fecha_corte', $data['fecha_corte']);
-
-                        /* ->limit(10); */
-                        //dd($query, $data);
-                        //dd(DB::table('asociados')->get());
-                        //dd($query->where('cliente', '19240474')->get());
-                        //$query->where('cliente', '19240474')->get();
-                        //$query->join('asociados', DB::raw('cartera_encabezados_corte.cliente'), '=', DB::raw('asociados.codigo_interno_pag::bigint'))
-                        //    ->select('asociados.codigo_interno_pag', 'cartera_encabezados_corte.id');
-                        //DB::table('asociados')->get();
-                        //$query->from('asociados')->where('codigo_interno_pag', '"19307511"');
-                    })
-                    ->columnMapping(false)
-                    ->label('Generar Informe')
-            ])
-            ->actions([])
             ->emptyStateActions([])
             ->emptyStateIcon('heroicon-o-bookmark')
             ->emptyStateHeading('Informe Centrales de Riesgo')

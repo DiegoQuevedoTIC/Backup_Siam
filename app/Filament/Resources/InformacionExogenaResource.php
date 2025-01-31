@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\InformesCumplimiento;
+
 use App\Filament\Resources\InformacionExogenaResource\Pages;
 use App\Filament\Resources\InformacionExogenaResource\RelationManagers;
 use App\Models\InformacionExogena;
@@ -21,17 +21,15 @@ use Filament\Tables\Columns\IconColumn;
 class InformacionExogenaResource extends Resource
 {
     protected static ?string $model = InformacionExogena::class;
-    protected static?string $cluster = InformesCumplimiento::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static?string $navigationLabel = 'Información Exógena';
     protected static?string $modelLabel = 'Información Exógena';
+    protected static ?string $navigationGroup = 'Informes de Cumplimiento';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
-
 
             ]);
     }
@@ -42,48 +40,7 @@ class InformacionExogenaResource extends Resource
             ->heading('Informacion Exogena')
             ->description('En este módulo podrás generar los diferentes informes de la información exógena requerida por la DIAN.')
             ->paginated(false)
-            ->columns([
-                TextColumn::make('id'),
-                TextColumn::make('descripcion')
-                    ->label('Informe Exógeno'),
-                IconColumn::make('vigente')
-                    ->label('Procesar?')
-                    ->trueIcon('heroicon-o-document-arrow-down')
-                    ->trueColor('primary')
-                    ->size(IconColumn\IconColumnSize::TwoExtraLarge)
-                    ->boolean()
-                    ->sortable(),
-
-            ])
-            ->headerActions([
-                ExportAction::make()
-                    ->color('primary')
-                    ->exporter(InformacionExogenaExporter::class)
-                    ->form([
-                        DatePicker::make('Año_Generacion')
-                            ->label('Año Generacion')
-                            ->required(),
-                        Select::make('Tipo_Informe')
-                            ->label('Tipo de Informe')
-                            ->required()
-                            ->options([
-                                '1001' => '1001: Información de Terceros',
-                                '1007' => '1007: Ingresos Recibidos',
-                                '1008' => '1008: Saldos de Cuentas por Cobrar',
-                                '1009' => '1009: Saldos de Cuentas por Pagar',
-                                '1010' => '1010: Información de Socios, Accionistas, Comuneros y/o Cooperados',
-                                '1011' => '1011: Información de las Declaraciones Tributarias',
-                                '1012' => '1012: Información de las Declaraciones Tributarias, Acciones y Aportes e Inversiones',
-                                '1022' => '1022: Información de Retenciones en la Fuente por Rentas de Trabajo y Pensiones'
-                            ])
-                    ])
-/*                     ->modifyQueryUsing(function (Builder $query, array $data) {
-                        $query->where('fecha_corte', $data['fecha_corte']);
-                    }) */
-                    ->columnMapping(false)
-                    ->label('Generar Informe')
-            ])
-            ->actions([])
+            ->columns([])
             ->emptyStateActions([])
             ->emptyStateIcon('heroicon-o-bookmark')
             ->emptyStateHeading('Informacion Exogena')

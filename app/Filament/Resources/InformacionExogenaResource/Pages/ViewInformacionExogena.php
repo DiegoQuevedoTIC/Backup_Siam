@@ -9,6 +9,5 @@ class ViewInformacionExogena extends Page
 {
     protected static string $resource = InformacionExogenaResource::class;
 
-    protected static string $view = 'filament.resources.exogena-resource.pages.view-exogena';
 
 }

@@ -9,6 +9,5 @@ class ViewSuperSolidaria extends Page
 {
     protected static string $resource = SuperSolidariaResource::class;
 
-    protected static string $view = 'filament.resources.supersolidaria-resource.pages.view-supersolidaria';
 
 }
