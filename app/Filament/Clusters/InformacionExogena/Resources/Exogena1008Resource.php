@@ -13,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\Informe1008Exporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ExportAction;
 
 class Exogena1008Resource extends Resource
 {
@@ -32,20 +36,32 @@ class Exogena1008Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Formato 1008: Saldos de cuentas por cobrar')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1008: Saldos de cuentas por cobrar')
+            ->emptyStateDescription('Este formato está destinado a reportar los saldos de las cuentas por cobrar al cierre del año gravable.
+            Se debe informar el tipo de documento del deudor, número de identificación, concepto de la cuenta por cobrar, y el saldo correspondiente.')
+
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(Informe1008Exporter::class)
+                    ->form([
+                        DatePicker::make('fecha_corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                    ])
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->actions([]);
+
     }
 
     public static function getRelations(): array

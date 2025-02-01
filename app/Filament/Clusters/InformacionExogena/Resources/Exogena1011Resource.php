@@ -13,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\Informe1011Exporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ExportAction;
 
 class Exogena1011Resource extends Resource
 {
@@ -32,20 +36,32 @@ class Exogena1011Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Formato 1011: Información de declaraciones tributarias')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
+
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1011: Información de declaraciones tributarias')
+            ->emptyStateDescription('En este formato se reporta información relacionada con las declaraciones tributarias presentadas durante el año gravable.
+                    Incluye detalles como el tipo de declaración, número de formulario, fecha de presentación, y valor declarado.')
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(Informe1011Exporter::class)
+                    ->form([
+                        DatePicker::make('fecha_corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                    ])
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->actions([]);
+
     }
 
     public static function getRelations(): array

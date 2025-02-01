@@ -13,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\Informe1010Exporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ExportAction;
 
 class Exogena1010Resource extends Resource
 {
@@ -32,20 +36,32 @@ class Exogena1010Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Formato 1010: Información de socios, accionistas, cooperados')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
+
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1010: Información de socios, accionistas, cooperados')
+            ->emptyStateDescription('Este formato se utiliza para reportar información sobre los socios, accionistas o cooperados de la entidad.
+                     Incluye datos como el tipo y número de documento, nombres y apellidos o razón social, porcentaje de participación, y valor de los aportes o acciones.')
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(Informe1010Exporter::class)
+                    ->form([
+                        DatePicker::make('fecha_corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                    ])
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->actions([]);
+
     }
 
     public static function getRelations(): array

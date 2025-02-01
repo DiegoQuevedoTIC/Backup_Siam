@@ -13,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\Informe1022Exporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ExportAction;
 
 class Exogena1022Resource extends Resource
 {
@@ -32,20 +36,31 @@ class Exogena1022Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Formato 1022: Información de ingresos recibidos para terceros')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1022: Información de ingresos recibidos para terceros')
+            ->emptyStateDescription('Este formato se utiliza para reportar los ingresos que se han recibido en nombre de terceros.
+                    Incluye información sobre el tipo y número de documento del tercero, concepto del ingreso, y valor del ingreso recibido.')
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(Informe1022Exporter::class)
+                    ->form([
+                        DatePicker::make('fecha_corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                    ])
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->actions([]);
+
     }
 
     public static function getRelations(): array

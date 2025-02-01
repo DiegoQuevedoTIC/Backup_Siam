@@ -13,6 +13,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\Informe1009Exporter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ExportAction;
 
 class Exogena1009Resource extends Resource
 {
@@ -32,20 +36,33 @@ class Exogena1009Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Formato 1009: Saldos de cuentas por pagar')
+            ->paginated(false)
+            ->striped()
+            ->defaultPaginationPageOption(5)
+
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1009: Saldos de cuentas por pagar')
+            ->emptyStateDescription('Similar al formato 1008, pero enfocado en las cuentas por pagar.
+                            Se reportan los saldos de las obligaciones pendientes al cierre del año, detallando el tipo de documento del acreedor,
+                            número de identificación, concepto de la cuenta por pagar, y el saldo correspondiente.')
             ->columns([
                 //
             ])
-            ->filters([
-                //
+            ->headerActions([
+                ExportAction::make()
+                    ->color('primary')
+                    ->exporter(Informe1009Exporter::class)
+                    ->form([
+                        DatePicker::make('fecha_corte')
+                            ->label('Fecha de Corte')
+                            ->required(),
+                    ])
+                    ->columnMapping(false)
+                    ->label('Generar Informe')
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->actions([]);
+
     }
 
     public static function getRelations(): array

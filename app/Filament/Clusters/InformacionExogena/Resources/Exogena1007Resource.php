@@ -9,7 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Exports\CentralRiesgoExporter;
+use App\Filament\Exports\Informe1007Exporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\ExportAction;
@@ -36,47 +36,32 @@ class Exogena1007Resource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('Informe 1007-Ingresos Recibidos')
-            ->description('En este módulo podrás generar los diferentes informes de la información exógena requerida por la DIAN')
+            ->heading('Formato 1007: Ingresos recibidos')
             ->paginated(false)
             ->striped()
+            ->defaultPaginationPageOption(5)
+            ->emptyStateIcon('heroicon-o-bookmark')
+            ->emptyStateHeading('Formato 1007: Ingresos recibidos')
+            ->emptyStateDescription('En este formato se deben reportar los ingresos recibidos durante el año gravable.
+            Incluye información sobre el tipo de documento del pagador, número de identificación, concepto del ingreso, y valor del ingreso recibido.')
+
             ->columns([
                 //
             ])
             ->headerActions([
                 ExportAction::make()
                     ->color('primary')
-                    ->exporter(CentralRiesgoExporter::class)
+                    ->exporter(Informe1007Exporter::class)
                     ->form([
                         DatePicker::make('fecha_corte')
                             ->label('Fecha de Corte')
                             ->required(),
-                        Select::make('Tipo_Informe')
-                            ->label('Tipo de Informe')
-                            ->required()
-                            ->options([
-                                '1' => 'Informe Central Datacredito'
-                            ])
                     ])
-                    ->modifyQueryUsing(function (Builder $query, array $data) {
-                        $query->where('fecha_corte', $data['fecha_corte']);
-
-                        /* ->limit(10); */
-                        //dd($query, $data);
-                        //dd(DB::table('asociados')->get());
-                        //dd($query->where('cliente', '19240474')->get());
-                        //$query->where('cliente', '19240474')->get();
-                        //$query->join('asociados', DB::raw('cartera_encabezados_corte.cliente'), '=', DB::raw('asociados.codigo_interno_pag::bigint'))
-                        //    ->select('asociados.codigo_interno_pag', 'cartera_encabezados_corte.id');
-                        //DB::table('asociados')->get();
-                        //$query->from('asociados')->where('codigo_interno_pag', '"19307511"');
-                    })
                     ->columnMapping(false)
                     ->label('Generar Informe')
             ])
-            ->emptyStateIcon('heroicon-o-bookmark')
-            ->emptyStateHeading('Informe 1007-Ingresos Recibidos')
-            ->emptyStateDescription('En este módulo podrás generar de forma sencilla el formato 1007.');
+            ->actions([]);
+
     }
 
     public static function getRelations(): array
