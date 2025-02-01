@@ -11,10 +11,13 @@ use Filament\Tables\Table;
 use App\Filament\Exports\Informe1001Exporter;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Support\Facades\DB;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ExportAction;
 use Carbon\Carbon;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Notifications\Notification;
+
+use function Livewire\before;
 
 class Exogena1001Resource extends Resource
 {
@@ -31,46 +34,73 @@ class Exogena1001Resource extends Resource
             ]);
     }
 
+
     public static function table(Table $table): Table
     {
         return $table
             ->heading('Formato 1001: Pagos o abonos en cuenta y retenciones practicadas')
+            ->description('Este formato se utiliza para reportar los pagos o abonos en cuenta efectuados a terceros,
+                 así como las retenciones en la fuente practicadas a título de renta, IVA y timbre.
+                 Incluye detalles como el tipo de documento del beneficiario, número de identificación,
+                 concepto del pago o abono, valor del pago o abono, y valor de la retención practicada.')
             ->paginated(false)
-            ->striped()
             ->defaultPaginationPageOption(5)
-            ->emptyStateIcon('heroicon-o-bookmark')
-            ->emptyStateHeading('Formato 1001: Pagos o abonos en cuenta y retenciones practicadas')
-            ->emptyStateDescription('Este formato se utiliza para reportar los pagos o abonos en cuenta efectuados a terceros,
-                         así como las retenciones en la fuente practicadas a título de renta, IVA y timbre.
-                         Incluye detalles como el tipo de documento del beneficiario, número de identificación,
-                         concepto del pago o abono, valor del pago o abono, y valor de la retención practicada.')
+            ->emptyStateIcon('heroicon-o-fire')
+            ->emptyStateHeading('')
             ->columns([
-                //
             ])
             ->headerActions([
-                ExportAction::make()
+                // Acción para actualizar la vista
+                Action::make('Actualizar Vista')
                     ->color('primary')
+                    ->requiresConfirmation()
                     ->form([
                         DatePicker::make('fecha_corte')
-                        ->label('Fecha de Corte')
-                        ->required()
-                        ->maxDate(now()->format('Y-m')) // Fecha máxima (el mes actual)
-                        ->placeholder('Seleccione el año y mes'),
+                            ->label('')
+                            ->required()
+                            ->maxDate(now()->format('Y-m'))
+                            ->placeholder('Seleccione el año y mes')
+                            ->displayFormat('F Y') // Para que se muestre mes y año (ej: "Marzo 2025"),
                     ])
-                    ->exporter(Informe1001Exporter::class)
-                    ->columnMapping(false)
-                    ->fileName(fn (Export $export): string => "Informe_1001_-{$export->getKey()}.csv")
+                    ->modalWidth('sm')
+                    ->modalHeading('Actualizar Consulta')
+                    ->modalDescription('¿Fecha de Corte de la informacion?')
+                    ->modalSubmitActionLabel('Generar')
+                    ->modalIcon('heroicon-o-cloud-arrow-down')
+                    ->action(function (array $data): void {
+                        $fechaCorte = Carbon::parse($data['fecha_corte']);
+                        DB::statement("SELECT public.refresh_vista_exogena_1001(?, ?)", [
+                            $fechaCorte->format('Y'),
+                            $fechaCorte->format('m'),
+                        ]);
+                        // Almacenar en la sesión que la vista ya fue actualizada
+                        session()->put('vista_actualizada', true);
+                        // Opcional: Notificar al usuario
+                        Notification::make()
+                            ->title('La consulta de informacion se ha actualizado correctamente.')
+                            ->success()
+                            ->send();
+                    })
+                    ->label('Consulta Informacion'),
 
-                    ->label('Generar Informe'),
+                // Acción para exportar el informe, visible solo si la vista fue actualizada
+                ExportAction::make()
+                    ->color('secondary')
+                    ->modalWidth('sm')
+                    ->modalHeading('Que columnas del informe desea exportar?')
+                    ->modalIcon('heroicon-o-cloud-arrow-down')
+                    ->modalSubmitActionLabel('Exportar')
+                    ->visible(fn () => session()->get('vista_actualizada', false))
+                    ->exporter(Informe1001Exporter::class)
+                    ->fileName(fn (Export $export): string => "Informe_1001_-{$export->getKey()}.csv")
+                    ->label('Descargar Informe')
+                    // Opcional: Después de exportar, limpiar el flag para obligar a actualizar de nuevo la vista
+                    ->after(function () {
+                        session()->forget('vista_actualizada');
+                    }),
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
 
     public static function getPages(): array
     {

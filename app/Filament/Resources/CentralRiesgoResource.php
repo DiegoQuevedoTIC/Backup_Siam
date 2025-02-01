@@ -45,7 +45,7 @@ class CentralRiesgoResource extends Resource
             ])
             ->headerActions([
                 ExportAction::make()
-                    ->color('primary')
+                    ->color('secondary')
                     ->exporter(CentralRiesgoExporter::class)
                     ->form([
                         DatePicker::make('fecha_corte')
