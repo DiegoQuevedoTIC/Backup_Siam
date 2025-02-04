@@ -8,34 +8,23 @@ use App\Models\Tercero;
 use App\Models\Pais;
 use App\Models\Ciudad;
 use App\Models\Barrio;
-use App\Models\NivelEscolar;
-use App\Models\EstadoCivil;
-use App\Models\Profesion;
-use App\Models\Novedades;
-use App\Models\TipoIdentificacion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Get;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Set;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\FileUpload;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 
 class TerceroResource extends Resource
@@ -272,17 +261,20 @@ class TerceroResource extends Resource
                     FONDEP')
                     ->columnSpanFull()
                     ->required(),
-/*                 CheckboxList::make('autorizacion')
-                    ->label('Autorizo recibir información general de Fondep por el o los siguientes medios')
-                    ->options([
-                        'Correo_Electronico' => 'Correo_Electronico',
-                        'SMS' => 'SMS',
-                        'Whatsapp' => 'Whatsapp',
-                        'Grupo_Whatsapp' => 'Grupo_Whatsapp',
-                    ])
-                ->columns(4)
-                ->gridDirection('row')
-                ->columnSpanFull(), */
+                FileUpload::make('ruta_imagen')
+                    ->label('Autorizacion de Manejo de Datos')
+                    ->getUploadedFileNameForStorageUsing(
+                        fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                            ->prepend('Autorizacion-AU'),
+                    )
+                    ->columnSpan(6)
+                    ->openable()
+                    ->deletable(false)
+                    ->downloadable()
+                    ->previewable(true)
+                    ->disk('spaces')
+                    ->directory('autorizaciones')
+                    ->visibility('public'),
                 ]),
                 ])->columnSpanFull(),
 
@@ -345,6 +337,7 @@ class TerceroResource extends Resource
         return [
             RelationManagers\TerceroSarlaftRelationManager::class,
             RelationManagers\InformacionFinancieraRelationManager::class,
+            RelationManagers\PatrimonioRelationManager::class,
             RelationManagers\ReferenciasRelationManager::class,
             RelationManagers\NovedadesRelationManager::class,
         ];

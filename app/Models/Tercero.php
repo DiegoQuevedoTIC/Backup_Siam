@@ -33,6 +33,7 @@ class Tercero extends Model
         'nivelescolar_id',
         'estadocivil_id',
         'observaciones',
+        'ruta_imagen',
     ];
 
     protected $casts = [
@@ -97,6 +98,10 @@ class Tercero extends Model
         return $this->hasOne(InformacionFinanciera::class);
     }
 
+    public function Patrimonio(): HasOne
+    {
+        return $this->hasOne(Patrimonio::class);
+    }
 
 
     public function Referencias(): HasOne
