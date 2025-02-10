@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class aportesinfo extends Model
 {
 
-    protected $table = 'saldos_descuentos';
+    protected $table = 'aportesinfo';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
+
+
 
     protected $guarded = [];
 }

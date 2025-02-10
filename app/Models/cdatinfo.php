@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class cdatinfo extends Model
 {
-    protected $table = 'cdts';
+
+
+    protected $table = 'cdatinfo';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
 
     protected $guarded = [];
 }

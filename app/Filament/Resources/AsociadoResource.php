@@ -20,6 +20,7 @@ use App\Models\Ciudad;
 use App\Models\TipoResidencia;
 use App\Models\EstadoCivil;
 use App\Models\Profesion;
+use Illuminate\Support\Facades\DB;
 use App\Models\Parentesco;
 use App\Models\NivelEscolar;
 use App\Models\ActividadEconomica;
@@ -81,7 +82,9 @@ class AsociadoResource extends Resource
                                         'A' => 'Pago Abierto'
                                     ]),
                                 Select::make('pagaduria_id')
-                                    ->relationship('pagaduria', 'nombre')
+                                ->relationship('pagaduria', 'nombre', function ($query) {
+                                    return $query->select('id', DB::raw("CONCAT(codigo, ' - ', nombre) as nombre"));
+                                })
                                     ->required()
                                     ->markAsRequired(false)
                                     ->validationMessages([

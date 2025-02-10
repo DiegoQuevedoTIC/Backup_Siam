@@ -35,7 +35,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Set $set, $state, $get) {
                         $pasivos = $get('total_pasivos'); // Obtener el valor actual de total_pasivos
-                        $set('total_patrimonio', $state - $pasivos);
+                        $set('total_patrimonio', (float)$state - (float)$pasivos);
                     })
                     ->label('Total Activos'),
                 TextInput::make('total_pasivos')
@@ -52,7 +52,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->minValue(0)
                     ->afterStateUpdated(function (Set $set, $state, $get) {
                         $activos = $get('total_activos'); // Obtener el valor actual de total_activos
-                        $set('total_patrimonio', $activos - $state);
+                        $set('total_patrimonio', (float)$activos - (float)$state);
                     })
                     ->label('Total Pasivos'),
 
@@ -79,7 +79,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_ingresos', $state + $get('honorarios') + $get('otros_ingresos'));
+                        $set('total_ingresos', (float)$state + (float)$get('honorarios') + (float)$get('otros_ingresos'));
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->live(onBlur: true)
@@ -96,7 +96,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_ingresos', $get('salario') + $state + $get('otros_ingresos'));
+                        $set('total_ingresos', (float)$get('salario') + (float)$state + (float)$get('otros_ingresos'));
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->live(onBlur: true)
@@ -113,7 +113,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_ingresos', $get('salario') + $get('honorarios') + $state);
+                        $set('total_ingresos', (float)$get('salario') + (float)$get('honorarios') + (float)$state);
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->live(onBlur: true)
@@ -146,7 +146,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_gastos', $get('gastos_financieros') + $get('otros_gastos') + $state);
+                        $set('total_gastos', (float)$get('gastos_financieros') + (float)$get('otros_gastos') + (float)$state);
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->minValue(0)
@@ -164,7 +164,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->minValue(0)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_gastos', $get('gastos_sostenimiento') + $get('otros_gastos') + $state);
+                        $set('total_gastos', (float)$get('gastos_sostenimiento') + (float)$get('otros_gastos') + (float)$state);
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->label('Gastos Financieros'),
@@ -180,7 +180,7 @@ class InformacionFinancieraRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->inputMode('decimal')
                     ->afterStateUpdated(function (Set $set, $state, $get) {
-                        $set('total_gastos', $get('gastos_sostenimiento') + $get('gastos_financieros') + $state);
+                        $set('total_gastos', (float)$get('gastos_sostenimiento') + (float)$get('gastos_financieros') + (float)$state);
                     })
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
                     ->minValue(0)

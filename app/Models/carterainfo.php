@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class carterainfo extends Model
 {
-    protected $table = 'cartera_encabezados';
+
+    protected $table = 'carterainfo';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
 
     protected $guarded = [];
 }

@@ -14,7 +14,19 @@ class CarterainfoExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            //
+            ExportColumn::make('id'),
+            ExportColumn::make('numero_documento'),
+            ExportColumn::make('cliente'),
+            ExportColumn::make('nombre'),
+            ExportColumn::make('linea'),
+            ExportColumn::make('linea_credito'),
+            ExportColumn::make('tasa_interes'),
+            ExportColumn::make('fecha_documento'),
+            ExportColumn::make('valor_inicial_credito'),
+            ExportColumn::make('valor_cuota'),
+            ExportColumn::make('saldo_actual'),
+            ExportColumn::make('numero_cuotas'),
+            ExportColumn::make('categoria'),
         ];
     }
 
